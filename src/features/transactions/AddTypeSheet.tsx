@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Plus, Minus, IndianRupee, ChevronRight, type LucideIcon } from 'lucide-react-native';
-import type BottomSheetLib from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppBottomSheet } from '../../components/common/BottomSheet';
@@ -39,12 +39,12 @@ export function AddTypeSheet() {
   const palette = useTheme();
   const isOpen = useAddSheetStore((s) => s.isOpen);
   const close = useAddSheetStore((s) => s.close);
-  const sheetRef = useRef<BottomSheetLib>(null);
+  const sheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   useEffect(() => {
-    if (isOpen) sheetRef.current?.expand();
-    else sheetRef.current?.close();
+    if (isOpen) sheetRef.current?.present();
+    else sheetRef.current?.dismiss();
   }, [isOpen]);
 
   return (

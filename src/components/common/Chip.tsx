@@ -47,24 +47,29 @@ export function Chip({
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ selected: !!selected }}
       testID={testID}
-      style={({ pressed }) => ({
-        height: size === 'sm' ? 36 : layout.chipHeight,
-        borderRadius: radius.chip,
-        paddingHorizontal: 14,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 6,
-        backgroundColor: selected ? sel.bg : palette.muted,
-        borderWidth: selected ? 1.5 : 0,
-        borderColor: selected ? sel.border : 'transparent',
-        opacity: pressed ? 0.85 : 1,
-      })}
     >
-      {Icon ? <Icon size={16} color={selected ? sel.border : palette.textSecondary} strokeWidth={2} /> : null}
-      <AppText variant="label" color={selected ? sel.text : 'primary'}>
-        {label}
-      </AppText>
-      {showChevron ? <ChevronDown size={16} color={palette.textTertiary} strokeWidth={2} /> : null}
+      {({ pressed }) => (
+        <View
+          style={{
+            height: size === 'sm' ? 36 : layout.chipHeight,
+            borderRadius: radius.chip,
+            paddingHorizontal: 14,
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 6,
+            backgroundColor: selected ? sel.bg : palette.muted,
+            borderWidth: selected ? 1.5 : 0,
+            borderColor: selected ? sel.border : 'transparent',
+            opacity: pressed ? 0.85 : 1,
+          }}
+        >
+          {Icon ? <Icon size={16} color={selected ? sel.border : palette.textSecondary} strokeWidth={2} /> : null}
+          <AppText variant="label" color={selected ? sel.text : 'primary'}>
+            {label}
+          </AppText>
+          {showChevron ? <ChevronDown size={16} color={palette.textTertiary} strokeWidth={2} /> : null}
+        </View>
+      )}
     </Pressable>
   );
 }

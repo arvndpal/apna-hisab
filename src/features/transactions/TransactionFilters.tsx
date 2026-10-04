@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Calendar } from 'lucide-react-native';
-import type BottomSheetLib from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { AppBottomSheet } from '../../components/common/BottomSheet';
 import { AppText } from '../../components/common/AppText';
 import { Chip, ChipRow } from '../../components/common/Chip';
@@ -27,7 +27,7 @@ export const EMPTY_FILTERS: TxnFilters = { datePreset: null, categoryIds: [], pa
 const PAYMENT_METHODS: PaymentMethod[] = ['cash', 'upi', 'card', 'bank'];
 
 export interface TransactionFiltersSheetProps {
-  sheetRef: RefObject<BottomSheetLib | null>;
+  sheetRef: RefObject<BottomSheetModal | null>;
   categories: Category[];
   value: TxnFilters;
   onApply: (filters: TxnFilters) => void;
@@ -63,7 +63,7 @@ export function TransactionFiltersSheet({ sheetRef, categories, value, onApply, 
     <AppBottomSheet
       ref={sheetRef}
       title={t('filters.title')}
-      onClose={() => sheetRef.current?.close()}
+      onClose={() => sheetRef.current?.dismiss()}
     >
       <View style={{ gap: 20 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: -44 }}>
@@ -148,7 +148,7 @@ export function TransactionFiltersSheet({ sheetRef, categories, value, onApply, 
           label={t('filters.show', { count: resultCount(draft) })}
           onPress={() => {
             onApply(draft);
-            sheetRef.current?.close();
+            sheetRef.current?.dismiss();
           }}
         />
       </View>

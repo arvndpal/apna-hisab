@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { TextInput, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Plus, FileText } from 'lucide-react-native';
-import type BottomSheetLib from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Chip } from '../common/Chip';
 import { Button } from '../common/Button';
 import { AppBottomSheet } from '../common/BottomSheet';
@@ -19,7 +19,7 @@ export interface NoteChipProps {
 export function NoteChip({ value, onChange }: NoteChipProps) {
   const { t } = useTranslation();
   const palette = useTheme();
-  const sheetRef = useRef<BottomSheetLib>(null);
+  const sheetRef = useRef<BottomSheetModal>(null);
   const [draft, setDraft] = useState(value);
 
   return (
@@ -30,10 +30,10 @@ export function NoteChip({ value, onChange }: NoteChipProps) {
         selected={!!value}
         onPress={() => {
           setDraft(value);
-          sheetRef.current?.expand();
+          sheetRef.current?.present();
         }}
       />
-      <AppBottomSheet ref={sheetRef} title={t('common.note')} onClose={() => sheetRef.current?.close()}>
+      <AppBottomSheet ref={sheetRef} title={t('common.note')} onClose={() => sheetRef.current?.dismiss()}>
         <View style={{ gap: 16 }}>
           <TextInput
             value={draft}
@@ -58,7 +58,7 @@ export function NoteChip({ value, onChange }: NoteChipProps) {
             label={t('common.save')}
             onPress={() => {
               onChange(draft.trim());
-              sheetRef.current?.close();
+              sheetRef.current?.dismiss();
             }}
           />
         </View>

@@ -12,6 +12,8 @@ import type { RootStackParamList } from '../../app/navigation/types';
 import { migrate } from '../../database/migrations';
 import { seedDefaultCategories } from '../../database/seed';
 import { getLocalUserId } from '../../database/repositories/settingsRepo';
+import { useAuthStore } from '../../store/authStore';
+import { useSettingsStore } from '../../store/settingsStore';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 const MIN_VISIBLE_MS = 600;
@@ -46,11 +48,17 @@ export function SplashScreen({ navigation }: Props) {
 
   const init = useCallback(async () => {
     const start = Date.now();
+    let profile = null;
+    let lockMethod: 'none' | 'pin' | 'biometric' = 'none';
     try {
-      // Offline-first: no network, no session yet (auth lands in Milestone 4) — open SQLite,
-      // run migrations and seed default categories for the local (pre-auth) user.
+      // Offline-first: open SQLite, run migrations, seed default categories for the local
+      // (pre-auth) user, then hydrate the auth/settings stores now that kv_settings exists.
       migrate();
       seedDefaultCategories(getLocalUserId());
+      useAuthStore.getState().hydrate();
+      useSettingsStore.getState().hydrate();
+      profile = useAuthStore.getState().profile;
+      lockMethod = useSettingsStore.getState().lockMethod;
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error('DB init failed', e);
@@ -62,7 +70,14 @@ export function SplashScreen({ navigation }: Props) {
     if (elapsed < MIN_VISIBLE_MS) {
       await new Promise<void>((resolve) => setTimeout(() => resolve(), MIN_VISIBLE_MS - elapsed));
     }
-    navigation.replace('App', { screen: 'MainTabs', params: { screen: 'Home' } });
+
+    if (!profile) {
+      navigation.replace('Auth', { screen: 'Welcome' });
+    } else if (lockMethod !== 'none') {
+      navigation.replace('LockScreen');
+    } else {
+      navigation.replace('App', { screen: 'MainTabs', params: { screen: 'Home' } });
+    }
   }, [navigation]);
 
   useEffect(() => {

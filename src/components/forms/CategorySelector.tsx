@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { LayoutGrid } from 'lucide-react-native';
-import type BottomSheetLib from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { AppText } from '../common/AppText';
 import { DynamicIcon } from '../common/DynamicIcon';
 import { AppBottomSheet } from '../common/BottomSheet';
@@ -50,7 +50,7 @@ export function CategorySelector({ categories, type, selectedId, onSelect }: Cat
   const { t } = useTranslation();
   const palette = useTheme();
   const language = useSettingsStore((s) => s.language);
-  const sheetRef = useRef<BottomSheetLib>(null);
+  const sheetRef = useRef<BottomSheetModal>(null);
 
   const top = categories.slice(0, TOP_COUNT);
   const rest = categories.slice(TOP_COUNT);
@@ -75,14 +75,14 @@ export function CategorySelector({ categories, type, selectedId, onSelect }: Cat
             label={t('common.more')}
             iconName="LayoutGrid"
             selected={selectedInRest}
-            onPress={() => sheetRef.current?.expand()}
+            onPress={() => sheetRef.current?.present()}
             color={color}
           />
         ) : null}
       </View>
 
       {rest.length > 0 ? (
-        <AppBottomSheet ref={sheetRef} title={t('add.allCategories')} onClose={() => sheetRef.current?.close()}>
+        <AppBottomSheet ref={sheetRef} title={t('add.allCategories')} onClose={() => sheetRef.current?.dismiss()}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', rowGap: 14, paddingBottom: 12 }}>
             {categories.map((c) => (
               <Tile
@@ -92,7 +92,7 @@ export function CategorySelector({ categories, type, selectedId, onSelect }: Cat
                 selected={c.id === selectedId}
                 onPress={() => {
                   onSelect(c.id);
-                  sheetRef.current?.close();
+                  sheetRef.current?.dismiss();
                 }}
                 color={color}
               />

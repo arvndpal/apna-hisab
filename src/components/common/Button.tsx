@@ -113,21 +113,6 @@ export function Button({
     </View>
   );
 
-  const baseStyle = ({ pressed }: { pressed: boolean }) => [
-    {
-      height,
-      borderRadius: size === 'sm' ? radius.buttonSm : radius.button,
-      alignItems: 'center' as const,
-      justifyContent: 'center' as const,
-      paddingHorizontal: 20,
-      alignSelf: fullWidth ? ('stretch' as const) : ('flex-start' as const),
-      opacity: disabled ? 0.4 : pressed ? 0.92 : 1,
-      backgroundColor: bg[variant],
-      ...(border[variant] ?? {}),
-      ...(glow[variant] ?? {}),
-    },
-  ];
-
   const isPressDisabled = disabled || loading;
 
   if (variant === 'primary') {
@@ -168,9 +153,25 @@ export function Button({
       accessibilityLabel={accessibilityLabel ?? label}
       accessibilityState={{ disabled: !!disabled }}
       testID={testID}
-      style={baseStyle}
     >
-      {content}
+      {({ pressed }) => (
+        <View
+          style={{
+            height,
+            borderRadius: size === 'sm' ? radius.buttonSm : radius.button,
+            alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 20,
+            alignSelf: fullWidth ? 'stretch' : 'flex-start',
+            opacity: disabled ? 0.4 : pressed ? 0.92 : 1,
+            backgroundColor: bg[variant],
+            ...(border[variant] ?? {}),
+            ...(glow[variant] ?? {}),
+          }}
+        >
+          {content}
+        </View>
+      )}
     </Pressable>
   );
 }

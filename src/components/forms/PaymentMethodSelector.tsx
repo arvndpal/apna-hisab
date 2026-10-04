@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Banknote, QrCode, CreditCard, Landmark, Check, type LucideIcon } from 'lucide-react-native';
-import type BottomSheetLib from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { Chip } from '../common/Chip';
 import { AppText } from '../common/AppText';
 import { AppBottomSheet } from '../common/BottomSheet';
@@ -20,12 +20,12 @@ export interface PaymentMethodSelectorProps {
 export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelectorProps) {
   const { t } = useTranslation();
   const palette = useTheme();
-  const sheetRef = useRef<BottomSheetLib>(null);
+  const sheetRef = useRef<BottomSheetModal>(null);
 
   return (
     <>
-      <Chip label={t(`payment.${value}`)} icon={ICONS[value]} showChevron onPress={() => sheetRef.current?.expand()} />
-      <AppBottomSheet ref={sheetRef} title={t('add.paymentMethod')} onClose={() => sheetRef.current?.close()}>
+      <Chip label={t(`payment.${value}`)} icon={ICONS[value]} showChevron onPress={() => sheetRef.current?.present()} />
+      <AppBottomSheet ref={sheetRef} title={t('add.paymentMethod')} onClose={() => sheetRef.current?.dismiss()}>
         <View style={{ gap: 4 }}>
           {METHODS.map((method) => {
             const Icon = ICONS[method];
@@ -35,7 +35,7 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
                 key={method}
                 onPress={() => {
                   onChange(method);
-                  sheetRef.current?.close();
+                  sheetRef.current?.dismiss();
                 }}
                 accessibilityRole="radio"
                 accessibilityState={{ selected }}

@@ -1,6 +1,11 @@
 import React, { forwardRef, useCallback, type ReactNode } from 'react';
 import { View } from 'react-native';
-import BottomSheetLib, { BottomSheetBackdrop, BottomSheetView, type BottomSheetBackdropProps } from '@gorhom/bottom-sheet';
+import {
+  BottomSheetModal,
+  BottomSheetBackdrop,
+  BottomSheetView,
+  type BottomSheetBackdropProps,
+} from '@gorhom/bottom-sheet';
 import { AppText } from './AppText';
 import { IconButton } from './IconButton';
 import { useTheme } from '../../hooks/useTheme';
@@ -14,8 +19,14 @@ export interface AppBottomSheetProps {
   snapPoints?: (string | number)[];
 }
 
-/** @gorhom/bottom-sheet wrapper matching the design system: radius 24 top, grab handle, title row. */
-export const AppBottomSheet = forwardRef<BottomSheetLib, AppBottomSheetProps>(function AppBottomSheet(
+/**
+ * @gorhom/bottom-sheet wrapper matching the design system: radius 24 top, grab handle, title row.
+ * Renders via BottomSheetModal (portaled to the root BottomSheetModalProvider) rather than the
+ * standalone BottomSheet, so it always fills the screen regardless of where its trigger sits in
+ * the layout tree (e.g. inside a chip row) — the standalone variant absolute-fills its immediate
+ * parent, which caused sheets opened from the chip row to overlap each other.
+ */
+export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(function AppBottomSheet(
   { title, onClose, children, snapPoints },
   ref,
 ) {
@@ -29,13 +40,12 @@ export const AppBottomSheet = forwardRef<BottomSheetLib, AppBottomSheetProps>(fu
   );
 
   return (
-    <BottomSheetLib
+    <BottomSheetModal
       ref={ref}
-      index={-1}
       snapPoints={snapPoints ?? ['50%']}
       enableDynamicSizing={!snapPoints}
       enablePanDownToClose
-      onClose={onClose}
+      onDismiss={onClose}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: palette.surface, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet }}
       handleIndicatorStyle={{ backgroundColor: palette.border, width: 40, height: 4 }}
@@ -49,6 +59,6 @@ export const AppBottomSheet = forwardRef<BottomSheetLib, AppBottomSheetProps>(fu
         ) : null}
         {children}
       </BottomSheetView>
-    </BottomSheetLib>
+    </BottomSheetModal>
   );
 });

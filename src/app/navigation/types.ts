@@ -13,7 +13,7 @@ export type AuthStackParamList = {
   Login: undefined;
   LanguageSelect: { fromSettings?: boolean } | undefined;
   AppLockSetup: undefined;
-  PinCreate: undefined;
+  PinCreate: { method: 'pin' | 'biometric' };
 };
 
 export type AppStackParamList = {

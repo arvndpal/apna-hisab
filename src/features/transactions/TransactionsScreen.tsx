@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Calendar, Filter, List } from 'lucide-react-native';
-import type BottomSheetLib from '@gorhom/bottom-sheet';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { AppText } from '../../components/common/AppText';
 import { IconButton } from '../../components/common/IconButton';
 import { SearchBar } from '../../components/common/SearchBar';
@@ -52,7 +52,7 @@ export function TransactionsScreen() {
   const debouncedSearch = useDebounce(search, 250);
   const [typeFilter, setTypeFilter] = useState<'all' | TransactionType>('all');
   const [filters, setFilters] = useState<TxnFilters>(EMPTY_FILTERS);
-  const filtersSheetRef = useRef<BottomSheetLib>(null);
+  const filtersSheetRef = useRef<BottomSheetModal>(null);
 
   const hasActiveFilters = filters.datePreset !== null || filters.categoryIds.length > 0 || filters.paymentMethods.length > 0 || filters.minPaise != null || filters.maxPaise != null;
 
@@ -98,7 +98,7 @@ export function TransactionsScreen() {
             />
           </View>
           <View>
-            <IconButton outlined icon={Filter} accessibilityLabel={t('filters.title')} color={hasActiveFilters ? palette.primary : undefined} onPress={() => filtersSheetRef.current?.expand()} />
+            <IconButton outlined icon={Filter} accessibilityLabel={t('filters.title')} color={hasActiveFilters ? palette.primary : undefined} onPress={() => filtersSheetRef.current?.present()} />
             {hasActiveFilters ? (
               <View style={{ position: 'absolute', top: -2, right: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: palette.primary }} />
             ) : null}
