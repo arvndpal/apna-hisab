@@ -8,6 +8,7 @@ import { AppText } from '../../components/common/AppText';
 import { GradientSurface } from '../../components/common/GradientSurface';
 import { useTheme } from '../../hooks/useTheme';
 import { layout } from '../../theme/tokens';
+import { useAddSheetStore } from '../../store/addSheetStore';
 
 const ICONS: Record<string, LucideIcon> = { Home: House, Transactions: List, Reports: ChartColumn, More: Ellipsis };
 const LABELS: Record<string, string> = { Home: 'nav.home', Transactions: 'nav.transactions', Reports: 'nav.reports', More: 'nav.more' };
@@ -58,10 +59,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     if (!event.defaultPrevented) navigation.navigate(routeName);
   };
 
-  const openAddSheet = () => {
-    // Real Add-type bottom sheet arrives in Milestone 3; stub opens the Add Expense screen directly for now.
-    navigation.getParent()?.navigate('AddTransaction', { type: 'expense' });
-  };
+  const openAddSheet = useAddSheetStore((s) => s.open);
 
   return (
     <View

@@ -44,6 +44,7 @@
   },
   "home": {
     "greeting": { "morning": "Good morning, {{name}}", "afternoon": "Good afternoon, {{name}}", "evening": "Good evening, {{name}}" },
+    "defaultName": "there",
     "todayNet": "Today's net", "income": "Income", "expense": "Expense",
     "addIncome": "Add Income", "addExpense": "Add Expense",
     "udhaar": "Udhaar", "udhaarSummary": "Receive {{receive}} · Pay {{pay}}", "udhaarPromo": "Track money you lend or borrow",

@@ -1,7 +1,10 @@
 import { exec } from '../sqlite/client';
 import { newId } from '../../utils/ids';
+import type { PaymentMethod, TransactionType } from '../../types/models';
 
 const LOCAL_USER_ID_KEY = 'localUserId';
+const LAST_PAYMENT_METHOD_KEY = 'lastPaymentMethod';
+const lastCategoryKey = (type: TransactionType) => `lastCategory_${type}`;
 
 export function getSetting(key: string): string | null {
   const result = exec('SELECT value FROM kv_settings WHERE key = ?', [key]);
@@ -25,4 +28,21 @@ export function getLocalUserId(): string {
   const id = newId();
   setSetting(LOCAL_USER_ID_KEY, id);
   return id;
+}
+
+/** Defaults for Add Transaction, per SCREENS.md §7–8: last used category/payment method. */
+export function getLastCategoryId(type: TransactionType): string | null {
+  return getSetting(lastCategoryKey(type));
+}
+
+export function setLastCategoryId(type: TransactionType, categoryId: string): void {
+  setSetting(lastCategoryKey(type), categoryId);
+}
+
+export function getLastPaymentMethod(): PaymentMethod | null {
+  return getSetting(LAST_PAYMENT_METHOD_KEY) as PaymentMethod | null;
+}
+
+export function setLastPaymentMethod(method: PaymentMethod): void {
+  setSetting(LAST_PAYMENT_METHOD_KEY, method);
 }

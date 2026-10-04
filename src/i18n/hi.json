@@ -44,6 +44,7 @@
   },
   "home": {
     "greeting": { "morning": "सुप्रभात, {{name}}", "afternoon": "नमस्ते, {{name}}", "evening": "शुभ संध्या, {{name}}" },
+    "defaultName": "आप",
     "todayNet": "आज की बचत", "income": "कमाई", "expense": "खर्च",
     "addIncome": "कमाई जोड़ें", "addExpense": "खर्च जोड़ें",
     "udhaar": "उधार", "udhaarSummary": "लेना {{receive}} · देना {{pay}}", "udhaarPromo": "उधार दिए-लिए पैसों का हिसाब रखें",
