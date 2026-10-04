@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>21 Empty states — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="doc" style="width:1280px;height:760px">
+<div><h1>Empty states</h1><p style="font-size:18px;color:#55615C;margin-top:8px">Every empty screen says what it is for and offers the one action that fills it.</p></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px">
+<div class="box empty">
+<span class="art"><svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM9 9h6M9 13h6M9 17h3"></path></svg></span>
+<p style="font-size:20px;font-weight:700">No transactions yet</p>
+<p class="muted">Start tracking your daily income and expenses.</p>
+<p class="cap" lang="hi">अभी कोई लेन-देन नहीं। आज की कमाई और खर्च लिखना शुरू करें।</p>
+<div style="display:flex;flex-direction:column;gap:8px;width:100%;padding-top:6px"><button class="btn btn-i btn-sm">+ Add Income</button><button class="btn btn-e btn-sm">− Add Expense</button></div>
+</div>
+<div class="box empty">
+<span class="art" style="background:#E9ECF8;color:#3949A8"><svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M17.5 14.2A6.5 6.5 0 0 1 21.5 20"></path></svg></span>
+<p style="font-size:20px;font-weight:700">No Udhaar yet</p>
+<p class="muted">Keep track of money you need to receive or pay.</p>
+<p class="cap" lang="hi">अभी कोई उधार नहीं। जो पैसे लेने या देने हैं, उनका हिसाब रखें।</p>
+<div style="width:100%;padding-top:6px"><button class="btn btn-p btn-sm">+ Add Udhaar</button></div>
+</div>
+<div class="box empty">
+<span class="art"><svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"></path></svg></span>
+<p style="font-size:20px;font-weight:700">Not enough data yet</p>
+<p class="muted">Add some transactions to see your financial report.</p>
+<p class="cap" lang="hi">रिपोर्ट के लिए अभी डेटा कम है। कुछ लेन-देन जोड़ें।</p>
+<div style="width:100%;padding-top:6px"><button class="btn btn-s btn-sm">Add a transaction</button></div>
+</div>
+<div class="box empty">
+<span class="art" style="background:#EDF0EE;color:#55615C"><svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg></span>
+<p style="font-size:20px;font-weight:700">No matches</p>
+<p class="muted">Nothing found for “petrol”. Try another word or clear filters.</p>
+<p class="cap" lang="hi">“petrol” के लिए कुछ नहीं मिला। दूसरा शब्द आज़माएं।</p>
+<div style="width:100%;padding-top:6px"><button class="btn btn-s btn-sm">Clear filters</button></div>
+</div>
+</div>
+</div>
+</body>
+</html>

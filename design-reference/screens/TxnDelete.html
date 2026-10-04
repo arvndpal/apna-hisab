@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>10b Delete confirmation — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="ah">
+<div style="position:absolute;inset:0"><iframe src="TxnDetail.html" title="background" style="border:0;width:390px;height:844px;display:block" tabindex="-1"></iframe></div>
+<div class="scrim"></div>
+<div class="dialog" role="alertdialog" aria-labelledby="del-title">
+<span class="ico" style="background:#FDECEA;color:#B42318;width:52px;height:52px;border-radius:16px;align-self:center"><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"></path></svg></span>
+<h2 id="del-title" style="font-size:21px;font-weight:700;text-align:center">Delete this transaction?</h2>
+<div style="background:#F5F6F3;border-radius:12px;padding:12px;text-align:center"><p class="amt-m exp">₹500</p><p class="rs">Fuel · Expense · 02 Oct 2026</p></div>
+<p class="rs" style="text-align:center;font-size:14px">It will be removed from this phone and your backup.</p>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding-top:4px">
+<a href="TxnDetail.html" class="btn btn-s">Cancel</a>
+<a href="Transactions.html" class="btn btn-d">Delete</a>
+</div>
+</div>
+</div>
+</body>
+</html>

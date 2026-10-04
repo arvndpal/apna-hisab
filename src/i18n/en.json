@@ -1,0 +1,194 @@
+{
+  "app": { "name": "Apna Hisab", "tagline": "Apni Kamai, Apna Kharcha, Apna Hisab." },
+  "common": {
+    "continue": "Continue", "cancel": "Cancel", "delete": "Delete", "save": "Save", "edit": "Edit",
+    "done": "Done", "back": "Back", "close": "Close", "retry": "Try again", "undo": "Undo",
+    "reset": "Reset", "seeAll": "See all", "optional": "Optional", "today": "Today", "yesterday": "Yesterday",
+    "pickDate": "Pick date", "note": "Note", "addNote": "Add note", "search": "Search", "more": "More"
+  },
+  "nav": { "home": "Home", "transactions": "Transactions", "reports": "Reports", "more": "More", "add": "Add transaction" },
+  "welcome": {
+    "headline1": "Apni Kamai,", "headline2": "Apna Kharcha,", "headline3": "Apna Hisab.",
+    "body": "Manage your daily income, expenses and Udhaar easily — even without internet.",
+    "terms": "By continuing you agree to our {{terms}} and {{privacy}}.", "termsLink": "Terms", "privacyLink": "Privacy Policy"
+  },
+  "auth": {
+    "continueWithGoogle": "Continue with Google",
+    "welcomeTitle": "Welcome to Apna Hisab",
+    "welcomeSub": "Continue with your Google account. No forms, no passwords.",
+    "trustPrivateTitle": "Private to you", "trustPrivateSub": "Only you can see your hisab",
+    "trustMinimalTitle": "Only name and email", "trustMinimalSub": "We don't read your contacts or messages",
+    "trustBackupTitle": "Safe backup", "trustBackupSub": "Change phones without losing anything",
+    "pickAccountNext": "You'll pick your Google account in the next step.",
+    "signingIn": "Signing in…", "restoring": "Restoring your hisab…",
+    "signInFailed": "Couldn't sign in. Check your internet and try again.",
+    "needInternetFirstTime": "Connect to the internet to sign in the first time."
+  },
+  "language": {
+    "title": "Choose your language", "english": "English", "hindi": "हिन्दी",
+    "englishSample": "Income · Expense · Udhaar", "hindiSample": "कमाई · खर्च · उधार",
+    "changeLater": "You can change this anytime in Settings"
+  },
+  "lock": {
+    "setupTitle": "Secure your Apna Hisab",
+    "setupBody": "Protect your financial information with an app lock.",
+    "pin": "PIN", "pinSub": "A 4-digit code you choose",
+    "biometric": "Fingerprint / Biometric", "biometricSub": "Unlock with one touch · PIN as backup", "recommended": "Recommended",
+    "skip": "Skip for now", "skipSub": "Turn it on later in Settings",
+    "biometricUnavailable": "Not available on this phone",
+    "createPin": "Create a 4-digit PIN", "confirmPin": "Enter the PIN again", "pinMismatch": "PINs don't match. Try again.",
+    "unlockTitle": "Unlock Apna Hisab", "enterPin": "Enter your PIN",
+    "biometricFailed": "Fingerprint not recognised. Try again or use your PIN.", "usePin": "Use PIN instead",
+    "tooManyAttempts": "Too many attempts. Try again in {{seconds}} seconds.", "forgotPin": "Forgot PIN?",
+    "reminder": "Protect your hisab with an app lock.", "turnOn": "Turn on"
+  },
+  "home": {
+    "greeting": { "morning": "Good morning, {{name}}", "afternoon": "Good afternoon, {{name}}", "evening": "Good evening, {{name}}" },
+    "todayNet": "Today's net", "income": "Income", "expense": "Expense",
+    "addIncome": "Add Income", "addExpense": "Add Expense",
+    "udhaar": "Udhaar", "udhaarSummary": "Receive {{receive}} · Pay {{pay}}", "udhaarPromo": "Track money you lend or borrow",
+    "recent": "Recent Transactions"
+  },
+  "add": {
+    "title": "Add transaction",
+    "income": "Income", "incomeSub": "Money received — sales, salary, fares",
+    "expense": "Expense", "expenseSub": "Money spent — fuel, food, rent",
+    "udhaar": "Udhaar", "udhaarSub": "Money lent or borrowed",
+    "toggleIncome": "+ Income", "toggleExpense": "− Expense",
+    "amountLabelIncome": "Add Income · Amount", "amountLabelExpense": "Add Expense · Amount",
+    "editLabelIncome": "Edit Income · Amount", "editLabelExpense": "Edit Expense · Amount",
+    "moneyIn": "Money coming in", "moneyOut": "Money going out",
+    "category": "Category", "paymentMethod": "Payment method", "date": "Date",
+    "saveIncome": "Save Income", "saveExpense": "Save Expense", "saveChanges": "Save changes",
+    "discardTitle": "Discard this entry?", "discard": "Discard", "keepEditing": "Keep editing",
+    "allCategories": "All categories", "addCategory": "Add category"
+  },
+  "payment": { "cash": "Cash", "upi": "UPI", "card": "Card", "bank": "Bank" },
+  "toast": {
+    "incomeAdded": "Income added", "expenseAdded": "Expense added", "updated": "Transaction updated",
+    "deleted": "Transaction deleted", "udhaarSaved": "Udhaar saved", "categorySaved": "Category saved",
+    "premiumActive": "Premium active", "synced": "All data synced"
+  },
+  "transactions": {
+    "title": "Transactions", "searchPlaceholder": "Search notes, categories, amounts",
+    "all": "All", "income": "Income", "expense": "Expense",
+    "dayNet": "Net {{amount}}", "todayHeader": "Today · {{date}}", "yesterdayHeader": "Yesterday · {{date}}",
+    "detailTitle": "Transaction", "status": "Status", "pending": "pending", "addForDay": "Add for this day"
+  },
+  "filters": {
+    "title": "Filters", "date": "Date", "thisWeek": "This week", "thisMonth": "This month", "custom": "Custom",
+    "category": "Category", "paymentMethod": "Payment method", "amount": "Amount", "min": "Min ₹", "max": "Max ₹",
+    "show": "Show {{count}} transactions"
+  },
+  "delete": {
+    "title": "Delete this transaction?", "body": "It will be removed from this phone and your backup."
+  },
+  "categories": {
+    "title": "Categories", "income": "Income ({{count}})", "expense": "Expense ({{count}})",
+    "edit": "Edit category", "add": "Add category", "name": "Name", "icon": "Icon",
+    "deleteHint": "Deleting keeps past transactions — they move to \"Other\".",
+    "duplicate": "You already have \"{{name}}\".", "cantDeleteOther": "\"Other\" can't be deleted."
+  },
+  "udhaar": {
+    "title": "Udhaar", "willReceive": "You will receive", "needToPay": "You need to pay",
+    "fromPeople_one": "from {{count}} person", "fromPeople_other": "from {{count}} people",
+    "toPeople_one": "to {{count}} person", "toPeople_other": "to {{count}} people",
+    "separateNote": "Udhaar is not counted in your income or expense.",
+    "searchPeople": "Search people", "receive": "Receive", "pay": "Pay", "settled": "Settled", "settledLong": "Hisab barabar",
+    "given": "Given", "received": "Received", "took": "Took", "paid": "Paid back",
+    "addGiven": "Given", "addReceived": "Received",
+    "explain": "Given = money you gave {{name}} · Received = money {{name}} returned",
+    "history": "History", "balance": "Balance {{amount}}", "add": "Add Udhaar", "save": "Save Udhaar",
+    "iGave": "I gave", "iGaveSub": "You'll receive it back", "iTook": "I took", "iTookSub": "You'll need to pay",
+    "person": "Person", "addNewPerson": "Add \"{{name}}\" as new person",
+    "markSettled": "Mark as settled", "editPerson": "Edit name or phone", "deletePerson": "Delete person"
+  },
+  "reports": {
+    "title": "Reports", "today": "Today", "week": "Week", "month": "Month", "quarter": "Quarter",
+    "sixMonths": "6 Months", "year": "Year", "custom": "Custom",
+    "net": "Net · {{period}}", "keptPct": "You kept {{pct}}% of what you earned",
+    "spentMore": "You spent {{amount}} more than you earned",
+    "incomeVsExpense": "Income vs Expense", "incomeTrend": "Income trend", "weeklyIncome": "Weekly income in {{month}}",
+    "whereSpent": "Where did you spend?", "seeAllCategories": "See all categories",
+    "paymentMethods": "Payment methods", "receivedIn": "Money received in {{period}}",
+    "breakdownTitle": "Spending breakdown", "tapCategory": "Tap a category to see its transactions.",
+    "exportPremium": "Export PDF / Excel", "noDataPeriod": "No data for this period",
+    "customTitle": "Custom Report", "from": "From", "to": "To", "generate": "Generate Report",
+    "viewFull": "View full report", "rangeTooLong": "Choose a range of 3 years or less.",
+    "calendarTitle": "Financial Calendar", "savedMoney": "Saved money", "spentMoreDay": "Spent more",
+    "dayTransactions_one": "{{count}} transaction · tap to open", "dayTransactions_other": "{{count}} transactions · tap to open"
+  },
+  "more": {
+    "title": "More", "profile": "Profile", "premiumCardTitle": "Go ad-free with Premium",
+    "premiumCardSub": "Advanced reports, PDF & Excel export", "premiumActive": "Premium active",
+    "groupMoney": "Money", "groupPreferences": "Preferences", "groupData": "Data", "groupAccount": "Account & help",
+    "categories": "Categories", "udhaar": "Udhaar", "calendar": "Financial calendar",
+    "appLock": "App Lock", "language": "Language", "notifications": "Notifications",
+    "syncBackup": "Sync & Backup", "export": "Export Data", "subscription": "Subscription",
+    "privacy": "Privacy", "help": "Help & Support", "about": "About Apna Hisab",
+    "logout": "Logout", "deleteAccount": "Delete Account", "free": "Free", "premium": "Premium", "off": "Off"
+  },
+  "settings": {
+    "title": "Settings", "account": "Account", "googleAccount": "Google account",
+    "preferences": "Preferences", "currency": "Currency", "currencyValue": "₹ Indian Rupee",
+    "dailyReminder": "Daily reminder", "security": "Security", "pinLock": "PIN lock",
+    "biometricLock": "Fingerprint / Biometric", "lockAfter": "Lock after",
+    "lockImmediately": "Immediately", "lock1m": "1 minute", "lock5m": "5 minutes",
+    "data": "Data", "syncStatus": "Sync status", "lastSynced": "Last synced {{time}}", "syncNow": "Sync now",
+    "exportData": "Export data", "backup": "Backup", "backupAuto": "Automatic",
+    "premium": "Premium", "freePlan": "Free plan", "renews": "Premium · renews {{date}}", "manage": "Manage subscription",
+    "version": "Apna Hisab v{{version}}"
+  },
+  "logout": {
+    "title": "Log out?", "unsynced_one": "{{count}} transaction is not backed up yet. Connect to the internet first to keep it.",
+    "unsynced_other": "{{count}} transactions are not backed up yet. Connect to the internet first to keep them.",
+    "confirm": "Log out"
+  },
+  "export": { "title": "Export Data", "range": "Range", "lastMonth": "Last month", "thisYear": "This year", "format": "Format", "csv": "CSV", "pdf": "PDF", "excel": "Excel", "export": "Export" },
+  "deleteAccount": {
+    "title": "This permanently deletes your Apna Hisab account",
+    "body": "All transactions, Udhaar records, categories and backups will be erased from this phone and our servers. This cannot be undone.",
+    "exportFirst": "Export my data first", "typeToConfirm": "Type DELETE to confirm",
+    "understand": "I understand my data cannot be recovered.", "confirm": "Delete my account", "keep": "Keep my account",
+    "needInternet": "Connect to the internet to delete your account."
+  },
+  "premium": {
+    "title": "Upgrade to Apna Hisab Premium", "sub": "The same simple app — without ads, with deeper reports.",
+    "benefitAdFree": "Ad-free experience", "benefitReports": "Advanced reports & insights",
+    "benefitExport": "PDF & Excel export", "benefitCustom": "More customisation",
+    "yearly": "Yearly", "yearlySub": "Billed once a year", "monthly": "Monthly", "monthlySub": "Billed every month",
+    "bestValue": "Best value", "perYear": "{{price}}/yr", "perMonth": "{{price}}/mo",
+    "continueYearly": "Continue with Yearly", "continueMonthly": "Continue with Monthly",
+    "fine": "Cancel anytime in Google Play. Recording, sync and Udhaar stay free forever.",
+    "restore": "Restore", "purchaseFailed": "Purchase didn't go through. You haven't been charged."
+  },
+  "sync": {
+    "synced": "Synced", "allSynced": "All synced", "pending_one": "{{count}} transaction pending", "pending_other": "{{count}} transactions pending",
+    "syncing": "Syncing…", "offline": "Offline", "offlineLong": "Offline — will sync automatically", "error": "Sync paused · retrying",
+    "offlineBannerTitle": "Offline", "offlineBanner": "Your transactions are saved safely and will sync automatically when internet is available.",
+    "syncingBanner": "Uploading {{count}} transactions",
+    "errorBannerTitle": "Sync couldn't complete", "errorBanner": "We'll automatically try again. Your local data is safe.",
+    "offlineManualTitle": "You're offline", "offlineManual": "Your transaction is saved on this device and will sync later.",
+    "storedNote": "Your data is stored on this phone and backed up to your account."
+  },
+  "empty": {
+    "transactions": { "title": "No transactions yet", "body": "Start tracking your daily income and expenses.", "addIncome": "+ Add Income", "addExpense": "− Add Expense" },
+    "udhaar": { "title": "No Udhaar yet", "body": "Keep track of money you need to receive or pay.", "add": "+ Add Udhaar" },
+    "reports": { "title": "Not enough data yet", "body": "Add some transactions to see your financial report.", "add": "Add a transaction" },
+    "search": { "title": "No matches", "body": "Nothing found for \"{{query}}\". Try another word or clear filters.", "clear": "Clear filters" }
+  },
+  "validation": {
+    "amountRequired": "Enter an amount to save", "amountTooLarge": "That looks too large. Please check the amount.",
+    "categoryRequired": "Choose a category", "nameRequired": "Enter a name", "futureDate": "Date can't be in the future"
+  },
+  "errors": {
+    "dbOpen": "Couldn't open your hisab. Please restart the app.",
+    "transactionGone": "This transaction was removed."
+  },
+  "notif": { "dailyReminder": "Aaj ka hisab likha? Tap to add today's entries." },
+  "a11y": {
+    "amountIncome": "{{amount}} rupees, income", "amountExpense": "{{amount}} rupees, expense",
+    "amountNet": "Net {{amount}} rupees", "deleteDigit": "Delete digit", "decimal": "Decimal point",
+    "profile": "Profile and settings", "openReport": "Open report"
+  }
+}

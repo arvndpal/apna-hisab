@@ -1,0 +1,56 @@
+/** NativeWind v4 config — generated from src/theme/tokens.ts. Keep the two in sync. */
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
+  presets: [require('nativewind/preset')],
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        primary: { DEFAULT: '#0A7A5E', press: '#065F4F', tint: '#E2F4EC' },
+        hero: '#066457',
+        gold: { DEFAULT: '#F29C15', tint: '#FFF1D6' },
+        income: { DEFAULT: '#137A43', tint: '#E6F4EC', 'on-hero': '#B4F0CB' },
+        expense: { DEFAULT: '#C2410C', tint: '#FDEEE6', 'on-hero': '#FFBC9C', chart: '#E8875B' },
+        udhaar: { DEFAULT: '#3949A8', tint: '#ECEEFA' },
+        success: '#137A43',
+        warning: { DEFAULT: '#8A4B00', tint: '#FFF3DC' },
+        error: { DEFAULT: '#B42318', tint: '#FDECEA' },
+        background: '#F5F6F3',
+        surface: '#FFFFFF',
+        muted: { DEFAULT: '#F0F2F0', 2: '#E8ECE9' },
+        ink: { DEFAULT: '#15201C', 2: '#58645F', 3: '#9AA5A0', 'hero-muted': '#BFE0D9' },
+        line: '#E6EAE7',
+      },
+      fontFamily: {
+        regular: ['Mukta_400Regular'],
+        medium: ['Mukta_500Medium'],
+        semibold: ['Mukta_600SemiBold'],
+        bold: ['Mukta_700Bold'],
+        extrabold: ['Mukta_800ExtraBold'],
+      },
+      fontSize: {
+        'amount-input': ['58px', '60px'],
+        'amount-xxl': ['46px', '48px'],
+        'amount-xl': ['36px', '39px'],
+        'amount-l': ['26px', '29px'],
+        'amount-m': ['20px', '23px'],
+        title: ['24px', '29px'],
+        'title-pushed': ['20px', '26px'],
+        section: ['17px', '22px'],
+        row: ['16px', '20px'],
+        body: ['15px', '21px'],
+        label: ['13.5px', '18px'],
+        secondary: ['13px', '17.5px'],
+        caption: ['12.5px', '17px'],
+        tab: ['12px', '16px'],
+      },
+      borderRadius: {
+        chip: '20px', input: '14px', button: '16px', 'button-sm': '12px', icon: '14px',
+        card: '18px', option: '18px', hero: '30px', 'hero-card': '24px', sheet: '28px', dialog: '26px',
+      },
+      spacing: { screen: '20px', 'touch': '44px', btn: '54px', row: '64px', fab: '62px', nav: '74px' },
+    },
+  },
+  plugins: [],
+};

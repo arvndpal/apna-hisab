@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>11 Categories — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="ah">
+<div class="hdr"><a href="More.html" class="icon-btn" aria-label="Back"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg></a><h1 class="title">Categories</h1><button class="icon-btn" aria-label="Add category"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button></div>
+<div class="body" style="gap:12px">
+<div class="seg" role="tablist"><button role="tab" aria-selected="false">Income (8)</button><button class="on" role="tab" aria-selected="true">Expense (14)</button></div>
+<div class="list">
+<div class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V3M7 12v9M17 3c-2 0-3 2.5-3 5.5S15 12 17 12v9"></path></svg></span><span class="rt">Food</span><button class="icon-btn" style="margin-left:auto" aria-label="Edit Food"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></button></div>
+<div class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3M7 7h4v4H7z"></path></svg></span><span class="rt">Fuel</span><button class="icon-btn" style="margin-left:auto" aria-label="Edit Fuel"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></button></div>
+<div class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg></span><span class="rt">Rent</span><button class="icon-btn" style="margin-left:auto" aria-label="Edit Rent"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></button></div>
+<div class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6z"></path></svg></span><span class="rt">Electricity</span><button class="icon-btn" style="margin-left:auto" aria-label="Edit Electricity"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></button></div>
+<div class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg></span><span class="rt">Mobile</span><button class="icon-btn" style="margin-left:auto" aria-label="Edit Mobile"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg></button></div>
+</div>
+</div>
+<div class="scrim"></div>
+<div class="sheet" role="dialog" aria-label="Edit category">
+<div class="grab"></div>
+<h2 style="font-size:20px;font-weight:700">Edit category</h2>
+<div class="field"><label class="lbl" for="cat-name">Name</label><div class="input focus"><input id="cat-name" value="Fuel" style="border:0;outline:0;font:inherit;flex:1;min-width:0;background:transparent;color:#15201C"></div></div>
+<div class="field"><p class="lbl">Icon</p>
+<div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px">
+<button class="icon-btn o" style="width:100%;height:48px;border:2px solid #C2410C;background:#FCEDE5;color:#C2410C" aria-pressed="true" aria-label="Fuel pump"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3M7 7h4v4H7z"></path></svg></button>
+<button class="icon-btn o" style="width:100%;height:48px" aria-label="Car"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17H3v-4l2-5h14l2 5v4h-2M9 17h6"></path><circle cx="7" cy="17" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg></button>
+<button class="icon-btn o" style="width:100%;height:48px" aria-label="Cart"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.4 11h10.8L21 7H6"></path><circle cx="9" cy="20" r="1"></circle><circle cx="18" cy="20" r="1"></circle></svg></button>
+<button class="icon-btn o" style="width:100%;height:48px" aria-label="Bolt"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 5 14h6l-1 7 8-11h-6z"></path></svg></button>
+<button class="icon-btn o" style="width:100%;height:48px" aria-label="Wrench"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5a4 4 0 0 0 4.9 4.9L11 18.8a2.1 2.1 0 0 1-3-3z"></path></svg></button>
+<button class="icon-btn o" style="width:100%;height:48px" aria-label="Tag"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12V3h9l9 9-9 9z"></path><circle cx="7.5" cy="7.5" r="1.5"></circle></svg></button>
+</div></div>
+<p class="cap">Deleting keeps past transactions — they move to "Other".</p>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+<button class="btn btn-dg">Delete</button>
+<button class="btn btn-p">Save</button>
+</div>
+</div>
+</div>
+</body>
+</html>

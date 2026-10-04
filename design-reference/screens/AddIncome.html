@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>07 Add income — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="ah" style="background:#FFFFFF">
+<div style="background:#E6F4EC;border-radius:0 0 30px 30px;padding-bottom:18px;flex:none">
+<div class="hdr">
+<a href="Home.html" class="icon-btn" aria-label="Close"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></a>
+<div class="seg" style="flex:1;max-width:250px;margin:0 auto" role="tablist" aria-label="Transaction type">
+<button class="on" role="tab" aria-selected="true" style="color:#137A43">+ Income</button>
+<a href="AddExpense.html" role="tab" aria-selected="false" style="height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px;color:#55615C">− Expense</a>
+</div>
+<span style="width:44px"></span>
+</div>
+<div style="text-align:center;padding-top:6px">
+<p class="lbl">Add Income · Amount</p>
+<div class="amount-box" aria-label="Amount 500 rupees"><span class="cur inc">₹</span><span class="val inc">500</span><span class="caret" style="background:#137A43"></span></div>
+<p class="cap inc" style="display:flex;justify-content:center;gap:4px;align-items:center"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 7 7 17M16 17H7V8"></path></svg>Money coming in</p>
+</div>
+</div>
+<div class="body" style="gap:14px;padding-top:16px;padding-bottom:6px">
+<div class="chips" style="justify-content:center">
+<button class="chip" aria-label="Payment method: Cash"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="2.5"></circle></svg>Cash<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="chip" aria-label="Date: Today"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M16 3v4M8 3v4M3 10h18"></path></svg>Today, 03 Oct<svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg></button>
+<button class="chip"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Note</button>
+</div>
+<p class="lbl">Category</p>
+<div class="cats">
+<button class="cat on-i" aria-pressed="true"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="14" rx="2"></rect><path d="M3 10h18M16 15h2"></path></svg></span>Salary</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg></span>Business</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9 5 4h14l1 5M4 9v11h16V9M4 9h16M10 20v-5h4v5"></path></svg></span>Sales</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M12 11v5M9.5 13.5h5"></path></svg></span>Freelance</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5 5 19"></path><circle cx="7" cy="7" r="2"></circle><circle cx="17" cy="17" r="2"></circle></svg></span>Commission</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg></span>Rent</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10 12 4l9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"></path></svg></span>Interest</button>
+<button class="cat"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect></svg></span>Other</button>
+</div>
+</div>
+<div class="keypad" aria-label="Amount keypad">
+<button>1</button><button>2</button><button>3</button>
+<button>4</button><button>5</button><button>6</button>
+<button>7</button><button>8</button><button>9</button>
+<button aria-label="Decimal point">.</button><button>0</button><button aria-label="Delete digit"><svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5h11a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H9l-6-7zM12 9l6 6M18 9l-6 6"></path></svg></button>
+</div>
+<div style="padding:4px 16px 18px;background:#FFFFFF"><a href="Home.html" class="btn btn-i">Save Income</a></div>
+</div>
+</body>
+</html>

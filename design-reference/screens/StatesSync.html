@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>20 Sync &amp; success states — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="doc" style="width:1280px;height:820px">
+<div><h1>Sync, offline &amp; success states</h1><p style="font-size:18px;color:#55615C;margin-top:8px">Calm, never blocking. Entry always works; sync is a quiet background promise.</p></div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px">
+<div class="box" style="display:flex;flex-direction:column;gap:14px">
+<h3>SyncStatus chip · Home header</h3>
+<div style="display:flex;justify-content:space-between;align-items:center"><span class="sync"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Synced</span><span class="cap" lang="hi">सिंक हो गया</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span class="sync pend"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v5h-5"></path></svg>2 transactions pending</span><span class="cap" lang="hi">2 लेन-देन बाकी</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span class="sync pend"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v5h-5"></path></svg>Syncing…</span><span class="cap" lang="hi">सिंक हो रहा है…</span></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span class="sync off"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3l18 18M9 5.3A6 6 0 0 1 17.7 10H18a4 4 0 0 1 2.5 7.1M17 18H7a5 5 0 0 1-1.7-9.7"></path></svg>Offline — will sync automatically</span></div>
+<p class="cap" lang="hi" style="text-align:right;margin-top:-8px">ऑफ़लाइन — अपने आप सिंक होगा</p>
+<div style="display:flex;justify-content:space-between;align-items:center"><span class="sync err"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v5h-5"></path></svg>Sync paused · retrying</span><span class="cap" lang="hi">सिंक रुका · फिर कोशिश</span></div>
+<p class="cap">Tapping any chip opens Sync &amp; Backup with last-synced time and a “Sync now” button.</p>
+</div>
+<div class="box" style="display:flex;flex-direction:column;gap:14px">
+<h3>Banners · shown once per state change</h3>
+<div class="banner"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="color:#55615C"><path d="M3 3l18 18M9 5.3A6 6 0 0 1 17.7 10H18a4 4 0 0 1 2.5 7.1M17 18H7a5 5 0 0 1-1.7-9.7"></path></svg><span><b>Offline</b>Your transactions are saved safely and will sync automatically when internet is available.</span></div>
+<div class="banner" lang="hi"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="color:#55615C"><path d="M3 3l18 18M9 5.3A6 6 0 0 1 17.7 10H18a4 4 0 0 1 2.5 7.1M17 18H7a5 5 0 0 1-1.7-9.7"></path></svg><span><b>ऑफ़लाइन</b>आपके लेन-देन सुरक्षित सेव हैं। इंटरनेट आने पर अपने आप सिंक हो जाएंगे।</span></div>
+<div class="banner warn"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="color:#8A4B00"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v5h-5"></path></svg><span><b>Syncing…</b>Uploading 2 transactions</span></div>
+<div class="banner ok"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="color:#137A43"><path d="M20 6 9 17l-5-5"></path></svg><span><b>All data synced</b>Auto-hides after 3 seconds</span></div>
+</div>
+<div class="box" style="display:flex;flex-direction:column;gap:14px">
+<h3>Toasts after saving · 3 s, above the nav</h3>
+<div class="toast"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span style="flex:1">Income added</span><button style="background:none;border:0;color:#7BD8A4;font:inherit;font-weight:700;min-height:32px">Undo</button></div>
+<div class="toast"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span style="flex:1">Expense added</span><button style="background:none;border:0;color:#7BD8A4;font:inherit;font-weight:700;min-height:32px">Undo</button></div>
+<div class="toast" lang="hi"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span style="flex:1">कमाई जुड़ गई</span><button style="background:none;border:0;color:#7BD8A4;font:inherit;font-weight:700;min-height:32px">वापस लें</button></div>
+<div class="toast" lang="hi"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span style="flex:1">खर्च जुड़ गया</span><button style="background:none;border:0;color:#7BD8A4;font:inherit;font-weight:700;min-height:32px">वापस लें</button></div>
+<div class="toast"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span style="flex:1">Udhaar saved</span></div>
+<p class="cap">Toast is announced to TalkBack (live region). Never followed by an interstitial ad.</p>
+</div>
+</div>
+</div>
+</body>
+</html>

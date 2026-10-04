@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>06 Home dashboard — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="ah">
+<div class="hero">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1">
+<div><p class="hl">Saturday, 03 October 2026</p><h1 style="font-size:23px;font-weight:800;line-height:1.25">Good morning, Ravi</h1></div>
+<a href="Settings.html" class="av" aria-label="Profile and settings">R</a>
+</div>
+<div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;position:relative;z-index:1">
+<a href="Reports.html" aria-label="Today's net, 2,100 rupees saved. Open report"><p class="hl">Today's net</p><p class="amt-xxl" style="color:#FFFFFF">+₹2,100</p></a>
+<span class="sync glass" style="margin-bottom:8px"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Synced</span>
+</div>
+<div class="stats">
+<div><p class="hl" style="display:flex;align-items:center;gap:5px"><svg width="15" height="15" viewBox="0 0 24 24" class="ih" aria-hidden="true"><path d="M17 7 7 17M16 17H7V8"></path></svg>Income</p><p class="amt-m ih" style="font-size:22px">₹2,850</p></div>
+<div><p class="hl" style="display:flex;align-items:center;gap:5px"><svg width="15" height="15" viewBox="0 0 24 24" class="eh" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9"></path></svg>Expense</p><p class="amt-m eh" style="font-size:22px">₹750</p></div>
+</div>
+</div>
+<div class="body" style="gap:14px;padding-top:16px">
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+<a href="AddIncome.html" class="btn btn-ti"><span class="bi"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span>Add Income</a>
+<a href="AddExpense.html" class="btn btn-te"><span class="bi"><svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"></path></svg></span>Add Expense</a>
+</div>
+<a href="Udhaar.html" class="card" style="display:flex;align-items:center;gap:12px;padding:10px 14px"><span class="ico u"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M17.5 14.2A6.5 6.5 0 0 1 21.5 20"></path></svg></span><span style="flex:1"><span class="rt" style="display:block;font-size:15px">Udhaar</span><span class="rs">Receive <b class="inc">₹2,500</b> · Pay <b class="exp">₹1,200</b></span></span><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" style="color:#8C9892"><path d="m9 18 6-6-6-6"></path></svg></a>
+<div style="display:flex;justify-content:space-between;align-items:center"><h2 class="sec">Recent Transactions</h2><a href="Transactions.html" class="pri" style="font-weight:700;font-size:14px;padding:6px 0">See all</a></div>
+<div class="list">
+<a href="TxnDetail.html" class="row"><span class="ico i"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"></path></svg></span><span><span class="rt" style="display:block">Freelance</span><span class="rs">Income · UPI · 4:30 PM</span></span><span class="ar inc">+₹850</span></a>
+<a href="TxnDetail.html" class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg></span><span><span class="rt" style="display:block">Mobile</span><span class="rs">Recharge · UPI · 1:15 PM</span></span><span class="ar exp">−₹350</span></a>
+<a href="TxnDetail.html" class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v7a2 2 0 0 0 2 2 2 2 0 0 0 2-2V3M7 12v9M17 3c-2 0-3 2.5-3 5.5S15 12 17 12v9"></path></svg></span><span><span class="rt" style="display:block">Food</span><span class="rs">Expense · Cash · 12:40 PM</span></span><span class="ar exp">−₹100</span></a>
+<a href="TxnDetail.html" class="row"><span class="ico e"><svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v16M3 21h12M14 9h2a2 2 0 0 1 2 2v5a1.5 1.5 0 0 0 3 0V8l-3-3M7 7h4v4H7z"></path></svg></span><span><span class="rt" style="display:block">Fuel</span><span class="rs">Expense · Cash · 9:05 AM</span></span><span class="ar exp">−₹300</span></a>
+</div>
+</div>
+<nav class="nav" aria-label="Main">
+<a href="Home.html" class="on" aria-current="page"><span class="pill"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg></span>Home</a>
+<a href="Transactions.html"><span class="pill"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"></path></svg></span>Transactions</a>
+<a href="HomeFab.html" class="fab-slot" aria-label="Add transaction"><span class="fab"><svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></span></a>
+<a href="Reports.html"><span class="pill"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"></path></svg></span>Reports</a>
+<a href="More.html"><span class="pill"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.3"></circle><circle cx="12" cy="12" r="1.3"></circle><circle cx="19" cy="12" r="1.3"></circle></svg></span>More</a>
+</nav>
+</div>
+</body>
+</html>

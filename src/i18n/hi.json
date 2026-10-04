@@ -1,0 +1,194 @@
+{
+  "app": { "name": "अपना हिसाब", "tagline": "अपनी कमाई, अपना खर्च, अपना हिसाब।" },
+  "common": {
+    "continue": "आगे बढ़ें", "cancel": "रद्द करें", "delete": "हटाएं", "save": "सेव करें", "edit": "बदलें",
+    "done": "हो गया", "back": "वापस", "close": "बंद करें", "retry": "फिर कोशिश करें", "undo": "वापस लें",
+    "reset": "हटाएं", "seeAll": "सभी देखें", "optional": "वैकल्पिक", "today": "आज", "yesterday": "कल",
+    "pickDate": "तारीख चुनें", "note": "नोट", "addNote": "नोट जोड़ें", "search": "खोजें", "more": "और"
+  },
+  "nav": { "home": "होम", "transactions": "लेन-देन", "reports": "रिपोर्ट", "more": "और", "add": "लेन-देन जोड़ें" },
+  "welcome": {
+    "headline1": "अपनी कमाई,", "headline2": "अपना खर्च,", "headline3": "अपना हिसाब।",
+    "body": "रोज़ की कमाई, खर्च और उधार आसानी से संभालें — बिना इंटरनेट के भी।",
+    "terms": "आगे बढ़कर आप हमारी {{terms}} और {{privacy}} से सहमत हैं।", "termsLink": "शर्तों", "privacyLink": "प्राइवेसी पॉलिसी"
+  },
+  "auth": {
+    "continueWithGoogle": "Google से जारी रखें",
+    "welcomeTitle": "अपना हिसाब में आपका स्वागत है",
+    "welcomeSub": "अपने Google अकाउंट से जारी रखें। कोई फ़ॉर्म नहीं, कोई पासवर्ड नहीं।",
+    "trustPrivateTitle": "सिर्फ़ आपके लिए", "trustPrivateSub": "आपका हिसाब सिर्फ़ आप देख सकते हैं",
+    "trustMinimalTitle": "सिर्फ़ नाम और ईमेल", "trustMinimalSub": "हम आपके कॉन्टैक्ट या मैसेज नहीं पढ़ते",
+    "trustBackupTitle": "सुरक्षित बैकअप", "trustBackupSub": "फ़ोन बदलें, कुछ नहीं खोएगा",
+    "pickAccountNext": "अगले कदम में आप अपना Google अकाउंट चुनेंगे।",
+    "signingIn": "साइन इन हो रहा है…", "restoring": "आपका हिसाब वापस लाया जा रहा है…",
+    "signInFailed": "साइन इन नहीं हो सका। इंटरनेट जांचें और फिर कोशिश करें।",
+    "needInternetFirstTime": "पहली बार साइन इन के लिए इंटरनेट चालू करें।"
+  },
+  "language": {
+    "title": "अपनी भाषा चुनें", "english": "English", "hindi": "हिन्दी",
+    "englishSample": "Income · Expense · Udhaar", "hindiSample": "कमाई · खर्च · उधार",
+    "changeLater": "इसे बाद में सेटिंग्स में बदल सकते हैं"
+  },
+  "lock": {
+    "setupTitle": "अपना हिसाब सुरक्षित करें",
+    "setupBody": "ऐप लॉक से अपनी पैसों की जानकारी सुरक्षित रखें।",
+    "pin": "पिन", "pinSub": "आपका चुना हुआ 4 अंकों का कोड",
+    "biometric": "फ़िंगरप्रिंट / बायोमेट्रिक", "biometricSub": "एक टच में खोलें · पिन बैकअप में", "recommended": "सुझाया गया",
+    "skip": "अभी नहीं", "skipSub": "बाद में सेटिंग्स में चालू करें",
+    "biometricUnavailable": "इस फ़ोन में उपलब्ध नहीं",
+    "createPin": "4 अंकों का पिन बनाएं", "confirmPin": "पिन दोबारा डालें", "pinMismatch": "पिन मेल नहीं खाते। फिर कोशिश करें।",
+    "unlockTitle": "अपना हिसाब खोलें", "enterPin": "अपना पिन डालें",
+    "biometricFailed": "फ़िंगरप्रिंट नहीं पहचाना गया। फिर कोशिश करें या पिन डालें।", "usePin": "पिन से खोलें",
+    "tooManyAttempts": "बहुत ज़्यादा कोशिशें। {{seconds}} सेकंड बाद फिर कोशिश करें।", "forgotPin": "पिन भूल गए?",
+    "reminder": "ऐप लॉक से अपना हिसाब सुरक्षित रखें।", "turnOn": "चालू करें"
+  },
+  "home": {
+    "greeting": { "morning": "सुप्रभात, {{name}}", "afternoon": "नमस्ते, {{name}}", "evening": "शुभ संध्या, {{name}}" },
+    "todayNet": "आज की बचत", "income": "कमाई", "expense": "खर्च",
+    "addIncome": "कमाई जोड़ें", "addExpense": "खर्च जोड़ें",
+    "udhaar": "उधार", "udhaarSummary": "लेना {{receive}} · देना {{pay}}", "udhaarPromo": "उधार दिए-लिए पैसों का हिसाब रखें",
+    "recent": "हाल के लेन-देन"
+  },
+  "add": {
+    "title": "लेन-देन जोड़ें",
+    "income": "कमाई", "incomeSub": "आया पैसा — बिक्री, वेतन, किराया",
+    "expense": "खर्च", "expenseSub": "गया पैसा — ईंधन, खाना, किराया",
+    "udhaar": "उधार", "udhaarSub": "उधार दिया या लिया पैसा",
+    "toggleIncome": "+ कमाई", "toggleExpense": "− खर्च",
+    "amountLabelIncome": "कमाई जोड़ें · राशि", "amountLabelExpense": "खर्च जोड़ें · राशि",
+    "editLabelIncome": "कमाई बदलें · राशि", "editLabelExpense": "खर्च बदलें · राशि",
+    "moneyIn": "पैसा आया", "moneyOut": "पैसा गया",
+    "category": "श्रेणी", "paymentMethod": "भुगतान का तरीका", "date": "तारीख",
+    "saveIncome": "कमाई सेव करें", "saveExpense": "खर्च सेव करें", "saveChanges": "बदलाव सेव करें",
+    "discardTitle": "यह एंट्री छोड़ दें?", "discard": "छोड़ें", "keepEditing": "लिखते रहें",
+    "allCategories": "सभी श्रेणियां", "addCategory": "श्रेणी जोड़ें"
+  },
+  "payment": { "cash": "नकद", "upi": "UPI", "card": "कार्ड", "bank": "बैंक" },
+  "toast": {
+    "incomeAdded": "कमाई जुड़ गई", "expenseAdded": "खर्च जुड़ गया", "updated": "लेन-देन बदल गया",
+    "deleted": "लेन-देन हटाया गया", "udhaarSaved": "उधार सेव हो गया", "categorySaved": "श्रेणी सेव हो गई",
+    "premiumActive": "प्रीमियम चालू", "synced": "सारा डेटा सिंक हो गया"
+  },
+  "transactions": {
+    "title": "लेन-देन", "searchPlaceholder": "नोट, श्रेणी या राशि खोजें",
+    "all": "सभी", "income": "कमाई", "expense": "खर्च",
+    "dayNet": "बचत {{amount}}", "todayHeader": "आज · {{date}}", "yesterdayHeader": "कल · {{date}}",
+    "detailTitle": "लेन-देन", "status": "स्थिति", "pending": "बाकी", "addForDay": "इस दिन के लिए जोड़ें"
+  },
+  "filters": {
+    "title": "फ़िल्टर", "date": "तारीख", "thisWeek": "इस हफ़्ते", "thisMonth": "इस महीने", "custom": "कस्टम",
+    "category": "श्रेणी", "paymentMethod": "भुगतान का तरीका", "amount": "राशि", "min": "कम से कम ₹", "max": "ज़्यादा से ज़्यादा ₹",
+    "show": "{{count}} लेन-देन दिखाएं"
+  },
+  "delete": {
+    "title": "यह लेन-देन हटाएं?", "body": "यह इस फ़ोन और आपके बैकअप से हट जाएगा।"
+  },
+  "categories": {
+    "title": "श्रेणियां", "income": "कमाई ({{count}})", "expense": "खर्च ({{count}})",
+    "edit": "श्रेणी बदलें", "add": "श्रेणी जोड़ें", "name": "नाम", "icon": "आइकन",
+    "deleteHint": "हटाने पर पुराने लेन-देन रहेंगे — वे \"अन्य\" में चले जाएंगे।",
+    "duplicate": "\"{{name}}\" पहले से है।", "cantDeleteOther": "\"अन्य\" हटाई नहीं जा सकती।"
+  },
+  "udhaar": {
+    "title": "उधार", "willReceive": "आपको मिलेंगे", "needToPay": "आपको देने हैं",
+    "fromPeople_one": "{{count}} व्यक्ति से", "fromPeople_other": "{{count}} लोगों से",
+    "toPeople_one": "{{count}} व्यक्ति को", "toPeople_other": "{{count}} लोगों को",
+    "separateNote": "उधार आपकी कमाई या खर्च में नहीं गिना जाता।",
+    "searchPeople": "लोग खोजें", "receive": "लेना", "pay": "देना", "settled": "बराबर", "settledLong": "हिसाब बराबर",
+    "given": "दिया", "received": "मिला", "took": "लिया", "paid": "लौटाया",
+    "addGiven": "दिया", "addReceived": "मिला",
+    "explain": "दिया = जो आपने {{name}} को दिया · मिला = जो {{name}} ने लौटाया",
+    "history": "इतिहास", "balance": "बाकी {{amount}}", "add": "उधार जोड़ें", "save": "उधार सेव करें",
+    "iGave": "मैंने दिया", "iGaveSub": "आपको वापस मिलेगा", "iTook": "मैंने लिया", "iTookSub": "आपको लौटाना है",
+    "person": "व्यक्ति", "addNewPerson": "\"{{name}}\" को नए व्यक्ति के रूप में जोड़ें",
+    "markSettled": "हिसाब बराबर करें", "editPerson": "नाम या फ़ोन बदलें", "deletePerson": "व्यक्ति हटाएं"
+  },
+  "reports": {
+    "title": "रिपोर्ट", "today": "आज", "week": "हफ़्ता", "month": "महीना", "quarter": "तिमाही",
+    "sixMonths": "6 महीने", "year": "साल", "custom": "कस्टम",
+    "net": "बचत · {{period}}", "keptPct": "आपने अपनी कमाई का {{pct}}% बचाया",
+    "spentMore": "आपने कमाई से {{amount}} ज़्यादा खर्च किया",
+    "incomeVsExpense": "कमाई बनाम खर्च", "incomeTrend": "कमाई का रुझान", "weeklyIncome": "{{month}} की हफ़्तेवार कमाई",
+    "whereSpent": "पैसा कहाँ खर्च हुआ?", "seeAllCategories": "सभी श्रेणियां देखें",
+    "paymentMethods": "भुगतान के तरीके", "receivedIn": "{{period}} में आया पैसा",
+    "breakdownTitle": "खर्च का ब्योरा", "tapCategory": "लेन-देन देखने के लिए श्रेणी पर टैप करें।",
+    "exportPremium": "PDF / Excel एक्सपोर्ट", "noDataPeriod": "इस अवधि का कोई डेटा नहीं",
+    "customTitle": "कस्टम रिपोर्ट", "from": "से", "to": "तक", "generate": "रिपोर्ट बनाएं",
+    "viewFull": "पूरी रिपोर्ट देखें", "rangeTooLong": "3 साल या उससे कम की अवधि चुनें।",
+    "calendarTitle": "हिसाब कैलेंडर", "savedMoney": "बचत हुई", "spentMoreDay": "ज़्यादा खर्च",
+    "dayTransactions_one": "{{count}} लेन-देन · खोलने के लिए टैप करें", "dayTransactions_other": "{{count}} लेन-देन · खोलने के लिए टैप करें"
+  },
+  "more": {
+    "title": "और", "profile": "प्रोफ़ाइल", "premiumCardTitle": "प्रीमियम लें, विज्ञापन हटाएं",
+    "premiumCardSub": "बेहतर रिपोर्ट, PDF और Excel एक्सपोर्ट", "premiumActive": "प्रीमियम चालू",
+    "groupMoney": "पैसा", "groupPreferences": "पसंद", "groupData": "डेटा", "groupAccount": "अकाउंट और मदद",
+    "categories": "श्रेणियां", "udhaar": "उधार", "calendar": "हिसाब कैलेंडर",
+    "appLock": "ऐप लॉक", "language": "भाषा", "notifications": "सूचनाएं",
+    "syncBackup": "सिंक और बैकअप", "export": "डेटा एक्सपोर्ट", "subscription": "सदस्यता",
+    "privacy": "प्राइवेसी", "help": "मदद", "about": "अपना हिसाब के बारे में",
+    "logout": "लॉग आउट", "deleteAccount": "अकाउंट हटाएं", "free": "मुफ़्त", "premium": "प्रीमियम", "off": "बंद"
+  },
+  "settings": {
+    "title": "सेटिंग्स", "account": "अकाउंट", "googleAccount": "Google अकाउंट",
+    "preferences": "पसंद", "currency": "मुद्रा", "currencyValue": "₹ भारतीय रुपया",
+    "dailyReminder": "रोज़ की याद", "security": "सुरक्षा", "pinLock": "पिन लॉक",
+    "biometricLock": "फ़िंगरप्रिंट / बायोमेट्रिक", "lockAfter": "कब लॉक हो",
+    "lockImmediately": "तुरंत", "lock1m": "1 मिनट", "lock5m": "5 मिनट",
+    "data": "डेटा", "syncStatus": "सिंक की स्थिति", "lastSynced": "आखिरी सिंक {{time}}", "syncNow": "अभी सिंक करें",
+    "exportData": "डेटा एक्सपोर्ट", "backup": "बैकअप", "backupAuto": "अपने आप",
+    "premium": "प्रीमियम", "freePlan": "मुफ़्त प्लान", "renews": "प्रीमियम · {{date}} को नवीनीकरण", "manage": "सदस्यता संभालें",
+    "version": "अपना हिसाब v{{version}}"
+  },
+  "logout": {
+    "title": "लॉग आउट करें?", "unsynced_one": "{{count}} लेन-देन का बैकअप अभी नहीं हुआ। उसे रखने के लिए पहले इंटरनेट चालू करें।",
+    "unsynced_other": "{{count}} लेन-देन का बैकअप अभी नहीं हुआ। उन्हें रखने के लिए पहले इंटरनेट चालू करें।",
+    "confirm": "लॉग आउट"
+  },
+  "export": { "title": "डेटा एक्सपोर्ट", "range": "अवधि", "lastMonth": "पिछला महीना", "thisYear": "इस साल", "format": "फ़ॉर्मेट", "csv": "CSV", "pdf": "PDF", "excel": "Excel", "export": "एक्सपोर्ट करें" },
+  "deleteAccount": {
+    "title": "इससे आपका अपना हिसाब अकाउंट हमेशा के लिए हट जाएगा",
+    "body": "सारे लेन-देन, उधार, श्रेणियां और बैकअप इस फ़ोन और हमारे सर्वर से मिट जाएंगे। यह वापस नहीं होगा।",
+    "exportFirst": "पहले मेरा डेटा एक्सपोर्ट करें", "typeToConfirm": "पुष्टि के लिए DELETE लिखें",
+    "understand": "मैं समझता/समझती हूँ कि मेरा डेटा वापस नहीं मिलेगा।", "confirm": "मेरा अकाउंट हटाएं", "keep": "अकाउंट रखें",
+    "needInternet": "अकाउंट हटाने के लिए इंटरनेट चालू करें।"
+  },
+  "premium": {
+    "title": "अपना हिसाब प्रीमियम लें", "sub": "वही आसान ऐप — बिना विज्ञापन, बेहतर रिपोर्ट के साथ।",
+    "benefitAdFree": "बिना विज्ञापन", "benefitReports": "बेहतर रिपोर्ट और जानकारी",
+    "benefitExport": "PDF और Excel एक्सपोर्ट", "benefitCustom": "ज़्यादा कस्टमाइज़ेशन",
+    "yearly": "सालाना", "yearlySub": "साल में एक बार भुगतान", "monthly": "मासिक", "monthlySub": "हर महीने भुगतान",
+    "bestValue": "सबसे फ़ायदेमंद", "perYear": "{{price}}/साल", "perMonth": "{{price}}/महीना",
+    "continueYearly": "सालाना प्लान लें", "continueMonthly": "मासिक प्लान लें",
+    "fine": "Google Play में कभी भी रद्द करें। लिखना, सिंक और उधार हमेशा मुफ़्त रहेंगे।",
+    "restore": "वापस लाएं", "purchaseFailed": "खरीदारी पूरी नहीं हुई। आपसे पैसे नहीं कटे।"
+  },
+  "sync": {
+    "synced": "सिंक हो गया", "allSynced": "सब सिंक", "pending_one": "{{count}} लेन-देन बाकी", "pending_other": "{{count}} लेन-देन बाकी",
+    "syncing": "सिंक हो रहा है…", "offline": "ऑफ़लाइन", "offlineLong": "ऑफ़लाइन — अपने आप सिंक होगा", "error": "सिंक रुका · फिर कोशिश",
+    "offlineBannerTitle": "ऑफ़लाइन", "offlineBanner": "आपके लेन-देन सुरक्षित सेव हैं। इंटरनेट आने पर अपने आप सिंक हो जाएंगे।",
+    "syncingBanner": "{{count}} लेन-देन अपलोड हो रहे हैं",
+    "errorBannerTitle": "सिंक पूरा नहीं हुआ", "errorBanner": "हम अपने आप फिर कोशिश करेंगे। आपका डेटा सुरक्षित है।",
+    "offlineManualTitle": "आप ऑफ़लाइन हैं", "offlineManual": "लेन-देन इसी फ़ोन में सेव है, बाद में सिंक होगा।",
+    "storedNote": "आपका डेटा इस फ़ोन में है और आपके अकाउंट में बैकअप होता है।"
+  },
+  "empty": {
+    "transactions": { "title": "अभी कोई लेन-देन नहीं", "body": "आज की कमाई और खर्च लिखना शुरू करें।", "addIncome": "+ कमाई जोड़ें", "addExpense": "− खर्च जोड़ें" },
+    "udhaar": { "title": "अभी कोई उधार नहीं", "body": "जो पैसे लेने या देने हैं, उनका हिसाब रखें।", "add": "+ उधार जोड़ें" },
+    "reports": { "title": "रिपोर्ट के लिए डेटा कम है", "body": "रिपोर्ट देखने के लिए कुछ लेन-देन जोड़ें।", "add": "लेन-देन जोड़ें" },
+    "search": { "title": "कुछ नहीं मिला", "body": "\"{{query}}\" के लिए कुछ नहीं मिला। दूसरा शब्द आज़माएं या फ़िल्टर हटाएं।", "clear": "फ़िल्टर हटाएं" }
+  },
+  "validation": {
+    "amountRequired": "सेव करने के लिए राशि डालें", "amountTooLarge": "राशि बहुत बड़ी लग रही है। कृपया जांचें।",
+    "categoryRequired": "श्रेणी चुनें", "nameRequired": "नाम डालें", "futureDate": "आगे की तारीख नहीं चुन सकते"
+  },
+  "errors": {
+    "dbOpen": "आपका हिसाब खुल नहीं सका। कृपया ऐप दोबारा खोलें।",
+    "transactionGone": "यह लेन-देन हटा दिया गया था।"
+  },
+  "notif": { "dailyReminder": "आज का हिसाब लिखा? आज की एंट्री जोड़ने के लिए टैप करें।" },
+  "a11y": {
+    "amountIncome": "{{amount}} रुपये, कमाई", "amountExpense": "{{amount}} रुपये, खर्च",
+    "amountNet": "बचत {{amount}} रुपये", "deleteDigit": "अंक हटाएं", "decimal": "दशमलव",
+    "profile": "प्रोफ़ाइल और सेटिंग्स", "openReport": "रिपोर्ट खोलें"
+  }
+}

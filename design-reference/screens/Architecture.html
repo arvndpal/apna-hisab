@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Screen architecture — Apna Hisab design reference</title>
+<link rel="stylesheet" href="../styles/fonts.css">
+<link rel="stylesheet" href="../styles/apna-hisab.css">
+<style>body{margin:0;background:#E9ECEA}</style>
+</head>
+<body>
+
+<div class="doc" style="width:1440px;height:2260px">
+<div><h1>Screen architecture &amp; app structure</h1><p style="font-size:19px;color:#55615C;margin-top:6px">Record → Save → Sync → Review → Report. Four tabs, one FAB, everything else one tap deep.</p></div>
+<section>
+<h2>Navigation map</h2>
+<div style="display:grid;grid-template-columns:1fr 1.2fr 1fr 1.4fr 1.8fr;gap:16px;align-items:start">
+<div style="display:flex;flex-direction:column;gap:10px"><p class="grp">Launch</p><div class="node k">Splash<small>session check · 1 s max</small></div><div class="node">Lock screen<small>PIN / biometric if enabled</small></div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><p class="grp">First run (AuthStack)</p><div class="node">1 · Welcome</div><div class="node">2 · Google login<small>Supabase Auth, idToken</small></div><div class="node">3 · Language<small>en / hi → i18n + saved</small></div><div class="node">4 · App lock setup<small>optional, skippable</small></div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><p class="grp">Main tabs</p><div class="node k">Home</div><div class="node k">Transactions</div><div class="node k" style="background:#0B6E63;color:#FFFFFF;border-color:#0B6E63">+ FAB sheet<small style="color:#D5ECE6">Income · Expense · Udhaar</small></div><div class="node k">Reports</div><div class="node k">More</div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><p class="grp">Entry &amp; detail (modal stack)</p><div class="node">Add Income / Add Expense<small>one screen, type toggle</small></div><div class="node">Transaction detail<small>→ Edit (reuses Add) · Delete dialog</small></div><div class="node">Filters sheet</div><div class="node">Udhaar list → Person → Add entry sheet</div></div>
+<div style="display:flex;flex-direction:column;gap:10px"><p class="grp">Insight &amp; settings (push stack)</p><div class="node">Report detail · Custom range</div><div class="node">Financial calendar → Day's transactions<small>reuses Transactions with date filter</small></div><div class="node">Categories → Edit category sheet</div><div class="node">Settings · Sync &amp; Backup · Export</div><div class="node">Premium · Delete account</div></div>
+</div>
+</section>
+<section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+<div class="box"><h3>React Navigation tree</h3><pre class="mono" style="margin:0;white-space:pre">RootNavigator (native-stack)
+├─ Splash
+├─ AuthStack
+│   ├─ Welcome
+│   ├─ Login
+│   ├─ LanguageSelect
+│   └─ AppLockSetup
+├─ LockScreen            (gate on cold start / resume)
+└─ AppStack
+    ├─ MainTabs (bottom-tabs + center FAB)
+    │   ├─ Home
+    │   ├─ Transactions
+    │   ├─ Reports
+    │   └─ More
+    ├─ AddTransaction     modal · params { type, editId? }
+    ├─ TransactionDetail
+    ├─ UdhaarList · UdhaarPerson
+    ├─ ReportDetail · CustomRange
+    ├─ FinancialCalendar · DayTransactions
+    ├─ Categories
+    ├─ Settings · SyncBackup · Export
+    └─ Premium · DeleteAccount
+Sheets (gorhom/bottom-sheet): AddTypePicker,
+  TransactionFilters, UdhaarEntry, CategoryEditor</pre></div>
+<div class="box"><h3>Folder structure</h3><pre class="mono" style="margin:0;white-space:pre">src/
+  app/        navigation/ · providers/ (Query, Theme, i18n)
+  features/
+    auth/          screens · useGoogleSignIn
+    dashboard/     HomeScreen · useTodaySummary
+    transactions/  AddTransaction · List · Detail · Filters
+    categories/    CategoriesScreen · CategoryEditor
+    reports/       Reports · ReportDetail · CustomRange · Calendar
+    ledger/        Udhaar list · person · entry
+    settings/      More · Settings · AppLock · Export
+    subscription/  Premium · entitlements
+  database/   sqlite/ (client) · migrations/ · repositories/
+  sync/       syncEngine/ · syncQueue/ · conflict/
+  services/   supabase/ · auth/ · connectivity/ (NetInfo)
+  components/ common/ · charts/ · forms/
+  hooks/  store/ (zustand)  i18n/ en/ · hi/
+  utils/ (money, dates)  constants/  types/</pre></div>
+</section>
+<section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+<div class="box"><h3>Local data model (SQLite, mirrored in Supabase + RLS user_id = auth.uid())</h3>
+<table class="tbl"><thead><tr><th>Table</th><th>Key fields</th></tr></thead><tbody>
+<tr><td><b>transactions</b></td><td>id uuid · type income|expense · amount_paise int · category_id · payment_method cash|upi|card|bank · occurred_at · note · created_at · updated_at · deleted_at · sync_status</td></tr>
+<tr><td><b>categories</b></td><td>id · type · name · name_hi · icon · is_default · sort · updated_at · deleted_at</td></tr>
+<tr><td><b>udhaar_people</b></td><td>id · name · phone? · updated_at · deleted_at</td></tr>
+<tr><td><b>udhaar_entries</b></td><td>id · person_id · direction given|received|took|paid · amount_paise · occurred_at · note · updated_at · deleted_at</td></tr>
+<tr><td><b>sync_queue</b></td><td>id · table · row_id · op upsert|delete · attempts · last_error · created_at</td></tr>
+</tbody></table>
+<p class="cap" style="margin-top:10px">Money stored as integer paise — no float drift. UUIDs generated on device so offline rows never collide. Udhaar never joins income/expense queries.</p></div>
+<div class="box"><h3>Offline-first sync flow</h3>
+<div style="display:flex;flex-direction:column;gap:8px">
+<div class="node">1 · Save → SQLite write + sync_queue row (same transaction). UI updates instantly; toast “Expense added”.</div>
+<div class="node">2 · SyncStatus reads pending count from queue → “↻ 2 pending”.</div>
+<div class="node">3 · Triggers: app foreground, connectivity regained, after save (debounced 2 s), pull-to-refresh, “Sync now”.</div>
+<div class="node">4 · Push: batch upsert to Supabase (≤100 rows). Pull: rows with updated_at &gt; last_pulled_at.</div>
+<div class="node">5 · Conflicts: last-write-wins on updated_at; deletes are soft (deleted_at) so they sync too.</div>
+<div class="node">6 · Failure: exponential backoff 30 s → 2 m → 10 m; banner “Sync couldn't complete”. Local data is never discarded.</div>
+</div></div>
+</section>
+<section style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px">
+<div class="box"><h3>State &amp; forms</h3><p style="font-size:15px;line-height:1.6"><b>Zustand</b>: useAuthStore (session, profile) · useSettingsStore (language, lock, reminder) · useSyncStore (status, pendingCount, lastSyncedAt) · useEntitlementStore (premium). <b>Data</b> lives in SQLite, read via repository hooks (useTransactions(range, filters), useSummary(range)) that re-query on change events. <b>React Hook Form + Zod</b>: amount required, &gt; 0, ≤ ₹1,00,00,000, 2 decimals max; category required; date not in the future beyond today; note ≤ 120 chars. <b>NativeWind</b> classes map 1:1 to the tokens on the design-system board.</p></div>
+<div class="box"><h3>Ads &amp; Premium placement rules</h3>
+<table class="tbl"><thead><tr><th>Surface</th><th>Ads (free plan)</th></tr></thead><tbody>
+<tr><td>Add Income / Expense / Udhaar, keypad, dialogs</td><td>Never</td></tr>
+<tr><td>Onboarding, lock, delete, Premium</td><td>Never</td></tr>
+<tr><td>Transactions list (end), Reports (below charts)</td><td>One native, labelled slot</td></tr>
+<tr><td>Interstitial</td><td>Max 1 per session, only on leaving Reports, never after a save</td></tr>
+</tbody></table></div>
+</section>
+</div>
+</body>
+</html>
