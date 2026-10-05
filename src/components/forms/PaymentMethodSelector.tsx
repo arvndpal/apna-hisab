@@ -25,7 +25,7 @@ export function PaymentMethodSelector({ value, onChange }: PaymentMethodSelector
   return (
     <>
       <Chip label={t(`payment.${value}`)} icon={ICONS[value]} showChevron onPress={() => sheetRef.current?.present()} />
-      <AppBottomSheet ref={sheetRef} title={t('add.paymentMethod')} onClose={() => sheetRef.current?.dismiss()}>
+      <AppBottomSheet ref={sheetRef} title={t('add.paymentMethod')} onClose={() => {}}>
         <View style={{ gap: 4 }}>
           {METHODS.map((method) => {
             const Icon = ICONS[method];

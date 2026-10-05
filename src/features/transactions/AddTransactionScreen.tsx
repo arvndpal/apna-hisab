@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Keyboard, Pressable, ScrollView, View, Vibration } from 'react-native';
+import { Keyboard, Pressable, ScrollView, TextInput, View, Vibration } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { X, Trash2 } from 'lucide-react-native';
@@ -14,7 +14,6 @@ import { NumericKeypad } from '../../components/forms/NumericKeypad';
 import { CategorySelector } from '../../components/forms/CategorySelector';
 import { PaymentMethodSelector } from '../../components/forms/PaymentMethodSelector';
 import { DateSelector } from '../../components/forms/DateSelector';
-import { NoteChip } from '../../components/forms/NoteChip';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useCategories } from '../../hooks/useCategories';
@@ -22,6 +21,7 @@ import * as transactionsRepo from '../../database/repositories/transactionsRepo'
 import * as settingsRepo from '../../database/repositories/settingsRepo';
 import { applyKey, rawToPaise, paiseToRaw, MAX_AMOUNT_PAISE } from '../../utils/money';
 import { showToast } from '../../store/toastStore';
+import { radius, typography, fontFamily } from '../../theme/tokens';
 import type { AppStackParamList } from '../../app/navigation/types';
 import type { PaymentMethod } from '../../types/models';
 
@@ -145,8 +145,25 @@ export function AddTransactionScreen({ route, navigation }: Props) {
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
             <PaymentMethodSelector value={paymentMethod} onChange={setPaymentMethod} />
             <DateSelector value={occurredAt} onChange={setOccurredAt} />
-            <NoteChip value={note} onChange={setNote} />
           </View>
+
+          <TextInput
+            value={note}
+            onChangeText={(text) => setNote(text.slice(0, 120))}
+            placeholder={`${t('common.note')} (${t('common.optional')})`}
+            placeholderTextColor={palette.textTertiary}
+            maxLength={120}
+            style={{
+              height: 48,
+              borderWidth: 1,
+              borderColor: palette.border,
+              borderRadius: radius.input,
+              paddingHorizontal: 14,
+              fontFamily: fontFamily[typography.body.weight],
+              fontSize: typography.body.size,
+              color: palette.textPrimary,
+            }}
+          />
 
           <View>
             <AppText variant="label" color="secondary" style={{ marginBottom: 10 }}>

@@ -1,7 +1,13 @@
 import { Injectable, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Pool, type QueryResultRow } from 'pg';
+import { Pool, types, type QueryResultRow } from 'pg';
 import type { Env } from '../config/env.validation.js';
+
+// pg's default DATE (OID 1082) parser returns a JS Date at UTC midnight, which then
+// round-trips through JSON as a full "...T00:00:00.000Z" timestamp — not the plain
+// 'YYYY-MM-DD' string occurred_on/occurred_at columns are stored and compared as on
+// the mobile app's side. Keep the raw text Postgres already sends instead.
+types.setTypeParser(1082, (value: string) => value);
 
 /**
  * Thin wrapper over a pg Pool — connects directly to Postgres via Supabase's connection pooler,

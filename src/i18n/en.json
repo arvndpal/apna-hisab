@@ -68,7 +68,8 @@
   "toast": {
     "incomeAdded": "Income added", "expenseAdded": "Expense added", "updated": "Transaction updated",
     "deleted": "Transaction deleted", "udhaarSaved": "Udhaar saved", "categorySaved": "Category saved",
-    "premiumActive": "Premium active", "synced": "All data synced"
+    "premiumActive": "Premium active", "synced": "All data synced",
+    "udhaarEntryDeleted": "Entry deleted", "personDeleted": "Person deleted"
   },
   "transactions": {
     "title": "Transactions", "searchPlaceholder": "Search notes, categories, amounts",
@@ -95,14 +96,17 @@
     "fromPeople_one": "from {{count}} person", "fromPeople_other": "from {{count}} people",
     "toPeople_one": "to {{count}} person", "toPeople_other": "to {{count}} people",
     "separateNote": "Udhaar is not counted in your income or expense.",
-    "searchPeople": "Search people", "receive": "Receive", "pay": "Pay", "settled": "Settled", "settledLong": "Hisab barabar",
+    "searchPeople": "Search people", "addOrSelectPerson": "Add/select person name", "amount": "Amount", "receive": "Receive", "pay": "Pay", "settled": "Settled", "settledLong": "Hisab barabar",
     "given": "Given", "received": "Received", "took": "Took", "paid": "Paid back",
     "addGiven": "Given", "addReceived": "Received",
     "explain": "Given = money you gave {{name}} · Received = money {{name}} returned",
     "history": "History", "balance": "Balance {{amount}}", "add": "Add Udhaar", "save": "Save Udhaar",
     "iGave": "I gave", "iGaveSub": "You'll receive it back", "iTook": "I took", "iTookSub": "You'll need to pay",
     "person": "Person", "addNewPerson": "Add \"{{name}}\" as new person",
-    "markSettled": "Mark as settled", "editPerson": "Edit name or phone", "deletePerson": "Delete person"
+    "markSettled": "Mark as settled", "editPerson": "Edit name or phone", "deletePerson": "Delete person",
+    "namePlaceholder": "Name", "phonePlaceholder": "Phone (optional)", "noActivity": "No activity yet",
+    "deletePersonTitle": "Delete {{name}}?", "deletePersonBody": "Their Udhaar history will be removed from this phone and your backup.",
+    "deleteEntryTitle": "Delete this entry?", "deleteEntryBody": "It will be removed from this phone and your backup."
   },
   "reports": {
     "title": "Reports", "today": "Today", "week": "Week", "month": "Month", "quarter": "Quarter",
@@ -184,7 +188,7 @@
   },
   "errors": {
     "dbOpen": "Couldn't open your hisab. Please restart the app.",
-    "transactionGone": "This transaction was removed."
+    "transactionGone": "This transaction was removed.", "personGone": "This person was removed."
   },
   "notif": { "dailyReminder": "Aaj ka hisab likha? Tap to add today's entries." },
   "a11y": {

@@ -33,7 +33,7 @@ export function NoteChip({ value, onChange }: NoteChipProps) {
           sheetRef.current?.present();
         }}
       />
-      <AppBottomSheet ref={sheetRef} title={t('common.note')} onClose={() => sheetRef.current?.dismiss()}>
+      <AppBottomSheet ref={sheetRef} title={t('common.note')} onClose={() => {}}>
         <View style={{ gap: 16 }}>
           <TextInput
             value={draft}

@@ -68,7 +68,8 @@
   "toast": {
     "incomeAdded": "कमाई जुड़ गई", "expenseAdded": "खर्च जुड़ गया", "updated": "लेन-देन बदल गया",
     "deleted": "लेन-देन हटाया गया", "udhaarSaved": "उधार सेव हो गया", "categorySaved": "श्रेणी सेव हो गई",
-    "premiumActive": "प्रीमियम चालू", "synced": "सारा डेटा सिंक हो गया"
+    "premiumActive": "प्रीमियम चालू", "synced": "सारा डेटा सिंक हो गया",
+    "udhaarEntryDeleted": "एंट्री हटाई गई", "personDeleted": "व्यक्ति हटाया गया"
   },
   "transactions": {
     "title": "लेन-देन", "searchPlaceholder": "नोट, श्रेणी या राशि खोजें",
@@ -95,14 +96,17 @@
     "fromPeople_one": "{{count}} व्यक्ति से", "fromPeople_other": "{{count}} लोगों से",
     "toPeople_one": "{{count}} व्यक्ति को", "toPeople_other": "{{count}} लोगों को",
     "separateNote": "उधार आपकी कमाई या खर्च में नहीं गिना जाता।",
-    "searchPeople": "लोग खोजें", "receive": "लेना", "pay": "देना", "settled": "बराबर", "settledLong": "हिसाब बराबर",
+    "searchPeople": "लोग खोजें", "addOrSelectPerson": "व्यक्ति जोड़ें/चुनें", "amount": "राशि", "receive": "लेना", "pay": "देना", "settled": "बराबर", "settledLong": "हिसाब बराबर",
     "given": "दिया", "received": "मिला", "took": "लिया", "paid": "लौटाया",
     "addGiven": "दिया", "addReceived": "मिला",
     "explain": "दिया = जो आपने {{name}} को दिया · मिला = जो {{name}} ने लौटाया",
     "history": "इतिहास", "balance": "बाकी {{amount}}", "add": "उधार जोड़ें", "save": "उधार सेव करें",
     "iGave": "मैंने दिया", "iGaveSub": "आपको वापस मिलेगा", "iTook": "मैंने लिया", "iTookSub": "आपको लौटाना है",
     "person": "व्यक्ति", "addNewPerson": "\"{{name}}\" को नए व्यक्ति के रूप में जोड़ें",
-    "markSettled": "हिसाब बराबर करें", "editPerson": "नाम या फ़ोन बदलें", "deletePerson": "व्यक्ति हटाएं"
+    "markSettled": "हिसाब बराबर करें", "editPerson": "नाम या फ़ोन बदलें", "deletePerson": "व्यक्ति हटाएं",
+    "namePlaceholder": "नाम", "phonePlaceholder": "फ़ोन (वैकल्पिक)", "noActivity": "अभी कोई गतिविधि नहीं",
+    "deletePersonTitle": "{{name}} को हटाएं?", "deletePersonBody": "इनका पूरा उधार इतिहास इस फ़ोन और आपके बैकअप से हटा दिया जाएगा।",
+    "deleteEntryTitle": "यह एंट्री हटाएं?", "deleteEntryBody": "यह इस फ़ोन और आपके बैकअप से हटा दी जाएगी।"
   },
   "reports": {
     "title": "रिपोर्ट", "today": "आज", "week": "हफ़्ता", "month": "महीना", "quarter": "तिमाही",
@@ -184,7 +188,7 @@
   },
   "errors": {
     "dbOpen": "आपका हिसाब खुल नहीं सका। कृपया ऐप दोबारा खोलें।",
-    "transactionGone": "यह लेन-देन हटा दिया गया था।"
+    "transactionGone": "यह लेन-देन हटा दिया गया था।", "personGone": "यह व्यक्ति हटा दिया गया था।"
   },
   "notif": { "dailyReminder": "आज का हिसाब लिखा? आज की एंट्री जोड़ने के लिए टैप करें।" },
   "a11y": {

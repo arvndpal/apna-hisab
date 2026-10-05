@@ -8,7 +8,7 @@ import { AppText } from '../../components/common/AppText';
 import { GradientSurface } from '../../components/common/GradientSurface';
 import { useTheme } from '../../hooks/useTheme';
 import { layout } from '../../theme/tokens';
-import { useAddSheetStore } from '../../store/addSheetStore';
+import { openAddSheet } from '../../store/addSheetStore';
 
 const ICONS: Record<string, LucideIcon> = { Home: House, Transactions: List, Reports: ChartColumn, More: Ellipsis };
 const LABELS: Record<string, string> = { Home: 'nav.home', Transactions: 'nav.transactions', Reports: 'nav.reports', More: 'nav.more' };
@@ -58,8 +58,6 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
     const event = navigation.emit({ type: 'tabPress', target: state.routes.find((r) => r.name === routeName)!.key, canPreventDefault: true });
     if (!event.defaultPrevented) navigation.navigate(routeName);
   };
-
-  const openAddSheet = useAddSheetStore((s) => s.open);
 
   return (
     <View

@@ -46,7 +46,7 @@ export function DateSelector({ value, onChange }: DateSelectorProps) {
   return (
     <>
       <Chip label={label} icon={Calendar} showChevron onPress={() => sheetRef.current?.present()} />
-      <AppBottomSheet ref={sheetRef} title={t('add.date')} onClose={() => sheetRef.current?.dismiss()}>
+      <AppBottomSheet ref={sheetRef} title={t('add.date')} onClose={() => {}}>
         <View style={{ gap: 4 }}>
           {[
             { key: 'today', label: t('common.today'), date: today, selected: isToday },

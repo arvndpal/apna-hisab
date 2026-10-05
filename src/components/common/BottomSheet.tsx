@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, type ReactNode } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, type ReactNode } from 'react';
 import { View } from 'react-native';
 import {
   BottomSheetModal,
@@ -31,6 +31,10 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
   ref,
 ) {
   const palette = useTheme();
+  // Owned locally so the X button can always call the real .dismiss() directly, instead of going
+  // through the consumer's onClose — see onDismiss below for why that distinction matters.
+  const localRef = useRef<BottomSheetModal>(null);
+  useImperativeHandle(ref, () => localRef.current as BottomSheetModal);
 
   const renderBackdrop = useCallback(
     (props: BottomSheetBackdropProps) => (
@@ -41,10 +45,15 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
 
   return (
     <BottomSheetModal
-      ref={ref}
+      ref={localRef}
       snapPoints={snapPoints ?? ['50%']}
       enableDynamicSizing={!snapPoints}
       enablePanDownToClose
+      // Fires once, after gorhom's own close animation finishes (backdrop tap, pan-down, X button,
+      // or an imperative .dismiss() elsewhere) — purely a "sheet is now closed" notification.
+      // Consumers must only sync their own state here, never call .dismiss() again: doing so used
+      // to fire a second, redundant dismiss on an already-closed sheet, which left it unable to
+      // re-present on the next open.
       onDismiss={onClose}
       backdropComponent={renderBackdrop}
       backgroundStyle={{ backgroundColor: palette.surface, borderTopLeftRadius: radius.sheet, borderTopRightRadius: radius.sheet }}
@@ -54,7 +63,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
         {title ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <AppText variant="titlePushed">{title}</AppText>
-            {onClose ? <IconButton icon={X} onPress={onClose} accessibilityLabel="Close" /> : null}
+            {onClose ? <IconButton icon={X} onPress={() => localRef.current?.dismiss()} accessibilityLabel="Close" /> : null}
           </View>
         ) : null}
         {children}

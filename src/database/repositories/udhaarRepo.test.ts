@@ -127,4 +127,68 @@ describe('udhaarRepo balance calculation', () => {
     const history = udhaarRepo.listEntriesForPerson(person.id);
     expect(history.map((h) => h.runningBalancePaise)).toEqual([500000, 350000]);
   });
+
+  it('getPerson().lastEntry reflects the most recent non-deleted entry', () => {
+    const person = udhaarRepo.createPerson({ userId: USER, name: 'Ramesh' });
+    expect(udhaarRepo.getPerson(person.id)!.lastEntry).toBeNull();
+
+    udhaarRepo.addEntry({ userId: USER, personId: person.id, direction: 'given', amountPaise: 500000, occurredAt: new Date('2026-09-28') });
+    const latest = udhaarRepo.addEntry({ userId: USER, personId: person.id, direction: 'received', amountPaise: 150000, occurredAt: new Date('2026-10-01') });
+
+    expect(udhaarRepo.getPerson(person.id)!.lastEntry).toEqual({ direction: 'received', amountPaise: 150000, occurredOn: '2026-10-01' });
+
+    udhaarRepo.softDeleteEntry(latest.id);
+    expect(udhaarRepo.getPerson(person.id)!.lastEntry).toMatchObject({ direction: 'given', amountPaise: 500000 });
+  });
+
+  it('updatePerson renames and re-queues the person', () => {
+    const person = udhaarRepo.createPerson({ userId: USER, name: 'Ramesh' });
+    const updated = udhaarRepo.updatePerson(person.id, { name: 'Ramesh Kumar', phone: '9876543210' });
+    expect(updated.name).toBe('Ramesh Kumar');
+    expect(updated.phone).toBe('9876543210');
+  });
+
+  it('deletePerson cascades to their entries and drops them from totals', () => {
+    const person = udhaarRepo.createPerson({ userId: USER, name: 'Ramesh' });
+    udhaarRepo.addEntry({ userId: USER, personId: person.id, direction: 'given', amountPaise: 250000, occurredAt: new Date('2026-10-01') });
+
+    udhaarRepo.deletePerson(person.id);
+
+    expect(udhaarRepo.getPerson(person.id)).toBeNull();
+    expect(udhaarRepo.listPeople(USER)).toHaveLength(0);
+    expect(udhaarRepo.totals(USER)).toEqual({ receivePaise: 0, payPaise: 0 });
+  });
+
+  it('updateEntry changes fields and recomputes the balance', () => {
+    const person = udhaarRepo.createPerson({ userId: USER, name: 'Ramesh' });
+    const entry = udhaarRepo.addEntry({ userId: USER, personId: person.id, direction: 'given', amountPaise: 250000, occurredAt: new Date('2026-10-01') });
+
+    const updated = udhaarRepo.updateEntry(entry.id, { amountPaise: 500000, note: 'Corrected' });
+    expect(updated.amountPaise).toBe(500000);
+    expect(updated.note).toBe('Corrected');
+    expect(udhaarRepo.getPerson(person.id)!.balancePaise).toBe(500000);
+  });
+
+  it('markSettled adds a balancing entry that zeroes the balance, and is a no-op when already settled', () => {
+    const person = udhaarRepo.createPerson({ userId: USER, name: 'Ramesh' });
+    udhaarRepo.addEntry({ userId: USER, personId: person.id, direction: 'given', amountPaise: 250000, occurredAt: new Date('2026-10-01') });
+
+    udhaarRepo.markSettled(person.id, USER);
+    expect(udhaarRepo.getPerson(person.id)!.balancePaise).toBe(0);
+
+    const entriesBefore = udhaarRepo.listEntriesForPerson(person.id).length;
+    udhaarRepo.markSettled(person.id, USER); // already settled — no new entry
+    expect(udhaarRepo.listEntriesForPerson(person.id)).toHaveLength(entriesBefore);
+  });
+
+  it('markSettled on a negative balance adds a "paid" entry', () => {
+    const person = udhaarRepo.createPerson({ userId: USER, name: 'Suresh' });
+    udhaarRepo.addEntry({ userId: USER, personId: person.id, direction: 'took', amountPaise: 120000, occurredAt: new Date('2026-09-29') });
+
+    udhaarRepo.markSettled(person.id, USER);
+
+    const history = udhaarRepo.listEntriesForPerson(person.id);
+    expect(history[history.length - 1].direction).toBe('paid');
+    expect(udhaarRepo.getPerson(person.id)!.balancePaise).toBe(0);
+  });
 });

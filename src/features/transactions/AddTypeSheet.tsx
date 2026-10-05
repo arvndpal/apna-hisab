@@ -8,7 +8,8 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppBottomSheet } from '../../components/common/BottomSheet';
 import { AppText } from '../../components/common/AppText';
 import { useTheme } from '../../hooks/useTheme';
-import { useAddSheetStore } from '../../store/addSheetStore';
+import { registerAddSheet } from '../../store/addSheetStore';
+import { openUdhaarEntrySheet } from '../../store/udhaarEntrySheetStore';
 import type { AppStackParamList } from '../../app/navigation/types';
 
 function Row({ icon: Icon, tint, color, title, subtitle, onPress }: { icon: LucideIcon; tint: string; color: string; title: string; subtitle: string; onPress: () => void }) {
@@ -33,22 +34,20 @@ function Row({ icon: Icon, tint, color, title, subtitle, onPress }: { icon: Luci
   );
 }
 
-/** Mounted once (in MainTabs); opened from anywhere via useAddSheetStore. */
+/** Mounted once (in MainTabs); opened from anywhere via registerAddSheet/openAddSheet (addSheetStore.ts). */
 export function AddTypeSheet() {
   const { t } = useTranslation();
   const palette = useTheme();
-  const isOpen = useAddSheetStore((s) => s.isOpen);
-  const close = useAddSheetStore((s) => s.close);
   const sheetRef = useRef<BottomSheetModal>(null);
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   useEffect(() => {
-    if (isOpen) sheetRef.current?.present();
-    else sheetRef.current?.dismiss();
-  }, [isOpen]);
+    registerAddSheet({ present: () => sheetRef.current?.present() });
+    return () => registerAddSheet(null);
+  }, []);
 
   return (
-    <AppBottomSheet ref={sheetRef} title={t('add.title')} onClose={close}>
+    <AppBottomSheet ref={sheetRef} title={t('add.title')} onClose={() => {}}>
       <Row
         icon={Plus}
         tint={palette.incomeTint}
@@ -56,7 +55,7 @@ export function AddTypeSheet() {
         title={t('add.income')}
         subtitle={t('add.incomeSub')}
         onPress={() => {
-          close();
+          sheetRef.current?.dismiss();
           navigation.navigate('AddTransaction', { type: 'income' });
         }}
       />
@@ -67,7 +66,7 @@ export function AddTypeSheet() {
         title={t('add.expense')}
         subtitle={t('add.expenseSub')}
         onPress={() => {
-          close();
+          sheetRef.current?.dismiss();
           navigation.navigate('AddTransaction', { type: 'expense' });
         }}
       />
@@ -78,8 +77,10 @@ export function AddTypeSheet() {
         title={t('add.udhaar')}
         subtitle={t('add.udhaarSub')}
         onPress={() => {
-          close();
-          navigation.navigate('UdhaarList');
+          sheetRef.current?.dismiss();
+          // Let this sheet's own close animation finish before presenting the next one — opening
+          // a second BottomSheetModal while this one is still animating out is unreliable.
+          setTimeout(() => openUdhaarEntrySheet(), 300);
         }}
       />
     </AppBottomSheet>

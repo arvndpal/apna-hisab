@@ -5,6 +5,7 @@ import { TransactionsScreen } from '../../features/transactions/TransactionsScre
 import { ReportsScreen } from '../../features/reports/ReportsScreen';
 import { MoreScreen } from '../../features/settings/MoreScreen';
 import { AddTypeSheet } from '../../features/transactions/AddTypeSheet';
+import { UdhaarEntrySheet } from '../../features/ledger/UdhaarEntrySheet';
 import { TabBar } from './TabBar';
 import type { MainTabParamList } from './types';
 
@@ -20,6 +21,7 @@ export function MainTabs() {
         <Tab.Screen name="More" component={MoreScreen} />
       </Tab.Navigator>
       <AddTypeSheet />
+      <UdhaarEntrySheet />
     </>
   );
 }

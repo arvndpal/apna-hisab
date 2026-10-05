@@ -20,12 +20,21 @@ type PersonBalanceRow = {
   took_paise: number | null;
   paid_paise: number | null;
   last_activity_at: string | null;
+  last_direction: UdhaarDirection | null;
+  last_amount_paise: number | null;
+  last_occurred_on: string | null;
 };
 
 const PERSON_WITH_BALANCE_SQL = `
-  SELECT p.*, b.balance_paise, b.given_paise, b.received_paise, b.took_paise, b.paid_paise, b.last_activity_at
+  SELECT p.*, b.balance_paise, b.given_paise, b.received_paise, b.took_paise, b.paid_paise, b.last_activity_at,
+    le.direction AS last_direction, le.amount_paise AS last_amount_paise, le.occurred_on AS last_occurred_on
   FROM udhaar_people p
   LEFT JOIN v_udhaar_balances b ON b.person_id = p.id
+  LEFT JOIN udhaar_entries le ON le.id = (
+    SELECT e2.id FROM udhaar_entries e2
+    WHERE e2.person_id = p.id AND e2.deleted_at IS NULL
+    ORDER BY e2.occurred_at DESC, e2.created_at DESC LIMIT 1
+  )
   WHERE p.deleted_at IS NULL
 `;
 
@@ -44,7 +53,9 @@ function fromRow(r: PersonBalanceRow): UdhaarPersonWithBalance {
     receivedPaise: Number(r.received_paise ?? 0),
     tookPaise: Number(r.took_paise ?? 0),
     paidPaise: Number(r.paid_paise ?? 0),
-    lastEntry: null,
+    lastEntry: r.last_direction
+      ? { direction: r.last_direction, amountPaise: Number(r.last_amount_paise), occurredOn: r.last_occurred_on! }
+      : null,
   };
 }
 
@@ -101,6 +112,60 @@ export function findOrCreatePersonByName(userId: string, name: string): UdhaarPe
   ]).rows[0];
   if (existing) return getPerson(existing.id as string)!;
   return createPerson({ userId, name });
+}
+
+/** Overflow menu "Edit name/phone" — the sheet always submits both fields, so this isn't a partial patch. */
+export function updatePerson(id: string, input: { name: string; phone: string | null }): UdhaarPersonWithBalance {
+  const now = nowUtcIso();
+  runInTransaction(() => {
+    exec("UPDATE udhaar_people SET name = ?, phone = ?, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
+      input.name,
+      input.phone,
+      now,
+      id,
+    ]);
+    enqueue('udhaar_people', id, 'upsert');
+  });
+  schedule();
+  return getPerson(id)!;
+}
+
+/** Overflow menu "Delete person" — cascades to their entries too, since an orphaned entry has nowhere to live. */
+export function deletePerson(id: string): void {
+  const now = nowUtcIso();
+  runInTransaction(() => {
+    const entryIds = exec('SELECT id FROM udhaar_entries WHERE person_id = ? AND deleted_at IS NULL', [id]).rows.map(
+      (r) => r.id as string,
+    );
+    for (const entryId of entryIds) {
+      exec("UPDATE udhaar_entries SET deleted_at = ?, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
+        now,
+        now,
+        entryId,
+      ]);
+      enqueue('udhaar_entries', entryId, 'upsert');
+    }
+    exec("UPDATE udhaar_people SET deleted_at = ?, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
+      now,
+      now,
+      id,
+    ]);
+    enqueue('udhaar_people', id, 'upsert');
+  });
+  schedule();
+}
+
+/** Overflow menu "Mark as settled" — adds a balancing entry rather than a schema flag, so history stays a true ledger. */
+export function markSettled(personId: string, userId: string): void {
+  const person = getPerson(personId);
+  if (!person || person.balancePaise === 0) return;
+  addEntry({
+    userId,
+    personId,
+    direction: person.balancePaise > 0 ? 'received' : 'paid',
+    amountPaise: Math.abs(person.balancePaise),
+    occurredAt: new Date(),
+  });
 }
 
 type EntryRow = {
@@ -172,11 +237,64 @@ export function addEntry(input: AddEntryInput): UdhaarEntry {
   )[0];
 }
 
+export function getEntry(id: string): UdhaarEntry | null {
+  const row = exec('SELECT * FROM udhaar_entries WHERE id = ?', [id]).rows[0];
+  return row ? entryFromRow(row as unknown as EntryRow) : null;
+}
+
+export interface UpdateEntryInput {
+  direction?: UdhaarDirection;
+  amountPaise?: number;
+  occurredAt?: Date;
+  note?: string | null;
+}
+
+/** Tap an entry in History → edit sheet (SCREENS.md §13). */
+export function updateEntry(id: string, patch: UpdateEntryInput): UdhaarEntry {
+  const current = getEntry(id);
+  if (!current) throw new Error(`Udhaar entry ${id} not found`);
+  const now = nowUtcIso();
+  const occurredAt = patch.occurredAt ?? new Date(current.occurredAt);
+
+  runInTransaction(() => {
+    exec(
+      `UPDATE udhaar_entries SET
+         direction = ?, amount_paise = ?, occurred_at = ?, occurred_on = ?, note = ?, updated_at = ?, sync_status = 'pending'
+       WHERE id = ?`,
+      [
+        patch.direction ?? current.direction,
+        patch.amountPaise ?? current.amountPaise,
+        toLocalIso(occurredAt),
+        toOccurredOn(occurredAt),
+        patch.note !== undefined ? patch.note : current.note,
+        now,
+        id,
+      ],
+    );
+    enqueue('udhaar_entries', id, 'upsert');
+  });
+  schedule();
+  return getEntry(id)!;
+}
+
 export function softDeleteEntry(id: string): void {
   const now = nowUtcIso();
   runInTransaction(() => {
     exec("UPDATE udhaar_entries SET deleted_at = ?, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
       now,
+      now,
+      id,
+    ]);
+    enqueue('udhaar_entries', id, 'upsert');
+  });
+  schedule();
+}
+
+/** Undo for the delete toast, mirroring transactionsRepo.restore. */
+export function restoreEntry(id: string): void {
+  const now = nowUtcIso();
+  runInTransaction(() => {
+    exec("UPDATE udhaar_entries SET deleted_at = NULL, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
       now,
       id,
     ]);

@@ -82,7 +82,7 @@ export function CategorySelector({ categories, type, selectedId, onSelect }: Cat
       </View>
 
       {rest.length > 0 ? (
-        <AppBottomSheet ref={sheetRef} title={t('add.allCategories')} onClose={() => sheetRef.current?.dismiss()}>
+        <AppBottomSheet ref={sheetRef} title={t('add.allCategories')} onClose={() => {}}>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', rowGap: 14, paddingBottom: 12 }}>
             {categories.map((c) => (
               <Tile

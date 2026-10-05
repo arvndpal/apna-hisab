@@ -63,7 +63,7 @@ export function TransactionFiltersSheet({ sheetRef, categories, value, onApply, 
     <AppBottomSheet
       ref={sheetRef}
       title={t('filters.title')}
-      onClose={() => sheetRef.current?.dismiss()}
+      onClose={() => {}}
     >
       <View style={{ gap: 20 }}>
         <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: -44 }}>
