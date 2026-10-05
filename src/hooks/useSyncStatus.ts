@@ -1,12 +1,11 @@
-import { useLiveQuery } from './useLiveQuery';
-import * as syncQueueRepo from '../database/repositories/syncQueueRepo';
+import { useSyncStore } from '../store/syncStore';
 import type { SyncUiStatus } from '../types/models';
 
-/**
- * Milestone 3 stand-in: no network/push yet (Milestone 5), so status is derived purely from the
- * local queue — 'pending' while rows are queued, 'synced' once it's empty.
- */
-export function useSyncStatus(): { status: SyncUiStatus; pendingCount: number } {
-  const pendingCount = useLiveQuery(['transactions', 'categories', 'udhaar_people', 'udhaar_entries'], () => syncQueueRepo.count(), []);
-  return { status: pendingCount > 0 ? 'pending' : 'synced', pendingCount };
+/** Real sync status from the sync engine (src/sync/syncEngine) — Milestone 5. */
+export function useSyncStatus(): { status: SyncUiStatus; pendingCount: number; lastSyncedAt: string | null; lastError: string | null } {
+  const status = useSyncStore((s) => s.status);
+  const pendingCount = useSyncStore((s) => s.pendingCount);
+  const lastSyncedAt = useSyncStore((s) => s.lastSyncedAt);
+  const lastError = useSyncStore((s) => s.lastError);
+  return { status, pendingCount, lastSyncedAt, lastError };
 }

@@ -2,6 +2,8 @@ import { exec, runInTransaction } from '../sqlite/client';
 import { newId } from '../../utils/ids';
 import { nowUtcIso } from '../../utils/dates';
 import { DEFAULT_CATEGORIES, OTHER_CATEGORY_KEY } from '../../constants/categories';
+import { enqueue } from './syncQueueRepo';
+import { schedule } from '../../sync/syncEngine/engine';
 import type { Category, Language, TransactionType } from '../../types/models';
 
 type CategoryRow = {
@@ -81,6 +83,8 @@ export function create(input: { userId: string; type: TransactionType; name: str
      VALUES (?, ?, NULL, ?, ?, NULL, ?, ?, 0, ?, ?, NULL, 'pending')`,
     [id, input.userId, input.type, input.name, input.icon, sort, now, now],
   );
+  enqueue('categories', id, 'upsert');
+  schedule();
   return getById(id)!;
 }
 
@@ -95,6 +99,8 @@ export function update(id: string, patch: { name?: string; icon?: string }): Cat
     'pending',
     id,
   ]);
+  enqueue('categories', id, 'upsert');
+  schedule();
   return getById(id)!;
 }
 
@@ -107,12 +113,14 @@ export function softDelete(id: string): void {
   runInTransaction(() => {
     const otherId = getOtherCategoryId(category.userId, category.type);
     if (otherId) {
+      const affected = exec('SELECT id FROM transactions WHERE category_id = ?', [id]).rows.map((r) => r.id as string);
       exec('UPDATE transactions SET category_id = ?, updated_at = ?, sync_status = ? WHERE category_id = ?', [
         otherId,
         now,
         'pending',
         id,
       ]);
+      for (const txnId of affected) enqueue('transactions', txnId, 'upsert');
     }
     exec('UPDATE categories SET deleted_at = ?, updated_at = ?, sync_status = ? WHERE id = ?', [
       now,
@@ -120,5 +128,7 @@ export function softDelete(id: string): void {
       'pending',
       id,
     ]);
+    enqueue('categories', id, 'upsert');
   });
+  schedule();
 }

@@ -13,7 +13,7 @@ import { SegmentedControl } from '../../components/common/SegmentedControl';
 import { EmptyState } from '../../components/common/EmptyState';
 import { TransactionList, groupByDay } from '../../components/transactions/TransactionList';
 import { useTheme } from '../../hooks/useTheme';
-import { useLocalUserId } from '../../hooks/useLocalUserId';
+import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useLiveQuery } from '../../hooks/useLiveQuery';
 import { useCategories, useCategoriesById } from '../../hooks/useCategories';
 import { useDebounce } from '../../hooks/useDebounce';
@@ -44,7 +44,7 @@ export function TransactionsScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
-  const userId = useLocalUserId();
+  const userId = useActiveUserId();
   const categoriesById = useCategoriesById(userId);
   const allCategories = useCategories(userId);
 

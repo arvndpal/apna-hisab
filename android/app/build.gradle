@@ -117,3 +117,6 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+// Firebase Auth (Google Sign-In) — reads google-services.json in this directory. Must be last.
+apply plugin: "com.google.gms.google-services"

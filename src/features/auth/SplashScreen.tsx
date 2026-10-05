@@ -11,9 +11,10 @@ import { useReduceMotion } from '../../hooks/useReduceMotion';
 import type { RootStackParamList } from '../../app/navigation/types';
 import { migrate } from '../../database/migrations';
 import { seedDefaultCategories } from '../../database/seed';
-import { getLocalUserId } from '../../database/repositories/settingsRepo';
+import { getActiveUserId } from '../../database/repositories/settingsRepo';
 import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { start as startSync } from '../../sync/syncEngine/engine';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 const MIN_VISIBLE_MS = 600;
@@ -54,7 +55,7 @@ export function SplashScreen({ navigation }: Props) {
       // Offline-first: open SQLite, run migrations, seed default categories for the local
       // (pre-auth) user, then hydrate the auth/settings stores now that kv_settings exists.
       migrate();
-      seedDefaultCategories(getLocalUserId());
+      seedDefaultCategories(getActiveUserId());
       useAuthStore.getState().hydrate();
       useSettingsStore.getState().hydrate();
       profile = useAuthStore.getState().profile;
@@ -70,6 +71,8 @@ export function SplashScreen({ navigation }: Props) {
     if (elapsed < MIN_VISIBLE_MS) {
       await new Promise<void>((resolve) => setTimeout(() => resolve(), MIN_VISIBLE_MS - elapsed));
     }
+
+    if (profile) startSync(); // fire-and-forget — never block navigation on the network
 
     if (!profile) {
       navigation.replace('Auth', { screen: 'Welcome' });

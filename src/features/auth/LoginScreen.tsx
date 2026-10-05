@@ -14,6 +14,10 @@ import { useAuthStore } from '../../store/authStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import type { RootStackParamList, AuthStackParamList } from '../../app/navigation/types';
 import { ChevronLeft } from 'lucide-react-native';
+import { getFirebaseIdToken } from '../../services/auth/google';
+import * as authApi from '../../services/api/authApi';
+import { showToast } from '../../store/toastStore';
+import { start as startSync } from '../../sync/syncEngine/engine';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 
@@ -35,18 +39,30 @@ export function LoginScreen() {
 
   const handleSignIn = async () => {
     setLoading(true);
-    // Milestone 4 stub: no Google OAuth client IDs configured yet (see .env.example) — a brief
-    // delay stands in for the real sign-in round trip, then a fixed local profile is persisted.
-    await new Promise((resolve) => setTimeout(resolve, 600));
-    signIn({ id: 'local-stub-user', name: 'Ravi Kumar', email: 'ravi@example.com' });
-    setLoading(false);
-    if (onboardingDone) {
-      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.reset({
-        index: 0,
-        routes: [{ name: 'App', params: { screen: 'MainTabs', params: { screen: 'Home' } } }],
-      });
-    } else {
-      navigation.navigate('LanguageSelect');
+    try {
+      const firebaseIdToken = await getFirebaseIdToken();
+      if (!firebaseIdToken) {
+        // User cancelled the Google account picker — not an error.
+        setLoading(false);
+        return;
+      }
+      const { tokens, profile } = await authApi.signInWithGoogle(firebaseIdToken);
+      await signIn(profile, tokens);
+      startSync(); // fire-and-forget
+
+      if (onboardingDone) {
+        navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.reset({
+          index: 0,
+          routes: [{ name: 'App', params: { screen: 'MainTabs', params: { screen: 'Home' } } }],
+        });
+      } else {
+        navigation.navigate('LanguageSelect');
+      }
+    } catch {
+      // Never surface raw error text here — SCREENS.md §22: always plain language, never codes.
+      showToast({ message: t('auth.signInFailed') });
+    } finally {
+      setLoading(false);
     }
   };
 

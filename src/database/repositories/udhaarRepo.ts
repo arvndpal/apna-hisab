@@ -2,6 +2,7 @@ import { exec, runInTransaction } from '../sqlite/client';
 import { newId } from '../../utils/ids';
 import { nowUtcIso, toLocalIso, toOccurredOn } from '../../utils/dates';
 import { enqueue } from './syncQueueRepo';
+import { schedule } from '../../sync/syncEngine/engine';
 import type { UdhaarDirection, UdhaarEntry, UdhaarPersonWithBalance } from '../../types/models';
 
 type PersonBalanceRow = {
@@ -88,6 +89,7 @@ export function createPerson(input: { userId: string; name: string; phone?: stri
     );
     enqueue('udhaar_people', id, 'upsert');
   });
+  schedule();
   return getPerson(id)!;
 }
 
@@ -164,6 +166,7 @@ export function addEntry(input: AddEntryInput): UdhaarEntry {
     );
     enqueue('udhaar_entries', id, 'upsert');
   });
+  schedule();
   return exec('SELECT * FROM udhaar_entries WHERE id = ?', [id]).rows.map((r) =>
     entryFromRow(r as unknown as EntryRow),
   )[0];
@@ -179,6 +182,7 @@ export function softDeleteEntry(id: string): void {
     ]);
     enqueue('udhaar_entries', id, 'upsert');
   });
+  schedule();
 }
 
 /** Oldest-first, each row carrying the running balance after it — History section in SCREENS.md §13. */

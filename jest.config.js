@@ -1,5 +1,7 @@
 module.exports = {
   preset: '@react-native/jest-preset',
+  // backend/ is a separate NestJS project with its own Vitest setup — never run by this Jest config.
+  testPathIgnorePatterns: ['<rootDir>/node_modules/', '<rootDir>/backend/'],
   // Most RN ecosystem packages (navigation, gesture-handler, reanimated, svg, uuid, …) ship ESM;
   // let Babel transform all of them rather than allowlisting one package at a time.
   transformIgnorePatterns: [
@@ -15,6 +17,7 @@ module.exports = {
     '^react-native-reanimated$': 'react-native-reanimated/mock',
     '^react-native-localize$': '<rootDir>/jest/reactNativeLocalizeMock.js',
     '^lucide-react-native$': '<rootDir>/jest/lucideMock.js',
+    '^@react-native-community/netinfo$': '<rootDir>/jest/netinfoMock.js',
   },
   setupFiles: ['@react-native/jest-preset/jest/setup.js', 'react-native-gesture-handler/jestSetup'],
 };

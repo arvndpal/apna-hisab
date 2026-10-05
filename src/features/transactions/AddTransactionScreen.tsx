@@ -16,7 +16,7 @@ import { PaymentMethodSelector } from '../../components/forms/PaymentMethodSelec
 import { DateSelector } from '../../components/forms/DateSelector';
 import { NoteChip } from '../../components/forms/NoteChip';
 import { useTheme } from '../../hooks/useTheme';
-import { useLocalUserId } from '../../hooks/useLocalUserId';
+import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useCategories } from '../../hooks/useCategories';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import * as settingsRepo from '../../database/repositories/settingsRepo';
@@ -30,7 +30,7 @@ type Props = NativeStackScreenProps<AppStackParamList, 'AddTransaction'>;
 export function AddTransactionScreen({ route, navigation }: Props) {
   const { t } = useTranslation();
   const palette = useTheme();
-  const userId = useLocalUserId();
+  const userId = useActiveUserId();
   const { type: initialType, editId, date } = route.params;
 
   const editing = transactionsRepo.getById(editId ?? '') ?? null;

@@ -2,6 +2,7 @@ import { exec, runInTransaction } from '../sqlite/client';
 import { newId } from '../../utils/ids';
 import { nowUtcIso, toLocalIso, toOccurredOn } from '../../utils/dates';
 import { enqueue } from './syncQueueRepo';
+import { schedule } from '../../sync/syncEngine/engine';
 import type { PaymentMethod, Summary, Transaction, TransactionType } from '../../types/models';
 
 type TransactionRow = {
@@ -72,6 +73,7 @@ export function create(input: CreateTransactionInput): Transaction {
       ],
     );
     enqueue('transactions', id, 'upsert');
+    schedule();
   });
 
   return getById(id)!;
@@ -106,6 +108,7 @@ export function update(id: string, patch: UpdateTransactionInput): Transaction {
       ],
     );
     enqueue('transactions', id, 'upsert');
+    schedule();
   });
 
   return getById(id)!;
@@ -120,6 +123,7 @@ export function softDelete(id: string): void {
       id,
     ]);
     enqueue('transactions', id, 'upsert');
+    schedule();
   });
 }
 
@@ -132,6 +136,7 @@ export function restore(id: string): void {
       id,
     ]);
     enqueue('transactions', id, 'upsert');
+    schedule();
   });
 }
 

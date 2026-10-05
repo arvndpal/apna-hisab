@@ -1,5 +1,59 @@
 # Apna Hisab — Technical Architecture
 
+## 0. Backend (`/backend`, NestJS)
+
+The mobile app never talks to the database directly. A separate NestJS backend (sibling folder
+`/backend`, own `package.json`, deployed independently) is the **only** thing that connects to
+Postgres — it owns identity and is the single integration point the app calls.
+
+The database is Supabase-hosted Postgres, but the backend connects with a plain `pg` pool over
+Supabase's **transaction-mode connection pooler** (`DATABASE_URL`), not the Supabase SDK — no
+Supabase Auth, no PostgREST, no RLS session. All queries are hand-written parameterized SQL (same
+"no ORM" style as the app's own SQLite repositories).
+
+```text
+backend/src/
+  config/      env.validation.ts        — Zod-validated env (fails fast on boot if misconfigured)
+  database/    database.service.ts      — pg Pool wrapper (DATABASE_URL); see §10 for why every
+                                           query must filter by user_id in application code
+  auth/        auth.controller.ts       — POST /auth/google, POST /auth/refresh, GET /auth/me
+               auth.service.ts          — verifies a Firebase ID token (firebase-admin), upserts
+                                           profile by firebase_uid, issues this backend's own JWTs
+               firebase-admin.provider.ts — Auth instance from FIREBASE_SERVICE_ACCOUNT
+               jwt.strategy.ts, jwt-auth.guard.ts
+  sync/        sync.controller.ts       — POST /sync/push, GET /sync/pull  (guarded by JwtAuthGuard)
+               sync.service.ts          — per-table upsert/select, forces user_id server-side;
+                                           sync.constants.ts whitelists exactly which columns a
+                                           pushed row may ever write (column names are never built
+                                           from client input without this whitelist check)
+  health/      health.controller.ts     — GET /health
+```
+
+**Auth flow:** app does native Google Sign-In (`@react-native-google-signin/google-signin`) → gets
+a Google ID token → exchanges it for a **Firebase** credential and signs into Firebase Auth
+(`@react-native-firebase/auth`, modular API) → gets a Firebase ID token → `POST /auth/google
+{ idToken: <firebase ID token> }` → backend verifies it with `firebase-admin` (`FIREBASE_SERVICE_ACCOUNT`),
+upserts `profiles` by `firebase_uid`, returns `{ accessToken, refreshToken, profile }`. The app
+stores both tokens in `react-native-keychain` and sends `accessToken` as `Authorization: Bearer …`
+on every backend call. `POST /auth/refresh { refreshToken }` → new access token. These are **this
+backend's own JWTs** — neither Supabase Auth nor a raw Firebase/Google token is ever used as the
+session; Firebase is only the Google-sign-in verifier.
+
+Firebase project config: `android/app/google-services.json` (gitignored, from Firebase Console →
+Project Settings → your Android app) wires the native SDK; `GOOGLE_WEB_CLIENT_ID` (app `.env`) is
+the `client_type: 3` entry in that same file, needed by Google Sign-In even though auth itself
+flows through Firebase; `FIREBASE_SERVICE_ACCOUNT` (`backend/.env`) is a private key from the same
+Firebase project, used only server-side to verify tokens.
+
+**Sync flow:** the RN app's sync engine (§6) calls this backend's REST endpoints instead of
+Postgres directly; the backend is what actually queries the database, and since the connection has
+no RLS session, every query it makes must — and does — filter by the caller's `user_id` in
+application code (`sync.service.ts`). See §6 and §10.
+
+Local dev: `cd backend && npm install && npm run start:dev` (needs `backend/.env`, copy from
+`backend/.env.example` and fill in `DATABASE_URL` from the Supabase dashboard → Connect → Transaction
+pooler). Tests: `npm test` (unit, mocks the database layer + Google verification) and `npm run test:e2e`.
+
 ## 1. Navigation tree
 
 ```text
@@ -68,8 +122,8 @@ src/
     syncQueue/         queue.ts
     conflict/          resolve.ts
   services/
-    supabase/          client.ts
-    auth/              google.ts, session.ts
+    api/               client.ts (fetch wrapper for the NestJS backend — base URL, bearer token, 401→refresh-and-retry once)
+    auth/              google.ts (native Google Sign-In), session.ts (backend token pair, Keychain-backed)
     connectivity/      netinfo.ts
     notifications/     reminders.ts
     ads/               ads.ts (placement guard)
@@ -138,15 +192,18 @@ Each repository exposes plain async functions (`create`, `update`, `softDelete`,
 
 ## 6. Sync engine (`src/sync`)
 
+Talks to **this app's own NestJS backend** (`/backend`, §0) over REST — never to Supabase
+directly. The backend is what forwards to Supabase, scoped to the caller's `user_id`.
+
 **Triggers:** app start (after auth), app foreground, NetInfo reconnect, 2s after any write, pull-to-refresh, "Sync now".
-**Guard:** one run at a time (mutex); skip if offline or no session.
-**Push:** read `sync_queue` oldest first in batches of 100 → map to Supabase rows → `upsert` per table (`onConflict: 'id'`) → on success mark rows `synced` (only if `updated_at` unchanged since read) and delete queue entries.
-**Pull:** for each table select rows where `user_id = me AND updated_at > last_pulled_at` ordered by `updated_at`, paged by 500 → apply locally via conflict rule → set `last_pulled_at` = max `updated_at` seen.
+**Guard:** one run at a time (mutex); skip if offline or no session (no backend access/refresh token stored).
+**Push:** read `sync_queue` oldest first in batches of 100 → for each row, read its current state from SQLite and map to the cloud column shape → `POST /sync/push { changes: [{ tableName, row }] }` → backend upserts per table (`onConflict: 'id'`, forcing `user_id` server-side) and returns per-row `ok`/`error` → on `ok` mark the local row `synced` (only if `updated_at` unchanged since read) and delete the queue entry; on `error` leave it queued for retry.
+**Pull:** for each table, `GET /sync/pull?table=…&since=<last_pulled_at>` (backend pages by up to 500, filtered to `user_id = me AND updated_at > since`) → apply locally via conflict rule → set `last_pulled_at` = max `updated_at` seen.
 **Conflict rule:** last-write-wins on `updated_at`. If local row is `pending` and newer, keep local (it will push). Deletes are just rows with `deleted_at` set, so they follow the same rule.
-**Retry:** on failure keep queue, set `syncStore.status='error'`, backoff 30s → 2m → 10m → 10m…; reset on success or reconnect.
+**Retry:** on failure (network, or a `401` — access token expired, try `POST /auth/refresh` once before giving up) keep queue, set `syncStore.status='error'`, backoff 30s → 2m → 10m → 10m…; reset on success or reconnect.
 **Status for UI (`syncStore`):** `status: 'synced'|'pending'|'syncing'|'offline'|'error'`, `pendingCount`, `lastSyncedAt`, `lastError` (plain-language string key).
-**First login on a new phone:** full pull before showing Home ("Restoring your hisab…").
-**Logout:** if `pendingCount > 0` warn; then sign out, wipe SQLite, SecureStore and stores.
+**First login on a new phone:** full pull (`since` omitted) before showing Home ("Restoring your hisab…").
+**Logout:** if `pendingCount > 0` warn; then sign out, wipe SQLite, Keychain and stores.
 
 ## 7. Validation (Zod — `features/transactions/schema.ts`)
 
@@ -167,7 +224,7 @@ Error messages are i18n keys; render with `t(error.message)`.
 
 ## 8. Stores (Zustand)
 
-- `authStore`: `session`, `profile {id, name, email, avatarUrl}`, `signIn()`, `signOut()`.
+- `authStore`: `tokens {accessToken, refreshToken}` (mirrored in Keychain), `profile {id, name, email, avatarUrl}`, `signIn()`, `signOut()`.
 - `settingsStore` (persisted to `kv_settings`): `language`, `lockMethod: 'none'|'pin'|'biometric'`, `lockAfterMs`, `reminderEnabled`, `reminderTime`, `lastPaymentMethod`, `lastCategoryByType`, `onboardingDone`, `lockReminderDismissed`.
 - `syncStore`: see §6.
 - `entitlementStore`: `isPremium`, `plan`, `renewsAt`, refreshed from billing on launch.
@@ -175,12 +232,26 @@ Error messages are i18n keys; render with `t(error.message)`.
 
 ## 9. Auth
 
-Google Sign-In (Android client ID + Web client ID from Google Cloud) → `idToken` → `supabase.auth.signInWithIdToken({ provider: 'google', token })`. Store Supabase session with `expo-secure-store` adapter. On first login create `profiles` row (trigger in SQL). Local rows created before login (if any) get `user_id` set and are queued.
+Google Sign-In → Firebase Auth → Firebase `idToken` → `POST {BACKEND_URL}/auth/google { idToken }`
+(§0) → backend verifies it with `firebase-admin` and returns `{ accessToken, refreshToken, profile
+}`, both **issued by our own backend**, not Firebase and not Supabase. Store both in
+`react-native-keychain`. On first login the backend creates the `profiles` row (no SQL trigger —
+done in `auth.service.ts`, keyed by `firebase_uid`). Local rows created before login (if any) get
+`user_id` set to the returned `profile.id` and are queued.
 
 ## 10. Security
 
-- RLS on every table: `user_id = auth.uid()` for select/insert/update/delete.
-- PIN stored as salted SHA-256 in SecureStore; never in SQLite.
+- The mobile app holds no database credentials at all — not `DATABASE_URL`, nothing Supabase. It
+  only knows this backend's base URL. `DATABASE_URL` lives solely in the backend's environment.
+- Supabase RLS is enabled with no policies, as a secure-by-default fallback — not the actual
+  authorization boundary. The real boundary is the backend: every query in `sync.service.ts` and
+  `auth.service.ts` explicitly scopes to the authenticated caller's `user_id`/`id`, since the raw
+  `pg` connection has no RLS session (no `auth.uid()`) to rely on.
+- `sync.service.ts`'s push path builds its upsert SQL dynamically (one table, many possible
+  columns) from the client's row — column **names** are never interpolated unless they pass
+  `TABLE_COLUMNS` whitelist check in `sync.constants.ts`; unrecognized keys are silently dropped.
+  Column **values** are always sent as parameterized query params, never concatenated into SQL.
+- PIN stored as salted SHA-256 in Keychain; never in SQLite.
 - `FLAG_SECURE` is **not** set (users screenshot to share hisab), but app switcher preview is blurred when lock is on.
 - No analytics on amounts, notes or names. Crash reporting must scrub them.
 

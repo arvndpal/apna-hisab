@@ -78,3 +78,9 @@ yarn-error.log
 .env
 *.local.sqlite
 .claude/
+android/app/google-services.json
+
+# Backend (NestJS)
+backend/dist/
+backend/coverage/
+backend/*.tsbuildinfo

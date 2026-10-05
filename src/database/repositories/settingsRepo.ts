@@ -26,7 +26,9 @@ export function setSetting(key: string, value: string): void {
 
 /**
  * Pre-auth device identity (CLAUDE.md Milestone 3: "No auth needed yet — use a local user id").
- * Generated once and persisted; Milestone 4 reassigns rows to the signed-in Supabase user id.
+ * Generated once and persisted. Once signed in, reassignLocalDataToProfile (see
+ * database/reassignUser.ts) re-scopes existing rows to the backend profile id and
+ * getActiveUserId takes over as the id every query/write should use.
  */
 export function getLocalUserId(): string {
   const existing = getSetting(LOCAL_USER_ID_KEY);
@@ -34,6 +36,11 @@ export function getLocalUserId(): string {
   const id = newId();
   setSetting(LOCAL_USER_ID_KEY, id);
   return id;
+}
+
+/** The id every local query/write should scope to: the signed-in profile's id once signed in, else the local device id. */
+export function getActiveUserId(): string {
+  return getProfile()?.id ?? getLocalUserId();
 }
 
 /** Defaults for Add Transaction, per SCREENS.md §7–8: last used category/payment method. */

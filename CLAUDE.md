@@ -16,7 +16,7 @@ You are building **Apna Hisab**, an offline-first Android app (React Native + Ty
 | `design-reference/assets/logo.png` | The app logo (use as-is; see design system §6 for launcher icon notes). |
 | `docs/DESIGN_SYSTEM.md` | Colours, **logo gradients**, type, spacing, every reusable component with props, variants, states and a11y rules |
 | `docs/SCREENS.md` | Every screen: route, params, exact layout top-to-bottom, data, actions, navigation, empty/loading/error states, acceptance criteria |
-| `docs/ARCHITECTURE.md` | Navigation tree, folder structure, SQLite + Supabase schema, repositories, sync engine, stores, validation, ads/premium rules |
+| `docs/ARCHITECTURE.md` | Backend (NestJS) design, navigation tree, folder structure, SQLite + Supabase schema, repositories, sync engine, stores, validation, ads/premium rules |
 | `src/theme/tokens.ts` | Design tokens + gradients as code — the single source of truth for styling |
 | `tailwind.config.js` | NativeWind config matching the tokens |
 | `src/i18n/en.json`, `src/i18n/hi.json` | Every UI string, English + Hindi, identical keys (361) |
@@ -24,36 +24,48 @@ You are building **Apna Hisab**, an offline-first Android app (React Native + Ty
 | `src/types/models.ts` | Domain types |
 | `src/utils/money.ts` | Paise helpers, Indian number formatting, keypad input rules |
 | `src/database/schema.sql` | Local SQLite schema (migration 001) incl. Udhaar balance view |
-| `supabase/migrations/0001_init.sql` | Cloud schema with Row Level Security + profile trigger |
+| `supabase/migrations/0001_init.sql` | Cloud schema (accessed only by `/backend`, via service role — not Supabase Auth) |
+| `backend/` | NestJS backend — the only thing that talks to Supabase; owns auth (Google token verify + its own JWTs) and sync push/pull |
 
 When the screenshots and the docs disagree on looks, **the screenshots win**; on behaviour, **the docs win**. Sample names and amounts in the screenshots are illustrative data.
 
 ## Stack (use exactly this unless blocked)
 
-- Expo SDK (latest stable) with a **development build** (not Expo Go — native modules are required), TypeScript strict
+**Mobile app** — bare React Native CLI (not Expo — dropped early for native-module control), TypeScript strict:
 - React Navigation v7: native-stack + bottom-tabs
 - Zustand (app/session state), React Hook Form + Zod (forms)
 - NativeWind v4 (Tailwind classes) — use tokens, never raw hex in components
-- `expo-sqlite` (local DB, source of truth for the UI)
-- `@supabase/supabase-js` (Auth + Postgres), `@react-native-google-signin/google-signin` → `supabase.auth.signInWithIdToken`
+- `@op-engineering/op-sqlite` (local DB, source of truth for the UI)
+- Talks to **this project's own NestJS backend** (`/backend`, see below) over REST — never to Supabase directly, never holds a Supabase key. `@react-native-google-signin/google-signin` gets a Google ID token on-device → exchanged for a Firebase credential via `@react-native-firebase/auth` (modular API) → the resulting Firebase ID token is sent to the backend's `/auth/google`, which returns this backend's own JWTs (see `docs/ARCHITECTURE.md` §0/§9). Needs `android/app/google-services.json` (gitignored, from Firebase Console) and `GOOGLE_WEB_CLIENT_ID` in `.env`.
 - `@react-native-community/netinfo` (connectivity)
-- `expo-local-authentication` + `expo-secure-store` (biometric / PIN)
-- `@gorhom/bottom-sheet`, `react-native-reanimated`, `react-native-gesture-handler`
+- `react-native-keychain` (PIN hash, biometric gate, backend JWT pair — OS Keystore)
+- `@gorhom/bottom-sheet` (`BottomSheetModal`, not the standalone `BottomSheet` — see §6 of ARCHITECTURE for why), `react-native-reanimated`, `react-native-gesture-handler`
 - `react-native-svg` + `victory-native` (or `react-native-gifted-charts`) for bar/line/donut
 - `lucide-react-native` icons (names listed in the design system)
-- `@expo-google-fonts/mukta` — Mukta covers Latin **and** Devanagari
-- `expo-linear-gradient` — brand gradients (hero, primary button, FAB, splash); values in `tokens.ts → gradients`
-- `i18next` + `react-i18next` + `expo-localization`
+- Mukta (bundled TTF, linked via `react-native.config.js` assets) — covers Latin **and** Devanagari
+- `react-native-linear-gradient` — brand gradients (hero, primary button, FAB, splash); values in `tokens.ts → gradients`
+- `i18next` + `react-i18next` + `react-native-localize`
 - `react-native-google-mobile-ads` (free plan), Google Play Billing via `react-native-iap` or RevenueCat (premium)
 - `uuid` (v4, generated on device)
+
+**Backend** (`/backend`, sibling folder, own `package.json`, deployed separately) — NestJS,
+TypeScript strict. The **only** thing that talks to Postgres (direct `pg` connection) and the
+**only** thing that verifies sign-in tokens; owns identity (verifies Firebase ID tokens, issues its
+own JWTs) and sync (push/pull REST endpoints). See `docs/ARCHITECTURE.md` §0 for the full design,
+`backend/.env.example` for required config.
+- `@nestjs/core` + `@nestjs/platform-express`, `@nestjs/config` (Zod-validated env), `@nestjs/jwt` + `@nestjs/passport` + `passport-jwt`
+- `firebase-admin` (verifies Firebase ID tokens server-side via `FIREBASE_SERVICE_ACCOUNT`)
+- `pg` — plain Postgres client over Supabase's transaction-mode pooler (`DATABASE_URL`); hand-written parameterized SQL, no ORM, no Supabase SDK, no RLS session
+- `class-validator` + `class-transformer` (request DTOs), `@nestjs/throttler` (rate limiting)
+- Tests: Vitest (unit, mocks the database layer + Firebase verification) + Supertest (e2e)
 
 ## Build order (milestones — finish and verify each before the next)
 
 1. **Foundation:** Expo app, TS strict, NativeWind wired to `tokens.ts`, Mukta loaded, i18n with en/hi, navigation skeleton with all routes as placeholders, primitives `AppText`, `Amount`, `GradientSurface` (wraps `expo-linear-gradient` with the token gradients), `Card` (shadow), `Button` variants. Build the Splash with the logo first to verify fonts, gradient and asset loading.
 2. **Local data:** SQLite schema + migrations runner, seed default categories, repositories (`transactionsRepo`, `categoriesRepo`, `udhaarRepo`, `syncQueueRepo`), money utils with unit tests.
 3. **Core loop (the product):** Home dashboard, FAB sheet, Add/Edit Transaction (keypad, category tiles, payment/date chips), Transactions list + search + filters, Transaction detail + delete with undo. Works fully offline. No auth needed yet (use a local user id).
-4. **Auth & onboarding:** Splash, Welcome, Google login, Language, App lock setup, Lock screen. Attach local data to the signed-in user.
-5. **Sync engine:** queue, push/pull, conflict rule, SyncStatus chip + banners, retries.
+4. **Auth & onboarding:** Splash, Welcome, Google login, Language, App lock setup, Lock screen. Attach local data to the signed-in user. Login calls the NestJS backend's `/auth/google` (§0/§9) — not Supabase directly.
+5. **Sync engine:** queue, push/pull, conflict rule, SyncStatus chip + banners, retries. Push/pull hit the backend's `/sync/push` and `/sync/pull` (§6) — not Supabase directly.
 6. **Udhaar:** list, person detail, add entry sheet.
 7. **Reports:** period selector, summary, charts, report detail, custom range, financial calendar.
 8. **More / Settings / Categories management / Export (CSV)**.

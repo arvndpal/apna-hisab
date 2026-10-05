@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
@@ -6,13 +6,14 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Users, ChevronRight } from 'lucide-react-native';
 import { AppText } from '../../components/common/AppText';
+import { Banner } from '../../components/common/Banner';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { EmptyState } from '../../components/common/EmptyState';
 import { HeroSummary } from '../../components/transactions/HeroSummary';
 import { TransactionItem } from '../../components/transactions/TransactionItem';
 import { useTheme } from '../../hooks/useTheme';
-import { useLocalUserId } from '../../hooks/useLocalUserId';
+import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useSummary } from '../../hooks/useSummary';
 import { useRecentTransactions } from '../../hooks/useRecentTransactions';
 import { useUdhaarTotals } from '../../hooks/useUdhaarTotals';
@@ -22,6 +23,7 @@ import { categoryDisplayName } from '../../database/repositories/categoriesRepo'
 import { useSettingsStore } from '../../store/settingsStore';
 import { formatRupees } from '../../utils/money';
 import { toOccurredOn } from '../../utils/dates';
+import { sync as runSync } from '../../sync/syncEngine/engine';
 import type { MainTabParamList } from '../../app/navigation/types';
 import type { AppStackParamList } from '../../app/navigation/types';
 
@@ -37,7 +39,7 @@ export function HomeScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<Nav>();
-  const userId = useLocalUserId();
+  const userId = useActiveUserId();
   const language = useSettingsStore((s) => s.language);
 
   const today = toOccurredOn(new Date());
@@ -46,6 +48,20 @@ export function HomeScreen() {
   const udhaar = useUdhaarTotals(userId);
   const sync = useSyncStatus();
   const categoriesById = useCategoriesById(userId);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [dismissedStatus, setDismissedStatus] = useState<string | null>(null);
+  const lastStatus = useRef(sync.status);
+  useEffect(() => {
+    if (sync.status !== lastStatus.current) setDismissedStatus(null);
+    lastStatus.current = sync.status;
+  }, [sync.status]);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await runSync();
+    setRefreshing(false);
+  };
 
   const now = new Date();
   const dateLabel = new Intl.DateTimeFormat(language === 'hi' ? 'hi-IN' : 'en-IN', {
@@ -60,7 +76,7 @@ export function HomeScreen() {
     <View style={{ flex: 1, backgroundColor: palette.background }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={false} onRefresh={() => {}} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={palette.primary} />}
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <HeroSummary
@@ -80,6 +96,23 @@ export function HomeScreen() {
         />
 
         <View style={{ paddingTop: 16, paddingHorizontal: 20, gap: 14 }}>
+          {sync.status === 'offline' && dismissedStatus !== 'offline' ? (
+            <Banner
+              variant="neutral"
+              title={t('sync.offlineBannerTitle')}
+              body={t('sync.offlineBanner')}
+              onDismiss={() => setDismissedStatus('offline')}
+            />
+          ) : null}
+          {sync.status === 'error' && dismissedStatus !== 'error' ? (
+            <Banner
+              variant="warning"
+              title={t('sync.errorBannerTitle')}
+              body={t('sync.errorBanner')}
+              onDismiss={() => setDismissedStatus('error')}
+            />
+          ) : null}
+
           <View style={{ flexDirection: 'row', gap: 10 }}>
             <View style={{ flex: 1 }}>
               <Button

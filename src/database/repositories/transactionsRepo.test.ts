@@ -36,7 +36,8 @@ describe('transactionsRepo', () => {
 
     expect(txn.syncStatus).toBe('pending');
     expect(txn.occurredOn).toBe('2026-10-03');
-    const queued = syncQueueRepo.listBatch();
+    // seedDefaultCategories also enqueues its rows — scope the assertion to this transaction's own entry.
+    const queued = syncQueueRepo.listBatch().filter((q) => q.tableName === 'transactions');
     expect(queued).toHaveLength(1);
     expect(queued[0]).toMatchObject({ tableName: 'transactions', rowId: txn.id, op: 'upsert' });
   });
