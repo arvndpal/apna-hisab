@@ -1,5 +1,5 @@
 import { GoogleSignin, statusCodes, isErrorWithCode, isSuccessResponse } from '@react-native-google-signin/google-signin';
-import { getAuth, GoogleAuthProvider, signInWithCredential, getIdToken } from '@react-native-firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithCredential, signOut as firebaseSignOut, getIdToken } from '@react-native-firebase/auth';
 import { GOOGLE_WEB_CLIENT_ID } from '@env';
 
 let configured = false;
@@ -32,5 +32,25 @@ export async function getFirebaseIdToken(): Promise<string | null> {
       return null;
     }
     throw e;
+  }
+}
+
+/**
+ * Logout: clears Google's own cached native session and Firebase Auth's persisted session, not
+ * just this app's local profile/tokens. Without this, the next getFirebaseIdToken() call silently
+ * re-authenticates the same account (no account picker shown) because both SDKs still think the
+ * user is signed in.
+ */
+export async function signOutGoogle(): Promise<void> {
+  ensureConfigured();
+  try {
+    await GoogleSignin.signOut();
+  } catch {
+    // Not signed in at the native level, or Play Services unavailable — nothing to clear.
+  }
+  try {
+    await firebaseSignOut(getAuth());
+  } catch {
+    // No current Firebase user — nothing to clear.
   }
 }

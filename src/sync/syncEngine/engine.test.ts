@@ -261,4 +261,58 @@ describe('sync() — pull conflict rule', () => {
 
     expect(syncMetaRepo.getLastPulledAt('transactions')).toBe('2026-10-05T12:00:00Z');
   });
+
+  it('a row that violates a unique index is skipped without blocking the rest of the pull', async () => {
+    // beforeEach already seeded 'cat-1' with key='fuel'. A pulled row for the same key but a
+    // different id (e.g. stale server-side duplicate data) can't be inserted without violating
+    // the (user_id, key) unique index — this must not abort the whole sync cascade.
+    mockedPull.mockImplementation(async (table: string) => {
+      if (table === 'categories') {
+        return [
+          {
+            id: 'cat-duplicate',
+            user_id: USER,
+            key: 'fuel',
+            type: 'expense',
+            name: null,
+            name_hi: 'ईंधन',
+            icon: 'Fuel',
+            sort: 1,
+            is_default: true,
+            created_at: '2026-01-01T00:00:00Z',
+            updated_at: '2026-10-05T00:00:00Z',
+            deleted_at: null,
+          },
+        ];
+      }
+      if (table === 'transactions') {
+        return [
+          {
+            id: 'txn-new',
+            user_id: USER,
+            type: 'income',
+            amount_paise: 100000,
+            category_id: 'cat-1',
+            payment_method: 'bank',
+            occurred_at: '2026-10-03T09:05:00+05:30',
+            occurred_on: '2026-10-03',
+            note: null,
+            created_at: '2026-10-03T03:35:00Z',
+            updated_at: '2026-10-05T12:00:00Z',
+            deleted_at: null,
+          },
+        ];
+      }
+      return [];
+    });
+
+    await sync();
+
+    // The conflicting category row was skipped — the pre-existing local one is untouched...
+    const categories = exec('SELECT id FROM categories WHERE user_id = ?', [USER]).rows;
+    expect(categories.map((c) => c.id)).toEqual(['cat-1']);
+    // ...but the table after it in the pull order still got pulled instead of the whole sync aborting.
+    const txn = exec('SELECT id FROM transactions WHERE id = ?', ['txn-new']).rows[0];
+    expect(txn).toBeDefined();
+  });
 });

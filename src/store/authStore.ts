@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import * as settingsRepo from '../database/repositories/settingsRepo';
 import type { StoredProfile } from '../database/repositories/settingsRepo';
-import { reassignLocalDataToProfile } from '../database/reassignUser';
+import { reassignLocalDataToProfile, wipeLocalData } from '../database/reassignUser';
 import * as session from '../services/auth/session';
 import type { TokenPair } from '../services/auth/session';
 import type { BackendProfile } from '../services/api/authApi';
+import { signOutGoogle } from '../services/auth/google';
 
 interface AuthState {
   profile: StoredProfile | null;
@@ -21,14 +22,24 @@ export const useAuthStore = create<AuthState>((set) => ({
   hydrated: false,
   signIn: async (backendProfile, tokens) => {
     reassignLocalDataToProfile(settingsRepo.getLocalUserId(), backendProfile.id);
-    const profile: StoredProfile = { id: backendProfile.id, name: backendProfile.name ?? '', email: backendProfile.email ?? '' };
+    const profile: StoredProfile = {
+      id: backendProfile.id,
+      name: backendProfile.name ?? '',
+      email: backendProfile.email ?? '',
+      avatarUrl: backendProfile.avatarUrl,
+    };
     settingsRepo.setProfile(profile);
     await session.saveTokens(tokens);
     set({ profile });
   },
   signOut: async () => {
+    const profile = settingsRepo.getProfile();
+    if (profile) wipeLocalData(profile.id);
     settingsRepo.clearProfile();
+    settingsRepo.clearLocalUserId();
+    settingsRepo.clearLastUsedDefaults();
     await session.clearTokens();
+    await signOutGoogle();
     set({ profile: null });
   },
   hydrate: () => set({ profile: settingsRepo.getProfile(), hydrated: true }),

@@ -18,6 +18,8 @@ import { getFirebaseIdToken } from '../../services/auth/google';
 import * as authApi from '../../services/api/authApi';
 import { showToast } from '../../store/toastStore';
 import { start as startSync } from '../../sync/syncEngine/engine';
+import { seedDefaultCategories } from '../../database/seed';
+import { getActiveUserId } from '../../database/repositories/settingsRepo';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 
@@ -48,6 +50,9 @@ export function LoginScreen() {
       }
       const { tokens, profile } = await authApi.signInWithGoogle(firebaseIdToken);
       await signIn(profile, tokens);
+      // SplashScreen seeds defaults on cold boot, but a logout→login cycle never revisits Splash —
+      // without this, a fresh sign-in (local data just wiped by logout) would have zero categories.
+      seedDefaultCategories(getActiveUserId());
       startSync(); // fire-and-forget
 
       if (onboardingDone) {

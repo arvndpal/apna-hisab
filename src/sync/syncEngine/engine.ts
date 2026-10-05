@@ -1,5 +1,5 @@
 import NetInfo from '@react-native-community/netinfo';
-import { exec, runInTransaction } from '../../database/sqlite/client';
+import { exec } from '../../database/sqlite/client';
 import * as syncQueueRepo from '../../database/repositories/syncQueueRepo';
 import * as syncMetaRepo from '../../database/repositories/syncMetaRepo';
 import * as syncApi from '../../services/api/syncApi';
@@ -107,9 +107,17 @@ async function pullTable(table: SyncedTable): Promise<void> {
     const rows = await syncApi.pull(table, since, 500);
     if (rows.length === 0) return;
 
-    runInTransaction(() => {
-      for (const row of rows) applyPulledRow(table, row);
-    });
+    // Not wrapped in one runInTransaction: each row commits independently, so a single row that
+    // can't be applied (e.g. a unique-index collision from stale server-side duplicate data) is
+    // skipped rather than rolling back — and aborting — the rest of this table's pull, let alone
+    // every table queued after it.
+    for (const row of rows) {
+      try {
+        applyPulledRow(table, row);
+      } catch {
+        // Best-effort: leave the local row (if any) as-is and move on to the next pulled row.
+      }
+    }
 
     const maxUpdatedAt = rows.reduce((max, r) => {
       const u = r.updated_at as string;

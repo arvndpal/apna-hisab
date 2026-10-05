@@ -43,6 +43,11 @@ export function getActiveUserId(): string {
   return getProfile()?.id ?? getLocalUserId();
 }
 
+/** Logout: drop the pre-auth device id too, so the next getLocalUserId() mints a fresh one. */
+export function clearLocalUserId(): void {
+  exec('DELETE FROM kv_settings WHERE key = ?', [LOCAL_USER_ID_KEY]);
+}
+
 /** Defaults for Add Transaction, per SCREENS.md §7–8: last used category/payment method. */
 export function getLastCategoryId(type: TransactionType): string | null {
   return getSetting(lastCategoryKey(type));
@@ -60,13 +65,27 @@ export function setLastPaymentMethod(method: PaymentMethod): void {
   setSetting(LAST_PAYMENT_METHOD_KEY, method);
 }
 
+/**
+ * Logout: these "last used" quick-defaults point at a specific categoryId, which wipeLocalData()
+ * just deleted. Left alone, the next Add Transaction would silently prefill a category id that no
+ * longer exists and fail with a foreign-key error on save.
+ */
+export function clearLastUsedDefaults(): void {
+  exec('DELETE FROM kv_settings WHERE key IN (?, ?, ?)', [
+    lastCategoryKey('income'),
+    lastCategoryKey('expense'),
+    LAST_PAYMENT_METHOD_KEY,
+  ]);
+}
+
 export interface StoredProfile {
   id: string;
   name: string;
   email: string;
+  avatarUrl: string | null;
 }
 
-/** Milestone 4 stub: no real Google/Supabase session yet — a locally persisted profile marks "signed in". */
+/** A locally persisted copy of the backend profile marks "signed in" without a network round trip. */
 export function getProfile(): StoredProfile | null {
   const raw = getSetting(PROFILE_KEY);
   return raw ? (JSON.parse(raw) as StoredProfile) : null;

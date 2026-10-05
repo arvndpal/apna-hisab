@@ -57,8 +57,11 @@ export function AddTransactionScreen({ route, navigation }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
+  // Falls back to the first category whenever categoryId is unset OR stale — e.g. a "last used
+  // category" default left over from before a logout wiped that category out from under it.
   useEffect(() => {
-    if (!categoryId && categories.length > 0) setCategoryId(categories[0].id);
+    if (categories.length === 0) return;
+    if (!categories.some((c) => c.id === categoryId)) setCategoryId(categories[0].id);
   }, [categories, categoryId]);
 
   const tint = type === 'income' ? palette.incomeTint : palette.expenseTint;
