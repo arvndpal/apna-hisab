@@ -10,7 +10,7 @@ export type BannerVariant = 'neutral' | 'warning';
 export interface BannerProps {
   variant: BannerVariant;
   title: string;
-  body: string;
+  body?: string;
   onDismiss?: () => void;
 }
 
@@ -38,9 +38,11 @@ export function Banner({ variant, title, body, onDismiss }: BannerProps) {
         <AppText variant="rowTitle" style={{ color: colors.fg }}>
           {title}
         </AppText>
-        <AppText variant="secondary" style={{ color: colors.fg }}>
-          {body}
-        </AppText>
+        {body ? (
+          <AppText variant="secondary" style={{ color: colors.fg }}>
+            {body}
+          </AppText>
+        ) : null}
       </View>
       {onDismiss ? (
         <Pressable onPress={onDismiss} accessibilityRole="button" accessibilityLabel="Dismiss" hitSlop={10}>

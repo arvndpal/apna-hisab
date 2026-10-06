@@ -13,6 +13,7 @@ import { migrate } from '../../database/migrations';
 import { seedDefaultCategories } from '../../database/seed';
 import { getActiveUserId } from '../../database/repositories/settingsRepo';
 import { useAuthStore } from '../../store/authStore';
+import { useSyncStore } from '../../store/syncStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { start as startSync } from '../../sync/syncEngine/engine';
 
@@ -58,6 +59,7 @@ export function SplashScreen({ navigation }: Props) {
       seedDefaultCategories(getActiveUserId());
       useAuthStore.getState().hydrate();
       useSettingsStore.getState().hydrate();
+      useSyncStore.getState().hydrate();
       profile = useAuthStore.getState().profile;
       lockMethod = useSettingsStore.getState().lockMethod;
     } catch (e) {

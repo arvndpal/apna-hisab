@@ -13,7 +13,8 @@ export type AuthStackParamList = {
   Login: undefined;
   LanguageSelect: { fromSettings?: boolean } | undefined;
   AppLockSetup: undefined;
-  PinCreate: { method: 'pin' | 'biometric' };
+  /** fromSettings: pop back to Settings when done instead of finishing onboarding. */
+  PinCreate: { method: 'pin' | 'biometric'; fromSettings?: boolean };
 };
 
 export type AppStackParamList = {
@@ -37,7 +38,8 @@ export type AppStackParamList = {
 export type RootStackParamList = {
   Splash: undefined;
   Auth: NavigatorScreenParams<AuthStackParamList>;
-  LockScreen: undefined;
+  /** resume: pushed over the App stack on return (pop back on unlock) rather than gating a cold start. */
+  LockScreen: { resume?: boolean } | undefined;
   App: NavigatorScreenParams<AppStackParamList>;
 };
 

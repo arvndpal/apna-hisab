@@ -61,6 +61,23 @@ export function getById(id: string): Category | null {
   return row ? fromRow(row as unknown as CategoryRow) : null;
 }
 
+/**
+ * Names are unique per type, case-insensitive (SCREENS.md §11). A default category answers to its
+ * English and Hindi names as well as any rename, so "food" or "खाना" clash with the seeded Food.
+ */
+export function findDuplicate(userId: string, type: TransactionType, name: string, excludeId?: string): Category | null {
+  const wanted = name.trim().toLocaleLowerCase();
+  if (!wanted) return null;
+  return (
+    list(userId, type).find((c) => {
+      if (c.id === excludeId) return false;
+      const fallback = DEFAULT_CATEGORIES.find((d) => d.key === c.key);
+      const names = c.name ? [c.name] : [c.nameHi, fallback?.name, fallback?.nameHi];
+      return names.some((n) => n?.trim().toLocaleLowerCase() === wanted);
+    }) ?? null
+  );
+}
+
 function getOtherCategoryId(userId: string, type: TransactionType): string | null {
   const row = exec('SELECT id FROM categories WHERE user_id = ? AND key = ? AND deleted_at IS NULL', [
     userId,

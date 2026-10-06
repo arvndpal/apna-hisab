@@ -316,3 +316,14 @@ export function listEntriesForPerson(personId: string): Array<UdhaarEntry & { ru
     return { ...entry, runningBalancePaise: running };
   });
 }
+
+/** Export (SCREENS.md §19c): every live entry in [from, to] with its person's name, oldest first. */
+export function listEntriesInRange(userId: string, from: string, to: string): Array<UdhaarEntry & { personName: string }> {
+  return exec(
+    `SELECT e.*, p.name AS person_name FROM udhaar_entries e
+     JOIN udhaar_people p ON p.id = e.person_id
+     WHERE e.user_id = ? AND e.deleted_at IS NULL AND e.occurred_on >= ? AND e.occurred_on <= ?
+     ORDER BY e.occurred_at ASC`,
+    [userId, from, to],
+  ).rows.map((r) => ({ ...entryFromRow(r as unknown as EntryRow), personName: r.person_name as string }));
+}

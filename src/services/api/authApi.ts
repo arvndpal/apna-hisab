@@ -28,3 +28,8 @@ export async function refresh(refreshToken: string): Promise<TokenPair> {
 export async function me(): Promise<BackendProfile> {
   return authedFetch<BackendProfile>('/auth/me');
 }
+
+/** Permanently deletes the account. `idToken` is a fresh Firebase ID token — the backend's re-auth check. */
+export async function deleteAccount(idToken: string): Promise<void> {
+  await authedFetch<{ deleted: boolean }>('/auth/me', { method: 'DELETE', body: JSON.stringify({ idToken }) });
+}

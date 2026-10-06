@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import * as settingsRepo from '../database/repositories/settingsRepo';
 import type { SyncUiStatus } from '../types/models';
 
 interface SyncState {
@@ -11,6 +12,8 @@ interface SyncState {
   setPendingCount: (count: number) => void;
   setSynced: (atIso: string) => void;
   setError: (errorKey: string) => void;
+  /** Reads the persisted last-sync time. Must only run after migrate() — see SplashScreen. */
+  hydrate: () => void;
 }
 
 export const useSyncStore = create<SyncState>((set) => ({
@@ -20,6 +23,10 @@ export const useSyncStore = create<SyncState>((set) => ({
   lastError: null,
   setStatus: (status) => set({ status }),
   setPendingCount: (pendingCount) => set({ pendingCount }),
-  setSynced: (atIso) => set({ status: 'synced', lastSyncedAt: atIso, lastError: null }),
+  setSynced: (atIso) => {
+    settingsRepo.setLastSyncedAt(atIso);
+    set({ status: 'synced', lastSyncedAt: atIso, lastError: null });
+  },
   setError: (lastError) => set({ status: 'error', lastError }),
+  hydrate: () => set({ lastSyncedAt: settingsRepo.getLastSyncedAt() }),
 }));

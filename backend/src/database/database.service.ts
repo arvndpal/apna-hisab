@@ -9,6 +9,8 @@ import type { Env } from '../config/env.validation.js';
 // the mobile app's side. Keep the raw text Postgres already sends instead.
 types.setTypeParser(1082, (value: string) => value);
 
+export type TxQuery = <T extends QueryResultRow = QueryResultRow>(sql: string, params?: unknown[]) => Promise<T[]>;
+
 /**
  * Thin wrapper over a pg Pool — connects directly to Postgres via Supabase's connection pooler,
  * not the Supabase SDK. No RLS/auth.uid() session exists on this connection; every query in
@@ -24,6 +26,22 @@ export class DatabaseService implements OnModuleDestroy {
 
   query<T extends QueryResultRow = QueryResultRow>(sql: string, params: unknown[] = []): Promise<T[]> {
     return this.pool.query<T>(sql, params).then((result) => result.rows);
+  }
+
+  /** Runs `fn` inside BEGIN/COMMIT on one pooled connection; rolls back and rethrows on any error. */
+  async transaction<T>(fn: (query: TxQuery) => Promise<T>): Promise<T> {
+    const client = await this.pool.connect();
+    try {
+      await client.query('BEGIN');
+      const result = await fn((sql, params = []) => client.query(sql, params).then((r) => r.rows));
+      await client.query('COMMIT');
+      return result;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
+    }
   }
 
   async onModuleDestroy() {

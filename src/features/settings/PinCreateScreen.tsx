@@ -58,6 +58,11 @@ export function PinCreateScreen() {
     } else {
       setLockMethod('pin');
     }
+    if (route.params.fromSettings) {
+      // Opened on top of the App stack from Settings: leave the Auth stack and land back there.
+      navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.goBack();
+      return;
+    }
     setOnboardingDone(true);
     navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.reset({
       index: 0,

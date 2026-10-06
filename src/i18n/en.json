@@ -41,7 +41,8 @@
     "unlockTitle": "Unlock Apna Hisab", "enterPin": "Enter your PIN",
     "biometricFailed": "Fingerprint not recognised. Try again or use your PIN.", "usePin": "Use PIN instead",
     "tooManyAttempts": "Too many attempts. Try again in {{seconds}} seconds.", "forgotPin": "Forgot PIN?",
-    "reminder": "Protect your hisab with an app lock.", "turnOn": "Turn on"
+    "reminder": "Protect your hisab with an app lock.", "turnOn": "Turn on",
+    "wrongPin": "Wrong PIN. Try again."
   },
   "home": {
     "greeting": { "morning": "Good morning, {{name}}", "afternoon": "Good afternoon, {{name}}", "evening": "Good evening, {{name}}" },
@@ -70,7 +71,8 @@
     "incomeAdded": "Income added", "expenseAdded": "Expense added", "updated": "Transaction updated",
     "deleted": "Transaction deleted", "udhaarSaved": "Udhaar saved", "categorySaved": "Category saved",
     "premiumActive": "Premium active", "synced": "All data synced",
-    "udhaarEntryDeleted": "Entry deleted", "personDeleted": "Person deleted"
+    "udhaarEntryDeleted": "Entry deleted", "personDeleted": "Person deleted",
+    "categoryDeleted": "Category deleted", "exportReady": "Export ready"
   },
   "transactions": {
     "title": "Transactions", "searchPlaceholder": "Search notes, categories, amounts",
@@ -90,7 +92,8 @@
     "title": "Categories", "income": "Income ({{count}})", "expense": "Expense ({{count}})",
     "edit": "Edit category", "add": "Add category", "name": "Name", "icon": "Icon",
     "deleteHint": "Deleting keeps past transactions — they move to \"Other\".",
-    "duplicate": "You already have \"{{name}}\".", "cantDeleteOther": "\"Other\" can't be deleted."
+    "duplicate": "You already have \"{{name}}\".", "cantDeleteOther": "\"Other\" can't be deleted.",
+    "deleteTitle": "Delete \"{{name}}\"?"
   },
   "udhaar": {
     "title": "Udhaar", "willReceive": "You will receive", "needToPay": "You need to pay",
@@ -133,7 +136,9 @@
     "appLock": "App Lock", "language": "Language", "notifications": "Notifications",
     "syncBackup": "Sync & Backup", "export": "Export Data", "subscription": "Subscription",
     "privacy": "Privacy", "help": "Help & Support", "about": "About Apna Hisab",
-    "logout": "Logout", "deleteAccount": "Delete Account", "free": "Free", "premium": "Premium", "off": "Off"
+    "logout": "Logout", "deleteAccount": "Delete Account", "free": "Free", "premium": "Premium", "off": "Off",
+    "fingerprint": "Fingerprint", "dailyAt": "Daily {{time}}", "version": "v{{version}}",
+    "helpSubject": "Apna Hisab help"
   },
   "settings": {
     "title": "Settings", "account": "Account", "googleAccount": "Google account",
@@ -144,20 +149,34 @@
     "data": "Data", "syncStatus": "Sync status", "lastSynced": "Last synced {{time}}", "syncNow": "Sync now",
     "exportData": "Export data", "backup": "Backup", "backupAuto": "Automatic",
     "premium": "Premium", "freePlan": "Free plan", "renews": "Premium · renews {{date}}", "manage": "Manage subscription",
-    "version": "Apna Hisab v{{version}}"
+    "version": "Apna Hisab v{{version}}",
+    "notifications": "Notifications", "deleteAccount": "Delete account", "exportFormats": "CSV · PDF · Excel",
+    "notSyncedYet": "Not synced yet", "biometricNeedsPin": "Set a PIN first — it is the backup for fingerprint."
   },
   "logout": {
     "title": "Log out?", "unsynced_one": "{{count}} transaction is not backed up yet. Connect to the internet first to keep it.",
     "unsynced_other": "{{count}} transactions are not backed up yet. Connect to the internet first to keep them.",
     "confirm": "Log out"
   },
-  "export": { "title": "Export Data", "range": "Range", "lastMonth": "Last month", "thisYear": "This year", "format": "Format", "csv": "CSV", "pdf": "PDF", "excel": "Excel", "export": "Export" },
+  "export": {
+    "title": "Export Data", "range": "Range", "lastMonth": "Last month", "thisYear": "This year", "format": "Format", "csv": "CSV", "pdf": "PDF", "excel": "Excel", "export": "Export",
+    "thisMonth": "This month", "custom": "Custom", "from": "From", "to": "To", "premiumBadge": "Premium",
+    "csvSub": "Opens in Excel, Google Sheets", "pdfSub": "Ready-to-print statement",
+    "excelSub": "Spreadsheet with formatting", "noData": "Nothing to export in this range.",
+    "failed": "Couldn't create the file. Your data is safe — please try again.",
+    "includes": "Includes transactions and Udhaar entries in this range.", "colDate": "Date", "colTime": "Time",
+    "colType": "Type", "colCategory": "Category", "colAmount": "Amount (₹)", "colPayment": "Payment method",
+    "colNote": "Note", "colPerson": "Person", "colUdhaar": "Udhaar"
+  },
   "deleteAccount": {
     "title": "This permanently deletes your Apna Hisab account",
     "body": "All transactions, Udhaar records, categories and backups will be erased from this phone and our servers. This cannot be undone.",
     "exportFirst": "Export my data first", "typeToConfirm": "Type DELETE to confirm",
     "understand": "I understand my data cannot be recovered.", "confirm": "Delete my account", "keep": "Keep my account",
-    "needInternet": "Connect to the internet to delete your account."
+    "needInternet": "Connect to the internet to delete your account.",
+    "screenTitle": "Delete account",
+    "failed": "Couldn't delete your account. Nothing was removed — please try again.",
+    "wrongAccount": "Choose the same Google account you signed in with."
   },
   "premium": {
     "title": "Upgrade to Apna Hisab Premium", "sub": "The same simple app — without ads, with deeper reports.",
@@ -197,5 +216,17 @@
     "amountIncome": "{{amount}} rupees, income", "amountExpense": "{{amount}} rupees, expense",
     "amountNet": "Net {{amount}} rupees", "deleteDigit": "Delete digit", "decimal": "Decimal point",
     "profile": "Profile and settings", "openReport": "Open report"
+  },
+  "time": {
+    "justNow": "just now", "minutesAgo_one": "{{count}} min ago", "minutesAgo_other": "{{count}} min ago",
+    "hoursAgo_one": "{{count}} hour ago", "hoursAgo_other": "{{count}} hours ago"
+  },
+  "syncBackup": {
+    "title": "Sync & Backup", "syncedTitle": "All data synced",
+    "syncedBody": "Every entry is backed up to your account.", "pendingTitle": "Waiting to sync",
+    "pendingBody_one": "{{count}} transaction is saved on this phone and will upload soon.",
+    "pendingBody_other": "{{count}} transactions are saved on this phone and will upload soon.",
+    "syncingTitle": "Syncing…", "syncingBody": "Uploading your latest entries.", "pending": "Waiting to upload",
+    "lastSynced": "Last synced"
   }
 }

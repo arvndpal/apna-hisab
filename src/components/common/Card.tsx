@@ -26,6 +26,8 @@ export function Card({ onPress, padded = true, style, children, testID, ...rest 
         android_ripple={{ color: palette.muted }}
         style={[base, style]}
         testID={testID}
+        accessibilityRole="button"
+        {...rest}
       >
         {children}
       </Pressable>

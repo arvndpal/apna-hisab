@@ -1,11 +1,13 @@
 import React from 'react';
 import { View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 import { Check, RefreshCw, CloudOff } from 'lucide-react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { AppText } from './AppText';
 import { useTheme } from '../../hooks/useTheme';
 import type { SyncUiStatus } from '../../types/models';
+import type { Palette } from '../../theme/tokens';
 
 export interface SyncStatusProps {
   status: SyncUiStatus;
@@ -24,26 +26,38 @@ const ICONS: Record<SyncUiStatus, LucideIcon> = {
 };
 
 /** Pill, 12.5/600. `variant="glass"` is for placement on the gradient hero. */
-export function SyncStatus({ status, pendingCount = 0, variant = 'default', label }: SyncStatusProps) {
-  const { t } = useTranslation();
-  const palette = useTheme();
-  const Icon = ICONS[status];
+/** Chip text per state (SCREENS.md §20) — also the coloured value on More's Sync & Backup row. */
+export function syncStatusLabel(t: TFunction, status: SyncUiStatus, pendingCount: number): string {
+  switch (status) {
+    case 'synced':
+      return t('sync.synced');
+    case 'pending':
+      return t('sync.pending', { count: pendingCount });
+    case 'syncing':
+      return t('sync.syncing');
+    case 'offline':
+      return t('sync.offline');
+    case 'error':
+      return t('sync.error');
+  }
+}
 
-  const labels: Record<SyncUiStatus, string> = {
-    synced: t('sync.synced'),
-    pending: t('sync.pending', { count: pendingCount }),
-    syncing: t('sync.syncing'),
-    offline: t('sync.offline'),
-    error: t('sync.error'),
-  };
-
-  const colors: Record<SyncUiStatus, { bg: string; fg: string }> = {
+export function syncStatusColors(palette: Palette): Record<SyncUiStatus, { bg: string; fg: string }> {
+  return {
     synced: { bg: palette.incomeTint, fg: palette.income },
     pending: { bg: palette.warningTint, fg: palette.warning },
     syncing: { bg: palette.warningTint, fg: palette.warning },
     offline: { bg: palette.muted, fg: palette.textSecondary },
     error: { bg: palette.errorTint, fg: palette.error },
   };
+}
+
+export function SyncStatus({ status, pendingCount = 0, variant = 'default', label }: SyncStatusProps) {
+  const { t } = useTranslation();
+  const palette = useTheme();
+  const Icon = ICONS[status];
+
+  const colors = syncStatusColors(palette);
 
   const isGlass = variant === 'glass';
   const bg = isGlass ? 'rgba(0,20,16,0.24)' : colors[status].bg;
@@ -63,7 +77,7 @@ export function SyncStatus({ status, pendingCount = 0, variant = 'default', labe
     >
       <Icon size={14} color={fg} strokeWidth={2.5} />
       <AppText variant="caption" style={{ color: fg }}>
-        {label ?? labels[status]}
+        {label ?? syncStatusLabel(t, status, pendingCount)}
       </AppText>
     </View>
   );

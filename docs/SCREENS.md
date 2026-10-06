@@ -266,7 +266,7 @@ Range selector (This month / Last month / This year / Custom), format Option lis
 ## 19d. Delete account — `DeleteAccount`
 
 White, header Back. Error icon tile (AlertTriangle). Title (24/800) `t('deleteAccount.title')`. Error Banner explaining scope. Secondary "Export my data first" → `Export`. Input labelled "Type DELETE to confirm" (case-sensitive; Hindi UI still requires "DELETE"). Checkbox "I understand my data cannot be recovered." Danger button "Delete my account" disabled (opacity 0.4) until input === "DELETE" and checkbox checked. Ghost "Keep my account".
-**Flow:** require connectivity (`t('deleteAccount.needInternet')`), re-auth with Google, call Supabase Edge Function `delete-account` (deletes user rows + auth user), wipe SQLite + SecureStore, → `Welcome`.
+**Flow:** require connectivity (`t('deleteAccount.needInternet')`), re-auth with Google, call the backend's `DELETE /auth/me { idToken }` (checks the fresh token is the same Google account, deletes the user's rows + profile in one transaction, then the Firebase user), wipe SQLite + Keychain (tokens, PIN, biometric), → `Welcome`.
 
 ## 23. Premium — `Premium` (modal)
 

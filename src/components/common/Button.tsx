@@ -14,6 +14,7 @@ export type ButtonVariant =
   | 'expenseTonal'
   | 'secondary'
   | 'ghost'
+  | 'ghostDanger'
   | 'danger'
   | 'dangerOutline';
 
@@ -56,6 +57,7 @@ export function Button({
     expenseTonal: palette.expenseTint,
     secondary: palette.surface,
     ghost: 'transparent',
+    ghostDanger: 'transparent',
     danger: palette.error,
     dangerOutline: palette.surface,
   };
@@ -68,6 +70,7 @@ export function Button({
     expenseTonal: 'expense',
     secondary: 'primary',
     ghost: 'primary',
+    ghostDanger: 'error',
     danger: 'onPrimary',
     dangerOutline: 'error',
   };
@@ -103,7 +106,7 @@ export function Button({
               <TonalIcon size={16} color="#FFFFFF" strokeWidth={2.5} />
             </View>
           ) : Icon ? (
-            <Icon size={18} color={textColor[variant] === 'onPrimary' ? '#FFFFFF' : palette.textPrimary} strokeWidth={2} />
+            <Icon size={18} color={textColor[variant] === 'onPrimary' ? '#FFFFFF' : textColor[variant] === 'error' ? palette.error : palette.textPrimary} strokeWidth={2} />
           ) : null}
           <AppText variant="button" color={textColor[variant]}>
             {label}

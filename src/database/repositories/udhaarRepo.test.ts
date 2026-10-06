@@ -192,3 +192,21 @@ describe('udhaarRepo balance calculation', () => {
     expect(udhaarRepo.getPerson(person.id)!.balancePaise).toBe(0);
   });
 });
+
+describe('udhaarRepo.listEntriesInRange', () => {
+  it('returns live entries in the range, oldest first, with the person name', () => {
+    const ramesh = udhaarRepo.createPerson({ userId: USER, name: 'Ramesh' });
+    const add = (day: number, amountPaise: number) =>
+      udhaarRepo.addEntry({ userId: USER, personId: ramesh.id, direction: 'given', amountPaise, occurredAt: new Date(2026, 9, day, 10) });
+
+    add(1, 100);
+    const deleted = add(3, 300);
+    add(2, 200);
+    add(20, 999);
+    udhaarRepo.softDeleteEntry(deleted.id);
+
+    const entries = udhaarRepo.listEntriesInRange(USER, '2026-10-01', '2026-10-10');
+    expect(entries.map((e) => e.amountPaise)).toEqual([100, 200]);
+    expect(entries[0].personName).toBe('Ramesh');
+  });
+});

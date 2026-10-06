@@ -11,6 +11,9 @@ const LOCK_METHOD_KEY = 'lockMethod';
 const LOCK_AFTER_MS_KEY = 'lockAfterMs';
 const ONBOARDING_DONE_KEY = 'onboardingDone';
 const LOCK_REMINDER_DISMISSED_KEY = 'lockReminderDismissed';
+const NOTIFICATIONS_ENABLED_KEY = 'notificationsEnabled';
+const REMINDER_TIME_KEY = 'reminderTime';
+const LAST_SYNCED_AT_KEY = 'lastSyncedAt';
 
 export function getSetting(key: string): string | null {
   const result = exec('SELECT value FROM kv_settings WHERE key = ?', [key]);
@@ -143,4 +146,32 @@ export function getLockReminderDismissed(): boolean {
 
 export function setLockReminderDismissed(dismissed: boolean): void {
   setSetting(LOCK_REMINDER_DISMISSED_KEY, dismissed ? 'true' : 'false');
+}
+
+/** Daily reminder (SCREENS.md §19). Off until the user turns it on. */
+export function getNotificationsEnabled(): boolean {
+  return getSetting(NOTIFICATIONS_ENABLED_KEY) === 'true';
+}
+
+export function setNotificationsEnabled(enabled: boolean): void {
+  setSetting(NOTIFICATIONS_ENABLED_KEY, enabled ? 'true' : 'false');
+}
+
+/** Local "HH:mm", default 21:00 ("9:00 PM"). */
+export function getReminderTime(): string {
+  const value = getSetting(REMINDER_TIME_KEY);
+  return value && /^\d{2}:\d{2}$/.test(value) ? value : '21:00';
+}
+
+export function setReminderTime(hhmm: string): void {
+  setSetting(REMINDER_TIME_KEY, hhmm);
+}
+
+/** Persisted so "Last synced …" survives an app restart instead of reading "Not synced yet". */
+export function getLastSyncedAt(): string | null {
+  return getSetting(LAST_SYNCED_AT_KEY) || null;
+}
+
+export function setLastSyncedAt(iso: string | null): void {
+  setSetting(LAST_SYNCED_AT_KEY, iso ?? '');
 }

@@ -41,7 +41,8 @@
     "unlockTitle": "अपना हिसाब खोलें", "enterPin": "अपना पिन डालें",
     "biometricFailed": "फ़िंगरप्रिंट नहीं पहचाना गया। फिर कोशिश करें या पिन डालें।", "usePin": "पिन से खोलें",
     "tooManyAttempts": "बहुत ज़्यादा कोशिशें। {{seconds}} सेकंड बाद फिर कोशिश करें।", "forgotPin": "पिन भूल गए?",
-    "reminder": "ऐप लॉक से अपना हिसाब सुरक्षित रखें।", "turnOn": "चालू करें"
+    "reminder": "ऐप लॉक से अपना हिसाब सुरक्षित रखें।", "turnOn": "चालू करें",
+    "wrongPin": "गलत PIN. फिर से कोशिश करें।"
   },
   "home": {
     "greeting": { "morning": "सुप्रभात, {{name}}", "afternoon": "नमस्ते, {{name}}", "evening": "शुभ संध्या, {{name}}" },
@@ -70,7 +71,8 @@
     "incomeAdded": "कमाई जुड़ गई", "expenseAdded": "खर्च जुड़ गया", "updated": "लेन-देन बदल गया",
     "deleted": "लेन-देन हटाया गया", "udhaarSaved": "उधार सेव हो गया", "categorySaved": "श्रेणी सेव हो गई",
     "premiumActive": "प्रीमियम चालू", "synced": "सारा डेटा सिंक हो गया",
-    "udhaarEntryDeleted": "एंट्री हटाई गई", "personDeleted": "व्यक्ति हटाया गया"
+    "udhaarEntryDeleted": "एंट्री हटाई गई", "personDeleted": "व्यक्ति हटाया गया",
+    "categoryDeleted": "श्रेणी डिलीट हो गई", "exportReady": "एक्सपोर्ट तैयार है"
   },
   "transactions": {
     "title": "लेन-देन", "searchPlaceholder": "नोट, श्रेणी या राशि खोजें",
@@ -90,7 +92,8 @@
     "title": "श्रेणियां", "income": "कमाई ({{count}})", "expense": "खर्च ({{count}})",
     "edit": "श्रेणी बदलें", "add": "श्रेणी जोड़ें", "name": "नाम", "icon": "आइकन",
     "deleteHint": "हटाने पर पुराने लेन-देन रहेंगे — वे \"अन्य\" में चले जाएंगे।",
-    "duplicate": "\"{{name}}\" पहले से है।", "cantDeleteOther": "\"अन्य\" हटाई नहीं जा सकती।"
+    "duplicate": "\"{{name}}\" पहले से है।", "cantDeleteOther": "\"अन्य\" हटाई नहीं जा सकती।",
+    "deleteTitle": "\"{{name}}\" डिलीट करें?"
   },
   "udhaar": {
     "title": "उधार", "willReceive": "आपको मिलेंगे", "needToPay": "आपको देने हैं",
@@ -133,7 +136,9 @@
     "appLock": "ऐप लॉक", "language": "भाषा", "notifications": "सूचनाएं",
     "syncBackup": "सिंक और बैकअप", "export": "डेटा एक्सपोर्ट", "subscription": "सदस्यता",
     "privacy": "प्राइवेसी", "help": "मदद", "about": "अपना हिसाब के बारे में",
-    "logout": "लॉग आउट", "deleteAccount": "अकाउंट हटाएं", "free": "मुफ़्त", "premium": "प्रीमियम", "off": "बंद"
+    "logout": "लॉग आउट", "deleteAccount": "अकाउंट हटाएं", "free": "मुफ़्त", "premium": "प्रीमियम", "off": "बंद",
+    "fingerprint": "फ़िंगरप्रिंट", "dailyAt": "रोज़ {{time}}", "version": "v{{version}}",
+    "helpSubject": "Apna Hisab मदद"
   },
   "settings": {
     "title": "सेटिंग्स", "account": "अकाउंट", "googleAccount": "Google अकाउंट",
@@ -144,20 +149,34 @@
     "data": "डेटा", "syncStatus": "सिंक की स्थिति", "lastSynced": "आखिरी सिंक {{time}}", "syncNow": "अभी सिंक करें",
     "exportData": "डेटा एक्सपोर्ट", "backup": "बैकअप", "backupAuto": "अपने आप",
     "premium": "प्रीमियम", "freePlan": "मुफ़्त प्लान", "renews": "प्रीमियम · {{date}} को नवीनीकरण", "manage": "सदस्यता संभालें",
-    "version": "अपना हिसाब v{{version}}"
+    "version": "अपना हिसाब v{{version}}",
+    "notifications": "सूचनाएँ", "deleteAccount": "अकाउंट डिलीट करें", "exportFormats": "CSV · PDF · Excel",
+    "notSyncedYet": "अभी सिंक नहीं हुआ", "biometricNeedsPin": "पहले PIN बनाएँ — फ़िंगरप्रिंट का बैकअप यही है।"
   },
   "logout": {
     "title": "लॉग आउट करें?", "unsynced_one": "{{count}} लेन-देन का बैकअप अभी नहीं हुआ। उसे रखने के लिए पहले इंटरनेट चालू करें।",
     "unsynced_other": "{{count}} लेन-देन का बैकअप अभी नहीं हुआ। उन्हें रखने के लिए पहले इंटरनेट चालू करें।",
     "confirm": "लॉग आउट"
   },
-  "export": { "title": "डेटा एक्सपोर्ट", "range": "अवधि", "lastMonth": "पिछला महीना", "thisYear": "इस साल", "format": "फ़ॉर्मेट", "csv": "CSV", "pdf": "PDF", "excel": "Excel", "export": "एक्सपोर्ट करें" },
+  "export": {
+    "title": "डेटा एक्सपोर्ट", "range": "अवधि", "lastMonth": "पिछला महीना", "thisYear": "इस साल", "format": "फ़ॉर्मेट", "csv": "CSV", "pdf": "PDF", "excel": "Excel", "export": "एक्सपोर्ट करें",
+    "thisMonth": "इस महीने", "custom": "कस्टम", "from": "से", "to": "तक", "premiumBadge": "प्रीमियम",
+    "csvSub": "Excel, Google Sheets में खुलेगा", "pdfSub": "प्रिंट के लिए तैयार स्टेटमेंट",
+    "excelSub": "फ़ॉर्मेटिंग के साथ स्प्रेडशीट", "noData": "इस अवधि में एक्सपोर्ट करने को कुछ नहीं है।",
+    "failed": "फ़ाइल नहीं बन पाई। आपका डेटा सुरक्षित है — फिर से कोशिश करें।",
+    "includes": "इस अवधि के लेन-देन और उधार एंट्री शामिल हैं।", "colDate": "तारीख", "colTime": "समय",
+    "colType": "प्रकार", "colCategory": "श्रेणी", "colAmount": "रकम (₹)", "colPayment": "भुगतान का तरीका",
+    "colNote": "नोट", "colPerson": "व्यक्ति", "colUdhaar": "उधार"
+  },
   "deleteAccount": {
     "title": "इससे आपका अपना हिसाब अकाउंट हमेशा के लिए हट जाएगा",
     "body": "सारे लेन-देन, उधार, श्रेणियां और बैकअप इस फ़ोन और हमारे सर्वर से मिट जाएंगे। यह वापस नहीं होगा।",
     "exportFirst": "पहले मेरा डेटा एक्सपोर्ट करें", "typeToConfirm": "पुष्टि के लिए DELETE लिखें",
     "understand": "मैं समझता/समझती हूँ कि मेरा डेटा वापस नहीं मिलेगा।", "confirm": "मेरा अकाउंट हटाएं", "keep": "अकाउंट रखें",
-    "needInternet": "अकाउंट हटाने के लिए इंटरनेट चालू करें।"
+    "needInternet": "अकाउंट हटाने के लिए इंटरनेट चालू करें।",
+    "screenTitle": "अकाउंट डिलीट करें",
+    "failed": "अकाउंट डिलीट नहीं हो पाया। कुछ भी नहीं हटा — फिर से कोशिश करें।",
+    "wrongAccount": "वही Google अकाउंट चुनें जिससे आपने साइन इन किया था।"
   },
   "premium": {
     "title": "अपना हिसाब प्रीमियम लें", "sub": "वही आसान ऐप — बिना विज्ञापन, बेहतर रिपोर्ट के साथ।",
@@ -197,5 +216,17 @@
     "amountIncome": "{{amount}} रुपये, कमाई", "amountExpense": "{{amount}} रुपये, खर्च",
     "amountNet": "बचत {{amount}} रुपये", "deleteDigit": "अंक हटाएं", "decimal": "दशमलव",
     "profile": "प्रोफ़ाइल और सेटिंग्स", "openReport": "रिपोर्ट खोलें"
+  },
+  "time": {
+    "justNow": "अभी", "minutesAgo_one": "{{count}} मिनट पहले", "minutesAgo_other": "{{count}} मिनट पहले",
+    "hoursAgo_one": "{{count}} घंटा पहले", "hoursAgo_other": "{{count}} घंटे पहले"
+  },
+  "syncBackup": {
+    "title": "सिंक और बैकअप", "syncedTitle": "सारा डेटा सिंक है",
+    "syncedBody": "हर एंट्री आपके अकाउंट में बैकअप है।", "pendingTitle": "सिंक बाकी है",
+    "pendingBody_one": "{{count}} लेन-देन इस फ़ोन में सेव है और जल्द अपलोड होगा।",
+    "pendingBody_other": "{{count}} लेन-देन इस फ़ोन में सेव हैं और जल्द अपलोड होंगे।",
+    "syncingTitle": "सिंक हो रहा है…", "syncingBody": "आपकी नई एंट्री अपलोड हो रही हैं।", "pending": "अपलोड बाकी",
+    "lastSynced": "आख़िरी सिंक"
   }
 }

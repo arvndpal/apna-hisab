@@ -16,7 +16,7 @@ backend/src/
   config/      env.validation.ts        — Zod-validated env (fails fast on boot if misconfigured)
   database/    database.service.ts      — pg Pool wrapper (DATABASE_URL); see §10 for why every
                                            query must filter by user_id in application code
-  auth/        auth.controller.ts       — POST /auth/google, POST /auth/refresh, GET /auth/me
+  auth/        auth.controller.ts       — POST /auth/google, POST /auth/refresh, GET /auth/me, DELETE /auth/me
                auth.service.ts          — verifies a Firebase ID token (firebase-admin), upserts
                                            profile by firebase_uid, issues this backend's own JWTs
                firebase-admin.provider.ts — Auth instance from FIREBASE_SERVICE_ACCOUNT
@@ -38,6 +38,9 @@ stores both tokens in `react-native-keychain` and sends `accessToken` as `Author
 on every backend call. `POST /auth/refresh { refreshToken }` → new access token. These are **this
 backend's own JWTs** — neither Supabase Auth nor a raw Firebase/Google token is ever used as the
 session; Firebase is only the Google-sign-in verifier.
+`DELETE /auth/me { idToken: <fresh firebase ID token> }` deletes the account: the fresh token must
+belong to the same `firebase_uid` (re-auth), then every user row and the profile go in one
+transaction and the Firebase user is removed. `/auth/refresh` refuses tokens whose profile is gone.
 
 Firebase project config: `android/app/google-services.json` (gitignored, from Firebase Console →
 Project Settings → your Android app) wires the native SDK; `GOOGLE_WEB_CLIENT_ID` (app `.env`) is

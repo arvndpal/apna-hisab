@@ -1,7 +1,7 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 import type { Auth } from 'firebase-admin/auth';
 import { AuthService } from './auth.service.js';
 import { DatabaseService } from '../database/database.service.js';
@@ -96,7 +96,8 @@ describe('AuthService', () => {
 
   it('refresh() issues a new access token for a valid refresh token', async () => {
     const firebaseAuth = { verifyIdToken: vi.fn() };
-    const service = new AuthService(makeConfig(), jwt, makeDbStub([], null), firebaseAuth as unknown as Auth);
+    const db = { query: vi.fn().mockResolvedValue([{ id: 'user-1' }]) } as unknown as DatabaseService;
+    const service = new AuthService(makeConfig(), jwt, db, firebaseAuth as unknown as Auth);
     const refreshToken = jwt.sign({ sub: 'user-1', tokenVersion: 1 }, { secret: ENV.JWT_REFRESH_SECRET, expiresIn: '30d' });
 
     const tokens = await service.refresh(refreshToken);
@@ -119,5 +120,66 @@ describe('AuthService', () => {
     const service = new AuthService(makeConfig(), jwt, db, firebaseAuth as unknown as Auth);
 
     await expect(service.getProfile('missing-user')).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('refresh() rejects a valid refresh token once the profile has been deleted', async () => {
+    const firebaseAuth = { verifyIdToken: vi.fn() };
+    const db = { query: vi.fn().mockResolvedValue([]) } as unknown as DatabaseService;
+    const service = new AuthService(makeConfig(), jwt, db, firebaseAuth as unknown as Auth);
+    const refreshToken = jwt.sign({ sub: 'user-1', tokenVersion: 1 }, { secret: ENV.JWT_REFRESH_SECRET, expiresIn: '30d' });
+
+    await expect(service.refresh(refreshToken)).rejects.toThrow(UnauthorizedException);
+  });
+
+  describe('deleteAccount()', () => {
+    const profileRow = { id: 'user-1', firebase_uid: 'firebase-uid-1' };
+
+    function setup(uid: string, deleteUser = vi.fn().mockResolvedValue(undefined)) {
+      const txQuery = vi.fn().mockResolvedValue([]);
+      const transaction = vi.fn(async (fn: (q: typeof txQuery) => Promise<unknown>) => fn(txQuery));
+      const db = { query: vi.fn().mockResolvedValue([profileRow]), transaction } as unknown as DatabaseService;
+      const firebaseAuth = { verifyIdToken: vi.fn().mockResolvedValue({ uid }), deleteUser };
+      const service = new AuthService(makeConfig(), jwt, db, firebaseAuth as unknown as Auth);
+      return { service, transaction, txQuery, deleteUser };
+    }
+
+    it('deletes every user-scoped table, children first, then the profile and the Firebase user', async () => {
+      const { service, txQuery, deleteUser } = setup('firebase-uid-1');
+
+      await service.deleteAccount('user-1', 'fresh-token');
+
+      const statements = txQuery.mock.calls.map((c) => c[0] as string);
+      expect(statements).toEqual([
+        'DELETE FROM transactions WHERE user_id = $1',
+        'DELETE FROM udhaar_entries WHERE user_id = $1',
+        'DELETE FROM categories WHERE user_id = $1',
+        'DELETE FROM udhaar_people WHERE user_id = $1',
+        'DELETE FROM profiles WHERE id = $1',
+      ]);
+      expect(txQuery.mock.calls.every((c) => (c[1] as unknown[])[0] === 'user-1')).toBe(true);
+      expect(deleteUser).toHaveBeenCalledWith('firebase-uid-1');
+    });
+
+    it('refuses a fresh token for a different Google account', async () => {
+      const { service, transaction } = setup('someone-else');
+
+      await expect(service.deleteAccount('user-1', 'fresh-token')).rejects.toThrow(ForbiddenException);
+      expect(transaction).not.toHaveBeenCalled();
+    });
+
+    it('refuses an invalid re-auth token', async () => {
+      const { service, transaction } = setup('firebase-uid-1');
+      (service as unknown as { firebaseAuth: { verifyIdToken: ReturnType<typeof vi.fn> } }).firebaseAuth.verifyIdToken.mockRejectedValue(new Error('bad'));
+
+      await expect(service.deleteAccount('user-1', 'garbage')).rejects.toThrow(UnauthorizedException);
+      expect(transaction).not.toHaveBeenCalled();
+    });
+
+    it('still succeeds when removing the Firebase user fails after the data is gone', async () => {
+      const { service, txQuery } = setup('firebase-uid-1', vi.fn().mockRejectedValue(new Error('network')));
+
+      await expect(service.deleteAccount('user-1', 'fresh-token')).resolves.toBeUndefined();
+      expect(txQuery).toHaveBeenCalledTimes(5);
+    });
   });
 });

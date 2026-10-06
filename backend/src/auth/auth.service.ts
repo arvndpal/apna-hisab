@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import type { Auth } from 'firebase-admin/auth';
@@ -24,8 +24,16 @@ interface FirebaseIdentity {
   picture: string | null;
 }
 
+/**
+ * Children before parents: transactions → categories and udhaar_entries → udhaar_people are plain
+ * (non-cascading) foreign keys, so deleting in this order never trips a constraint mid-way.
+ */
+const ACCOUNT_DELETE_ORDER = ['transactions', 'udhaar_entries', 'categories', 'udhaar_people'] as const;
+
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly config: ConfigService<Env, true>,
     private readonly jwt: JwtService,
@@ -50,6 +58,9 @@ export class AuthService {
     } catch {
       throw new UnauthorizedException('Refresh token is invalid or expired');
     }
+    // A deleted account's refresh tokens are still validly signed — refuse them once the profile is gone.
+    const rows = await this.db.query<{ id: string }>('SELECT id FROM profiles WHERE id = $1', [payload.sub]);
+    if (!rows[0]) throw new UnauthorizedException('Profile not found');
     return this.issueTokens(payload.sub);
   }
 
@@ -57,6 +68,33 @@ export class AuthService {
     const rows = await this.db.query<ProfileRow>('SELECT * FROM profiles WHERE id = $1', [userId]);
     if (!rows[0]) throw new UnauthorizedException('Profile not found');
     return profileFromRow(rows[0]);
+  }
+
+  /**
+   * Permanently deletes the caller's account (SCREENS.md §19d). Requires a fresh Firebase ID token
+   * for the same Google account as re-authentication, so a stolen access token alone can't do it.
+   * All rows go in one transaction; the Firebase user is removed afterwards (best effort — the
+   * data is already gone, and signing in again would only create a new, empty profile).
+   */
+  async deleteAccount(userId: string, firebaseIdToken: string): Promise<void> {
+    const identity = await this.verifyFirebaseIdToken(firebaseIdToken);
+    const rows = await this.db.query<ProfileRow>('SELECT * FROM profiles WHERE id = $1', [userId]);
+    const profile = rows[0];
+    if (!profile) throw new UnauthorizedException('Profile not found');
+    if (profile.firebase_uid !== identity.uid) throw new ForbiddenException('Sign in with the same Google account to delete it');
+
+    await this.db.transaction(async (query) => {
+      for (const table of ACCOUNT_DELETE_ORDER) {
+        await query(`DELETE FROM ${table} WHERE user_id = $1`, [userId]);
+      }
+      await query('DELETE FROM profiles WHERE id = $1', [userId]);
+    });
+
+    try {
+      await this.firebaseAuth.deleteUser(identity.uid);
+    } catch (error) {
+      this.logger.warn(`Account ${userId} deleted, but removing its Firebase user failed: ${(error as Error).message}`);
+    }
   }
 
   private async verifyFirebaseIdToken(idToken: string): Promise<FirebaseIdentity> {

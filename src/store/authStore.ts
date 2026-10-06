@@ -6,6 +6,7 @@ import * as session from '../services/auth/session';
 import type { TokenPair } from '../services/auth/session';
 import type { BackendProfile } from '../services/api/authApi';
 import { signOutGoogle } from '../services/auth/google';
+import { useSyncStore } from './syncStore';
 
 interface AuthState {
   profile: StoredProfile | null;
@@ -38,6 +39,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     settingsRepo.clearProfile();
     settingsRepo.clearLocalUserId();
     settingsRepo.clearLastUsedDefaults();
+    settingsRepo.setLastSyncedAt(null);
+    useSyncStore.setState({ lastSyncedAt: null, lastError: null });
     await session.clearTokens();
     await signOutGoogle();
     set({ profile: null });

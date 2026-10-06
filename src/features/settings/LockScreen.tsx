@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Image, Pressable, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Fingerprint } from 'lucide-react-native';
 import { AppText } from '../../components/common/AppText';
@@ -23,6 +23,9 @@ export function LockScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<Nav>();
+  const route = useRoute<RouteProp<RootStackParamList, 'LockScreen'>>();
+  const resume = !!route.params?.resume;
+  const unlockedRef = useRef(false);
   const lockMethod = useSettingsStore((s) => s.lockMethod);
 
   const [pin, setPinInput] = useState('');
@@ -31,7 +34,21 @@ export function LockScreen() {
   const [cooldown, setCooldown] = useState(0);
   const triedBiometricRef = useRef(false);
 
+  // A resume lock sits on top of the App stack — don't let Android back simply pop it away.
+  useEffect(
+    () =>
+      navigation.addListener('beforeRemove', (e) => {
+        if (resume && !unlockedRef.current) e.preventDefault();
+      }),
+    [navigation, resume],
+  );
+
   const unlock = () => {
+    unlockedRef.current = true;
+    if (resume && navigation.canGoBack()) {
+      navigation.goBack();
+      return;
+    }
     navigation.reset({ index: 0, routes: [{ name: 'App', params: { screen: 'MainTabs', params: { screen: 'Home' } } }] });
   };
 

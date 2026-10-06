@@ -81,3 +81,31 @@ describe('categoriesRepo', () => {
     expect(categoriesRepo.getById(other.id)?.deletedAt).toBeNull();
   });
 });
+
+describe('categoriesRepo.findDuplicate', () => {
+  beforeEach(() => seedDefaultCategories(USER));
+
+  it('matches default names in English and Hindi, case-insensitively', () => {
+    expect(categoriesRepo.findDuplicate(USER, 'expense', ' FOOD ')?.key).toBe('food');
+    expect(categoriesRepo.findDuplicate(USER, 'expense', 'खाना')?.key).toBe('food');
+  });
+
+  it('is scoped to the type and ignores the category being edited', () => {
+    expect(categoriesRepo.findDuplicate(USER, 'income', 'Food')).toBeNull();
+    const food = categoriesRepo.list(USER, 'expense').find((c) => c.key === 'food')!;
+    expect(categoriesRepo.findDuplicate(USER, 'expense', 'Food', food.id)).toBeNull();
+  });
+
+  it('uses the rename instead of the default names once a category is renamed', () => {
+    const food = categoriesRepo.list(USER, 'expense').find((c) => c.key === 'food')!;
+    categoriesRepo.update(food.id, { name: 'Khana-Pina' });
+    expect(categoriesRepo.findDuplicate(USER, 'expense', 'food')).toBeNull();
+    expect(categoriesRepo.findDuplicate(USER, 'expense', 'khana-pina')?.id).toBe(food.id);
+  });
+
+  it('ignores deleted categories', () => {
+    const pets = categoriesRepo.create({ userId: USER, type: 'expense', name: 'Pets', icon: 'PawPrint' });
+    categoriesRepo.softDelete(pets.id);
+    expect(categoriesRepo.findDuplicate(USER, 'expense', 'pets')).toBeNull();
+  });
+});
