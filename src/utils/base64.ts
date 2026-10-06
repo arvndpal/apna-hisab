@@ -14,16 +14,22 @@ function utf8Bytes(text: string): number[] {
   return bytes;
 }
 
-/** Base64 of the UTF-8 encoding — for react-native-share's `data:` URLs, without a Buffer polyfill. */
-export function utf8ToBase64(text: string): string {
-  const bytes = utf8Bytes(text);
+/** Base64 of raw bytes (an .xlsx zip, …), without a Buffer polyfill. */
+export function bytesToBase64(bytes: ArrayLike<number>): string {
   let out = '';
   for (let i = 0; i < bytes.length; i += 3) {
-    const [a, b, c] = [bytes[i], bytes[i + 1], bytes[i + 2]];
+    const a = bytes[i];
+    const b = i + 1 < bytes.length ? bytes[i + 1] : undefined;
+    const c = i + 2 < bytes.length ? bytes[i + 2] : undefined;
     const n = (a << 16) | ((b ?? 0) << 8) | (c ?? 0);
     out += ALPHABET[(n >> 18) & 63] + ALPHABET[(n >> 12) & 63];
     out += b === undefined ? '=' : ALPHABET[(n >> 6) & 63];
     out += c === undefined ? '=' : ALPHABET[n & 63];
   }
   return out;
+}
+
+/** Base64 of the UTF-8 encoding — for react-native-share's `data:` URLs. */
+export function utf8ToBase64(text: string): string {
+  return bytesToBase64(utf8Bytes(text));
 }

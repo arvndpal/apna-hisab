@@ -20,16 +20,29 @@ import { showToast } from '../../store/toastStore';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import * as categoriesRepo from '../../database/repositories/categoriesRepo';
 import * as udhaarRepo from '../../database/repositories/udhaarRepo';
-import { buildTransactionsCsv, buildUdhaarCsv } from '../../services/export/csv';
-import { utf8ToBase64 } from '../../utils/base64';
+import { tableToCsv } from '../../services/export/csv';
+import { totals, transactionsTable, udhaarTable, type Table } from '../../services/export/rows';
+import { buildXlsx } from '../../services/export/xlsx';
+import { buildStatementHtml } from '../../services/export/pdfHtml';
+import { generatePDF } from 'react-native-html-to-pdf';
+import type { Transaction } from '../../types/models';
+import { bytesToBase64, utf8ToBase64 } from '../../utils/base64';
 import { useEntitlement } from '../subscription/useEntitlement';
 import { exportFileStem, getExportRange, type ExportRangeKind } from './exportRanges';
 import type { AppStackParamList } from '../../app/navigation/types';
+import { suppressNextResumeLock } from '../../app/navigation/resumeLock';
 
 type Format = 'csv' | 'pdf' | 'excel';
 const RANGE_KINDS: ExportRangeKind[] = ['thisMonth', 'lastMonth', 'thisYear', 'custom'];
+const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-/** SCREENS.md §19c. CSV is free; PDF/Excel are Premium (built in Milestone 9) and route to Premium for now. */
+/** "2026-10-05" → local midnight Date. */
+function parseDay(day: string): Date {
+  const [y, m, d] = day.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
+/** SCREENS.md §19c. CSV is free; PDF and Excel are Premium — free users are sent to Premium. */
 export function ExportScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
@@ -62,7 +75,7 @@ export function ExportScreen() {
   };
 
   const handleExport = async () => {
-    if (format !== 'csv') {
+    if (format !== 'csv' && !isPremium) {
       navigation.navigate('Premium');
       return;
     }
@@ -76,23 +89,51 @@ export function ExportScreen() {
         return;
       }
       const categoriesById = Object.fromEntries(categoriesRepo.list(userId).map((c) => [c.id, c]));
-      const urls: string[] = [];
-      const filenames: string[] = [];
-      if (transactions.length > 0) {
-        urls.push(`data:text/csv;base64,${utf8ToBase64(buildTransactionsCsv(transactions, categoriesById, t, language))}`);
-        filenames.push(exportFileStem('transactions', range));
-      }
-      if (udhaar.length > 0) {
-        urls.push(`data:text/csv;base64,${utf8ToBase64(buildUdhaarCsv(udhaar, t))}`);
-        filenames.push(exportFileStem('udhaar', range));
-      }
-      const result = await Share.open({ urls, filenames, type: 'text/csv', title: t('export.title'), failOnCancel: false });
+      const tables = { transactions: transactionsTable(transactions, categoriesById, t, language), udhaar: udhaarTable(udhaar, t) };
+      suppressNextResumeLock();
+      const result = await Share.open({ ...(await buildShareFiles(format, tables, transactions)), title: t('export.title'), failOnCancel: false });
       if (result.success) showToast({ message: t('toast.exportReady') });
     } catch {
       setNotice('failed');
     } finally {
       setBusy(false);
     }
+  };
+
+  /** CSV: one file per non-empty table. Excel: one workbook, a sheet each. PDF: one printed statement. */
+  const buildShareFiles = async (
+    fmt: Format,
+    tables: { transactions: Table; udhaar: Table },
+    transactions: Transaction[],
+  ): Promise<{ urls: string[]; filenames: string[]; type: string }> => {
+    const present = (['transactions', 'udhaar'] as const).filter((k) => tables[k].rows.length > 0);
+    if (fmt === 'csv') {
+      return {
+        urls: present.map((k) => `data:text/csv;base64,${utf8ToBase64(tableToCsv(tables[k]))}`),
+        filenames: present.map((k) => exportFileStem(k, range)),
+        type: 'text/csv',
+      };
+    }
+    const stem = exportFileStem('statement', range);
+    if (fmt === 'excel') {
+      const xlsx = buildXlsx(present.map((k) => tables[k]));
+      return { urls: [`data:${XLSX_MIME};base64,${bytesToBase64(xlsx)}`], filenames: [stem], type: XLSX_MIME };
+    }
+    const sums = totals(transactions);
+    const html = buildStatementHtml({
+      title: t('export.statementTitle'),
+      rangeLabel: `${dateLabel(parseDay(range.from))} – ${dateLabel(parseDay(range.to))}`,
+      generatedLabel: t('export.generatedOn', { date: dateLabel(new Date()) }),
+      totals: [
+        { label: t('export.totalIncome'), paise: sums.incomePaise, kind: 'income' },
+        { label: t('export.totalExpense'), paise: sums.expensePaise, kind: 'expense' },
+        { label: t('export.net'), paise: sums.netPaise, kind: 'net' },
+      ],
+      tables: [tables.transactions, tables.udhaar],
+    });
+    // A4 portrait in points.
+    const pdf = await generatePDF({ html, fileName: stem, width: 595, height: 842 });
+    return { urls: [`file://${pdf.filePath}`], filenames: [stem], type: 'application/pdf' };
   };
 
   return (

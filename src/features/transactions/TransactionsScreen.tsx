@@ -10,6 +10,7 @@ import { AppText } from '../../components/common/AppText';
 import { IconButton } from '../../components/common/IconButton';
 import { SearchBar } from '../../components/common/SearchBar';
 import { SegmentedControl } from '../../components/common/SegmentedControl';
+import { AdSlot } from '../../components/common/AdSlot';
 import { EmptyState } from '../../components/common/EmptyState';
 import { TransactionList, groupByDay } from '../../components/transactions/TransactionList';
 import { useTheme } from '../../hooks/useTheme';
@@ -137,6 +138,7 @@ export function TransactionsScreen() {
           sections={sections}
           categoriesById={categoriesById}
           onPressItem={(txn) => navigation.navigate('TransactionDetail', { id: txn.id })}
+          ListFooterComponent={<AdSlot placement="transactions_list_end" />}
         />
       )}
 

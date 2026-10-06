@@ -1,5 +1,6 @@
 import type { TFunction } from 'i18next';
-import { buildTransactionsCsv, buildUdhaarCsv, csvCell, paiseToPlainRupees } from './csv';
+import { csvCell, paiseToPlainRupees, tableToCsv } from './csv';
+import { totals, transactionsTable, udhaarTable } from './rows';
 import type { Category, Transaction, UdhaarEntry } from '../../types/models';
 
 const t = ((key: string) => key) as unknown as TFunction;
@@ -58,9 +59,9 @@ describe('paiseToPlainRupees', () => {
   });
 });
 
-describe('buildTransactionsCsv', () => {
+describe('transactions CSV', () => {
   it('writes a BOM, a header and rows oldest first, expenses negative', () => {
-    const csv = buildTransactionsCsv(
+    const csv = tableToCsv(transactionsTable(
       [
         txn({ id: 'b', occurredAt: '2026-10-04T18:30:00+05:30', occurredOn: '2026-10-04', type: 'income', amountPaise: 120000, note: 'Trip, airport' }),
         txn({ id: 'a' }),
@@ -68,7 +69,7 @@ describe('buildTransactionsCsv', () => {
       { [fuel.id]: fuel },
       t,
       'hi',
-    );
+    ));
     expect(csv.startsWith('﻿')).toBe(true);
     const lines = csv.slice(1).trimEnd().split('\r\n');
     expect(lines[0]).toBe('export.colDate,export.colTime,export.colType,export.colCategory,export.colAmount,export.colPayment,export.colNote');
@@ -77,7 +78,7 @@ describe('buildTransactionsCsv', () => {
   });
 });
 
-describe('buildUdhaarCsv', () => {
+describe('Udhaar CSV', () => {
   it('writes one row per entry with the person name', () => {
     const entry = {
       id: 'e',
@@ -90,7 +91,17 @@ describe('buildUdhaarCsv', () => {
       occurredOn: '2026-10-02',
       note: null,
     } as unknown as UdhaarEntry & { personName: string };
-    const lines = buildUdhaarCsv([entry], t).slice(1).trimEnd().split('\r\n');
+    const lines = tableToCsv(udhaarTable([entry], t)).slice(1).trimEnd().split('\r\n');
     expect(lines[1]).toBe('2026-10-02,Ramesh,udhaar.given,2000.00,');
+  });
+});
+
+describe('totals', () => {
+  it('nets income against expense in integer paise', () => {
+    expect(totals([txn({ type: 'income', amountPaise: 120050 }), txn({ type: 'expense', amountPaise: 50025 })])).toEqual({
+      incomePaise: 120050,
+      expensePaise: 50025,
+      netPaise: 70025,
+    });
   });
 });

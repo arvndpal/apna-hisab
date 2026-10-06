@@ -151,7 +151,8 @@
     "premium": "Premium", "freePlan": "Free plan", "renews": "Premium · renews {{date}}", "manage": "Manage subscription",
     "version": "Apna Hisab v{{version}}",
     "notifications": "Notifications", "deleteAccount": "Delete account", "exportFormats": "CSV · PDF · Excel",
-    "notSyncedYet": "Not synced yet", "biometricNeedsPin": "Set a PIN first — it is the backup for fingerprint."
+    "notSyncedYet": "Not synced yet", "biometricNeedsPin": "Set a PIN first — it is the backup for fingerprint.",
+    "premiumPlan": "Premium · {{plan}}"
   },
   "logout": {
     "title": "Log out?", "unsynced_one": "{{count}} transaction is not backed up yet. Connect to the internet first to keep it.",
@@ -166,7 +167,10 @@
     "failed": "Couldn't create the file. Your data is safe — please try again.",
     "includes": "Includes transactions and Udhaar entries in this range.", "colDate": "Date", "colTime": "Time",
     "colType": "Type", "colCategory": "Category", "colAmount": "Amount (₹)", "colPayment": "Payment method",
-    "colNote": "Note", "colPerson": "Person", "colUdhaar": "Udhaar"
+    "colNote": "Note", "colPerson": "Person", "colUdhaar": "Udhaar",
+    "statementTitle": "Apna Hisab statement", "generatedOn": "Generated on {{date}}",
+    "sheetTransactions": "Transactions", "sheetUdhaar": "Udhaar", "totalIncome": "Total income",
+    "totalExpense": "Total expense", "net": "Net"
   },
   "deleteAccount": {
     "title": "This permanently deletes your Apna Hisab account",
@@ -186,7 +190,13 @@
     "bestValue": "Best value", "perYear": "{{price}}/yr", "perMonth": "{{price}}/mo",
     "continueYearly": "Continue with Yearly", "continueMonthly": "Continue with Monthly",
     "fine": "Cancel anytime in Google Play. Recording, sync and Udhaar stay free forever.",
-    "restore": "Restore", "purchaseFailed": "Purchase didn't go through. You haven't been charged."
+    "restore": "Restore", "purchaseFailed": "Purchase didn't go through. You haven't been charged.",
+    "unavailable": "Plans aren't available right now. Check your internet and try again.",
+    "restored": "Premium restored", "nothingToRestore": "No Premium purchase found on this Google account.",
+    "pending": "Payment pending — Premium turns on as soon as Google Play confirms it.",
+    "activeTitle": "You're on Premium",
+    "activeBody": "Ads are off and PDF & Excel export is unlocked. Thank you for supporting Apna Hisab.",
+    "manage": "Manage in Google Play"
   },
   "sync": {
     "synced": "Synced", "allSynced": "All synced", "pending_one": "{{count}} transaction pending", "pending_other": "{{count}} transactions pending",
@@ -228,5 +238,8 @@
     "pendingBody_other": "{{count}} transactions are saved on this phone and will upload soon.",
     "syncingTitle": "Syncing…", "syncingBody": "Uploading your latest entries.", "pending": "Waiting to upload",
     "lastSynced": "Last synced"
+  },
+  "ads": {
+    "tag": "Ad", "remove": "Remove"
   }
 }

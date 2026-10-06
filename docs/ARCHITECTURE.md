@@ -261,9 +261,13 @@ done in `auth.service.ts`, keyed by `firebase_uid`). Local rows created before l
 
 `canShowAd(placement)` returns false when: premium; placement not in allowlist; current route is in the denylist. Allowlist: `transactions_list_end` (native), `reports_below_charts` (native), `interstitial_leave_reports` (max 1 per session, never within 60s of a save, never on first 3 days after install). Denylist routes: Splash, AuthStack, LockScreen, AddTransaction, any sheet/dialog, Premium, DeleteAccount, Export.
 
+Implemented as the pure `services/ads/adRules.ts` (unit-tested) plus `services/ads/ads.ts` (unit ids, session counters, `noteSave()` called by Add Transaction and the Udhaar sheet). The two inline placements render `components/common/AdSlot.tsx` (a native ad); the interstitial is `features/reports/useLeaveReportsInterstitial.ts`, which skips moves within the Reports flow (Report detail, Custom range, Calendar, Day transactions). Debug builds use Google's test units; release builds need `ADMOB_NATIVE_UNIT_ID` / `ADMOB_INTERSTITIAL_UNIT_ID` in `.env` and the real AdMob app id in `app.json`. The SDK is only initialised for free users.
+
 ## 12. Premium
 
 Products: `premium_monthly`, `premium_yearly` (Play Billing). Entitlement unlocks: no ads, PDF/Excel export, advanced report extras (6 periods comparison is free; premium adds category trend over time and month-over-month insights), custom category colours. Recording, sync, Udhaar, CSV export are always free. "Restore" re-queries purchases.
+
+Billing is `react-native-iap` (`services/billing/billing.ts`): at startup (after the DB opens) it connects, listens for purchase updates and asks Play for live subscriptions; a confirmed purchase is acknowledged (`finishTransaction`) and cached as the entitlement in `kv_settings` (`store/entitlementStore.ts`), so Premium works offline. Play no longer listing the subscription revokes it; Play being unreachable keeps the cache. Purchases are trusted as Play reports them on the device — there is no server-side receipt verification yet. PDF export prints an HTML statement through `react-native-html-to-pdf`; Excel is a hand-built `.xlsx` zipped with `fflate` (`services/export/`).
 
 ## 13. Localisation
 

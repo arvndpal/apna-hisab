@@ -12,6 +12,8 @@ import { Card } from '../../components/common/Card';
 import { Chip } from '../../components/common/Chip';
 import { GradientSurface } from '../../components/common/GradientSurface';
 import { EmptyState } from '../../components/common/EmptyState';
+import { AdSlot } from '../../components/common/AdSlot';
+import { useLeaveReportsInterstitial } from './useLeaveReportsInterstitial';
 import { Button } from '../../components/common/Button';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
@@ -89,6 +91,7 @@ export function ReportsScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<Nav>();
+  useLeaveReportsInterstitial();
   const route = useRoute<ReportsRoute>();
   const userId = useActiveUserId();
   const language = useSettingsStore((s) => s.language);
@@ -475,6 +478,8 @@ export function ReportsScreen() {
               </View>
             </Card>
           ) : null}
+
+          {hasPeriodData ? <AdSlot placement="reports_below_charts" /> : null}
 
           {!hasPeriodData ? (
             <AppText variant="body" color="secondary" style={{ textAlign: 'center', paddingVertical: 24 }}>

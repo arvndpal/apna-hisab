@@ -20,6 +20,7 @@ import { clearPin, disableBiometrics } from '../../services/security/lock';
 import { fontFamily, radius, typography } from '../../theme/tokens';
 import { useResetToWelcome } from './useLogout';
 import type { AppStackParamList } from '../../app/navigation/types';
+import { suppressNextResumeLock } from '../../app/navigation/resumeLock';
 
 /** Must be typed exactly, in every language (SCREENS.md §19d). */
 const CONFIRM_WORD = 'DELETE';
@@ -51,6 +52,7 @@ export function DeleteAccountScreen() {
     setBusy(true);
     try {
       // Re-auth: the backend only deletes for a fresh token from the same Google account.
+      suppressNextResumeLock();
       const idToken = await getFirebaseIdToken();
       if (!idToken) return; // Account picker cancelled — nothing happened.
       await authApi.deleteAccount(idToken);

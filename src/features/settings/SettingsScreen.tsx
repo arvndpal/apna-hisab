@@ -26,6 +26,8 @@ import { clearPin, disableBiometrics, enableBiometrics, hasHardwareBiometrics, u
 import { formatClock, formatSince } from '../../utils/relativeTime';
 import { APP_VERSION } from '../../constants/app';
 import { useEntitlement } from '../subscription/useEntitlement';
+import { manageSubscription } from '../../services/billing/billing';
+import { planKeyFor } from '../../services/billing/plans';
 import { useLogout } from './useLogout';
 import { PinPromptDialog } from './PinPromptDialog';
 import type { AppStackParamList, RootStackParamList } from '../../app/navigation/types';
@@ -48,7 +50,8 @@ export function SettingsScreen() {
   const profile = useAuthStore((s) => s.profile);
   const settings = useSettingsStore();
   const { status, pendingCount, lastSyncedAt } = useSyncStatus();
-  const { isPremium, renewsOn } = useEntitlement();
+  const { isPremium, productId } = useEntitlement();
+  const planKey = planKeyFor(productId);
   const { requestLogout, dialog: logoutDialog } = useLogout();
 
   const lockAfterSheet = useRef<BottomSheetModal>(null);
@@ -207,10 +210,15 @@ export function SettingsScreen() {
         <MenuGroup title={t('settings.premium')}>
           <MenuRow
             label={t('more.subscription')}
-            value={isPremium && renewsOn ? t('settings.renews', { date: renewsOn }) : t('settings.freePlan')}
+            value={isPremium ? t('settings.premiumPlan', { plan: planKey ? t(`premium.${planKey}`) : '' }).replace(/ · $/, '') : t('settings.freePlan')}
             showDivider
           />
-          <MenuRow tone="brand" label={t('settings.manage')} onPress={() => navigation.navigate('Premium')} showChevron />
+          <MenuRow
+            tone="brand"
+            label={t('settings.manage')}
+            onPress={() => (isPremium ? manageSubscription(productId) : navigation.navigate('Premium'))}
+            showChevron
+          />
         </MenuGroup>
 
         <AppText variant="caption" color="secondary" style={{ textAlign: 'center' }}>

@@ -151,7 +151,8 @@
     "premium": "प्रीमियम", "freePlan": "मुफ़्त प्लान", "renews": "प्रीमियम · {{date}} को नवीनीकरण", "manage": "सदस्यता संभालें",
     "version": "अपना हिसाब v{{version}}",
     "notifications": "सूचनाएँ", "deleteAccount": "अकाउंट डिलीट करें", "exportFormats": "CSV · PDF · Excel",
-    "notSyncedYet": "अभी सिंक नहीं हुआ", "biometricNeedsPin": "पहले PIN बनाएँ — फ़िंगरप्रिंट का बैकअप यही है।"
+    "notSyncedYet": "अभी सिंक नहीं हुआ", "biometricNeedsPin": "पहले PIN बनाएँ — फ़िंगरप्रिंट का बैकअप यही है।",
+    "premiumPlan": "प्रीमियम · {{plan}}"
   },
   "logout": {
     "title": "लॉग आउट करें?", "unsynced_one": "{{count}} लेन-देन का बैकअप अभी नहीं हुआ। उसे रखने के लिए पहले इंटरनेट चालू करें।",
@@ -166,7 +167,10 @@
     "failed": "फ़ाइल नहीं बन पाई। आपका डेटा सुरक्षित है — फिर से कोशिश करें।",
     "includes": "इस अवधि के लेन-देन और उधार एंट्री शामिल हैं।", "colDate": "तारीख", "colTime": "समय",
     "colType": "प्रकार", "colCategory": "श्रेणी", "colAmount": "रकम (₹)", "colPayment": "भुगतान का तरीका",
-    "colNote": "नोट", "colPerson": "व्यक्ति", "colUdhaar": "उधार"
+    "colNote": "नोट", "colPerson": "व्यक्ति", "colUdhaar": "उधार",
+    "statementTitle": "Apna Hisab स्टेटमेंट", "generatedOn": "{{date}} को बनाया गया",
+    "sheetTransactions": "लेन-देन", "sheetUdhaar": "उधार", "totalIncome": "कुल कमाई", "totalExpense": "कुल खर्च",
+    "net": "बचत"
   },
   "deleteAccount": {
     "title": "इससे आपका अपना हिसाब अकाउंट हमेशा के लिए हट जाएगा",
@@ -186,7 +190,14 @@
     "bestValue": "सबसे फ़ायदेमंद", "perYear": "{{price}}/साल", "perMonth": "{{price}}/महीना",
     "continueYearly": "सालाना प्लान लें", "continueMonthly": "मासिक प्लान लें",
     "fine": "Google Play में कभी भी रद्द करें। लिखना, सिंक और उधार हमेशा मुफ़्त रहेंगे।",
-    "restore": "वापस लाएं", "purchaseFailed": "खरीदारी पूरी नहीं हुई। आपसे पैसे नहीं कटे।"
+    "restore": "वापस लाएं", "purchaseFailed": "खरीदारी पूरी नहीं हुई। आपसे पैसे नहीं कटे।",
+    "unavailable": "प्लान अभी उपलब्ध नहीं हैं। इंटरनेट जाँचें और फिर से कोशिश करें।",
+    "restored": "प्रीमियम वापस चालू हो गया",
+    "nothingToRestore": "इस Google अकाउंट पर कोई प्रीमियम खरीद नहीं मिली।",
+    "pending": "भुगतान बाकी है — Google Play की पुष्टि होते ही प्रीमियम चालू हो जाएगा।",
+    "activeTitle": "आप प्रीमियम पर हैं",
+    "activeBody": "विज्ञापन बंद हैं और PDF व Excel एक्सपोर्ट खुल गया है। Apna Hisab का साथ देने के लिए धन्यवाद।",
+    "manage": "Google Play में मैनेज करें"
   },
   "sync": {
     "synced": "सिंक हो गया", "allSynced": "सब सिंक", "pending_one": "{{count}} लेन-देन बाकी", "pending_other": "{{count}} लेन-देन बाकी",
@@ -228,5 +239,8 @@
     "pendingBody_other": "{{count}} लेन-देन इस फ़ोन में सेव हैं और जल्द अपलोड होंगे।",
     "syncingTitle": "सिंक हो रहा है…", "syncingBody": "आपकी नई एंट्री अपलोड हो रही हैं।", "pending": "अपलोड बाकी",
     "lastSynced": "आख़िरी सिंक"
+  },
+  "ads": {
+    "tag": "विज्ञापन", "remove": "हटाएँ"
   }
 }

@@ -14,6 +14,8 @@ const LOCK_REMINDER_DISMISSED_KEY = 'lockReminderDismissed';
 const NOTIFICATIONS_ENABLED_KEY = 'notificationsEnabled';
 const REMINDER_TIME_KEY = 'reminderTime';
 const LAST_SYNCED_AT_KEY = 'lastSyncedAt';
+const INSTALLED_AT_KEY = 'installedAt';
+const ENTITLEMENT_KEY = 'entitlement';
 
 export function getSetting(key: string): string | null {
   const result = exec('SELECT value FROM kv_settings WHERE key = ?', [key]);
@@ -174,4 +176,27 @@ export function getLastSyncedAt(): string | null {
 
 export function setLastSyncedAt(iso: string | null): void {
   setSetting(LAST_SYNCED_AT_KEY, iso ?? '');
+}
+
+/** First launch time (epoch ms), recorded on first read — ads wait 3 days after install (ARCHITECTURE.md §11). */
+export function getInstalledAt(now: number = Date.now()): number {
+  const value = Number(getSetting(INSTALLED_AT_KEY));
+  if (value > 0) return value;
+  setSetting(INSTALLED_AT_KEY, String(now));
+  return now;
+}
+
+export interface StoredEntitlement {
+  productId: string;
+  purchasedAt: number;
+}
+
+/** Last known Premium purchase, so Premium (no ads, PDF/Excel) works offline between Play checks. */
+export function getEntitlement(): StoredEntitlement | null {
+  const raw = getSetting(ENTITLEMENT_KEY);
+  return raw ? (JSON.parse(raw) as StoredEntitlement) : null;
+}
+
+export function setEntitlement(entitlement: StoredEntitlement | null): void {
+  setSetting(ENTITLEMENT_KEY, entitlement ? JSON.stringify(entitlement) : '');
 }

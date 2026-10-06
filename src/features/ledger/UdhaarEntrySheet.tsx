@@ -21,6 +21,7 @@ import {
   registerUdhaarEntrySheet,
   type UdhaarEntrySheetParams,
 } from '../../store/udhaarEntrySheetStore';
+import { noteSave } from '../../services/ads/ads';
 import { showToast } from '../../store/toastStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { radius, typography, fontFamily } from '../../theme/tokens';
@@ -253,6 +254,7 @@ export function UdhaarEntrySheet() {
       });
     }
 
+    noteSave();
     sheetRef.current?.dismiss();
     showToast({ message: t('toast.udhaarSaved') });
   };

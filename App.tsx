@@ -5,15 +5,13 @@
 import './global.css';
 import React, { useEffect, useRef } from 'react';
 import { AppState, StatusBar, type AppStateStatus } from 'react-native';
-import { NavigationContainer, createNavigationContainerRef } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { AppProviders } from './src/app/providers/AppProviders';
 import { RootNavigator } from './src/app/navigation/RootNavigator';
 import { sync } from './src/sync/syncEngine/engine';
-import { shouldLockOnResume } from './src/app/navigation/resumeLock';
+import { consumeResumeLockSuppression, shouldLockOnResume } from './src/app/navigation/resumeLock';
 import { useSettingsStore } from './src/store/settingsStore';
-import type { RootStackParamList } from './src/app/navigation/types';
-
-const navigationRef = createNavigationContainerRef<RootStackParamList>();
+import { navigationRef } from './src/app/navigation/navigationRef';
 
 function App() {
   const appState = useRef<AppStateStatus>((AppState.currentState as AppStateStatus) ?? 'active');
@@ -28,7 +26,8 @@ function App() {
         const { lockMethod, lockAfterMs } = useSettingsStore.getState();
         const rootState = navigationRef.isReady() ? navigationRef.getRootState() : undefined;
         const currentRootRoute = rootState?.routes[rootState.index]?.name;
-        if (shouldLockOnResume({ lockMethod, lockAfterMs, backgroundedAt: backgroundedAt.current, now: Date.now(), currentRootRoute })) {
+        const appOpenedIt = consumeResumeLockSuppression();
+        if (!appOpenedIt && shouldLockOnResume({ lockMethod, lockAfterMs, backgroundedAt: backgroundedAt.current, now: Date.now(), currentRootRoute })) {
           navigationRef.navigate('LockScreen', { resume: true });
         }
         backgroundedAt.current = null;

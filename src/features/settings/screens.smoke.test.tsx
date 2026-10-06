@@ -1,5 +1,5 @@
 /**
- * Render smoke test for the Milestone 8 screens: each mounts against a real (in-memory) SQLite
+ * Render smoke test for the Milestone 8–9 screens: each mounts against a real (in-memory) SQLite
  * database in English and Hindi, and no raw i18n key leaks into the rendered text.
  */
 import React from 'react';
@@ -46,6 +46,7 @@ import { SyncBackupScreen } from './SyncBackupScreen';
 import { ExportScreen } from './ExportScreen';
 import { DeleteAccountScreen } from './DeleteAccountScreen';
 import { CategoriesScreen } from '../categories/CategoriesScreen';
+import { PremiumScreen } from '../subscription/PremiumScreen';
 
 const USER = 'user-1';
 
@@ -64,9 +65,9 @@ function renderedText(root: ReactTestInstance): string[] {
   return root.findAllByType(Text).map((n) => [n.props.children].flat(Infinity).filter((c) => typeof c === 'string').join(''));
 }
 
-const SCREENS = { MoreScreen, SettingsScreen, SyncBackupScreen, ExportScreen, DeleteAccountScreen, CategoriesScreen };
+const SCREENS = { MoreScreen, SettingsScreen, SyncBackupScreen, ExportScreen, DeleteAccountScreen, CategoriesScreen, PremiumScreen };
 
-describe.each(['en', 'hi'] as const)('Milestone 8 screens (%s)', (language) => {
+describe.each(['en', 'hi'] as const)('Settings & Premium screens (%s)', (language) => {
   beforeEach(() => {
     useSettingsStore.getState().setLanguage(language);
   });
@@ -118,4 +119,47 @@ it('Delete account stays disabled until DELETE is typed exactly and the box is t
   act(() => renderer.root.findByType(TextInput).props.onChangeText('DELETE'));
   expect(deleteButton().props.accessibilityState.disabled).toBe(false);
   act(() => renderer.unmount());
+});
+
+describe('Premium users', () => {
+  beforeEach(() => {
+    useSettingsStore.getState().setLanguage('en');
+    const { useEntitlementStore } = require('../../store/entitlementStore');
+    useEntitlementStore.getState().grant({ productId: 'premium_yearly', purchasedAt: 1 });
+  });
+  afterEach(() => {
+    const { useEntitlementStore } = require('../../store/entitlementStore');
+    useEntitlementStore.getState().revoke();
+  });
+
+  async function textsOf(Screen: React.ComponentType) {
+    let renderer!: TestRenderer.ReactTestRenderer;
+    await act(async () => {
+      renderer = TestRenderer.create(<Screen />);
+    });
+    const texts = renderedText(renderer.root);
+    act(() => renderer.unmount());
+    return texts;
+  }
+
+  it('More drops the upgrade card and shows Premium', async () => {
+    const texts = await textsOf(MoreScreen);
+    expect(texts).toContain('Premium active');
+    expect(texts).not.toContain('Go ad-free with Premium');
+    expect(texts).toContain('Premium');
+  });
+
+  it('Export no longer marks PDF and Excel as Premium-only', async () => {
+    expect(await textsOf(ExportScreen)).not.toContain('Premium');
+  });
+
+  it('Premium screen shows the active plan instead of prices', async () => {
+    const texts = await textsOf(PremiumScreen);
+    expect(texts).toContain("You're on Premium");
+    expect(texts).not.toContain('Continue with Yearly');
+  });
+
+  it('Settings shows the plan', async () => {
+    expect(await textsOf(SettingsScreen)).toContain('Premium · Yearly');
+  });
 });

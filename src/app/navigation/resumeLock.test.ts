@@ -1,4 +1,4 @@
-import { shouldLockOnResume } from './resumeLock';
+import { consumeResumeLockSuppression, shouldLockOnResume, suppressNextResumeLock } from './resumeLock';
 
 const base = { lockMethod: 'pin' as const, lockAfterMs: 60_000, backgroundedAt: 1_000, now: 61_000, currentRootRoute: 'App' };
 
@@ -22,4 +22,18 @@ describe('shouldLockOnResume', () => {
       expect(shouldLockOnResume({ ...base, currentRootRoute: route })).toBe(false);
     }
   });
+});
+
+describe('suppressNextResumeLock', () => {
+  it('skips exactly one resume', () => {
+    expect(consumeResumeLockSuppression()).toBe(false);
+    suppressNextResumeLock();
+    expect(consumeResumeLockSuppression()).toBe(true);
+    expect(consumeResumeLockSuppression()).toBe(false);
+  });
+});
+
+it('ignores a suppression the app never used within two minutes', () => {
+  suppressNextResumeLock(0);
+  expect(consumeResumeLockSuppression(2 * 60_000 + 1)).toBe(false);
 });

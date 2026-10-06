@@ -1,13 +1,16 @@
-/**
- * Premium entitlement. Billing (Play Billing products, restore, renewal date) lands in Milestone 9;
- * until then every user is on the free plan, so premium-only paths (PDF/Excel export) route to
- * the Premium screen and More shows the upgrade card.
- */
+import { useEntitlementStore } from '../../store/entitlementStore';
+
 export interface Entitlement {
   isPremium: boolean;
-  renewsOn: string | null;
+  /** The Play subscription product (premium_monthly / premium_yearly), when Premium. */
+  productId: string | null;
 }
 
+/**
+ * Premium entitlement (ARCHITECTURE.md §12): no ads, PDF/Excel export. Backed by the last purchase
+ * Google Play confirmed (services/billing), cached locally so it holds offline.
+ */
 export function useEntitlement(): Entitlement {
-  return { isPremium: false, renewsOn: null };
+  const entitlement = useEntitlementStore((s) => s.entitlement);
+  return { isPremium: entitlement !== null, productId: entitlement?.productId ?? null };
 }

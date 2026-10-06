@@ -18,6 +18,9 @@ module.exports = {
     '^react-native-localize$': '<rootDir>/jest/reactNativeLocalizeMock.js',
     '^lucide-react-native$': '<rootDir>/jest/lucideMock.js',
     '^@react-native-community/netinfo$': '<rootDir>/jest/netinfoMock.js',
+    '^react-native-google-mobile-ads$': '<rootDir>/jest/googleMobileAdsMock.js',
+    '^react-native-iap$': '<rootDir>/jest/iapMock.js',
+    '^react-native-html-to-pdf$': '<rootDir>/jest/htmlToPdfMock.js',
   },
   setupFiles: ['@react-native/jest-preset/jest/setup.js', 'react-native-gesture-handler/jestSetup'],
 };

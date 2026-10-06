@@ -20,6 +20,7 @@ import { useCategories } from '../../hooks/useCategories';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import * as settingsRepo from '../../database/repositories/settingsRepo';
 import { applyKey, rawToPaise, paiseToRaw, MAX_AMOUNT_PAISE } from '../../utils/money';
+import { noteSave } from '../../services/ads/ads';
 import { showToast } from '../../store/toastStore';
 import { radius, typography, fontFamily } from '../../theme/tokens';
 import type { AppStackParamList } from '../../app/navigation/types';
@@ -98,6 +99,7 @@ export function AddTransactionScreen({ route, navigation }: Props) {
     } else {
       transactionsRepo.create({ userId, type, amountPaise, categoryId, paymentMethod, occurredAt, note: note || null });
     }
+    noteSave();
 
     Vibration.vibrate(10);
     navigation.goBack();

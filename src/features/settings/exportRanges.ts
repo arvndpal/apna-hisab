@@ -28,6 +28,6 @@ export function getExportRange(kind: ExportRangeKind, today: Date, custom?: { fr
 }
 
 /** File name stem, e.g. "apna-hisab-transactions_2026-10-01_2026-10-31". */
-export function exportFileStem(kind: 'transactions' | 'udhaar', range: ExportRange): string {
+export function exportFileStem(kind: 'transactions' | 'udhaar' | 'statement', range: ExportRange): string {
   return `apna-hisab-${kind}_${range.from}_${range.to}`;
 }
