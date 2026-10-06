@@ -1,8 +1,8 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Calendar, Filter, List } from 'lucide-react-native';
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
@@ -20,7 +20,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import { toOccurredOn } from '../../utils/dates';
 import { TransactionFiltersSheet, EMPTY_FILTERS, type TxnFilters } from './TransactionFilters';
-import type { AppStackParamList } from '../../app/navigation/types';
+import type { AppStackParamList, MainTabParamList } from '../../app/navigation/types';
 import type { TransactionType } from '../../types/models';
 
 function dateRangeFor(preset: TxnFilters['datePreset']): { from?: string; to?: string } {
@@ -44,6 +44,7 @@ export function TransactionsScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const route = useRoute<RouteProp<MainTabParamList, 'Transactions'>>();
   const userId = useActiveUserId();
   const categoriesById = useCategoriesById(userId);
   const allCategories = useCategories(userId);
@@ -52,7 +53,18 @@ export function TransactionsScreen() {
   const debouncedSearch = useDebounce(search, 250);
   const [typeFilter, setTypeFilter] = useState<'all' | TransactionType>('all');
   const [filters, setFilters] = useState<TxnFilters>(EMPTY_FILTERS);
+  // An exact [from, to] range handed in via route params (e.g. from a report's category drill-down) —
+  // takes priority over the filter sheet's relative `datePreset` chips, which can't express it.
+  const [explicitRange, setExplicitRange] = useState<{ from?: string; to?: string } | null>(null);
   const filtersSheetRef = useRef<BottomSheetModal>(null);
+
+  useEffect(() => {
+    if (!route.params) return;
+    setFilters((f) => ({ ...f, categoryIds: route.params?.categoryIds ?? f.categoryIds }));
+    if (route.params.from || route.params.to) {
+      setExplicitRange({ from: route.params.from, to: route.params.to });
+    }
+  }, [route.params]);
 
   const hasActiveFilters = filters.datePreset !== null || filters.categoryIds.length > 0 || filters.paymentMethods.length > 0 || filters.minPaise != null || filters.maxPaise != null;
 
@@ -60,7 +72,7 @@ export function TransactionsScreen() {
     userId,
     search: debouncedSearch || undefined,
     type: typeFilter === 'all' ? undefined : typeFilter,
-    ...dateRangeFor(f.datePreset),
+    ...(explicitRange ?? dateRangeFor(f.datePreset)),
     categoryIds: f.categoryIds.length ? f.categoryIds : undefined,
     paymentMethods: f.paymentMethods.length ? f.paymentMethods : undefined,
     minPaise: f.minPaise ?? undefined,
@@ -132,7 +144,10 @@ export function TransactionsScreen() {
         sheetRef={filtersSheetRef}
         categories={allCategories}
         value={filters}
-        onApply={setFilters}
+        onApply={(f) => {
+          setExplicitRange(null);
+          setFilters(f);
+        }}
         resultCount={(f) => transactionsRepo.list(buildParams(f)).length}
       />
     </SafeAreaView>

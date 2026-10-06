@@ -80,6 +80,13 @@ export interface CategoryBreakdownRow {
   share: number; // 0–1
 }
 
+export interface PaymentMethodBreakdownRow {
+  paymentMethod: PaymentMethod;
+  amountPaise: number;
+  count: number;
+  share: number; // 0–1
+}
+
 export type SyncUiStatus = 'synced' | 'pending' | 'syncing' | 'offline' | 'error';
 
 export interface SyncQueueItem {

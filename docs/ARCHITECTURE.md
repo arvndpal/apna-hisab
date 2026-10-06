@@ -178,8 +178,7 @@ Totals: receive = Σ positive balances; pay = Σ |negative balances|. **Udhaar n
 
 Periods (`features/reports/periods.ts`), week starts Monday, all in device local time:
 - today, week (Mon–Sun), month, quarter (calendar Q), 6m (current month + previous 5), year (calendar), custom.
-- Bars: last 6 periods of the selected unit (today → last 6 days; week → 6 weeks; month → 6 months; quarter → 6 quarters; 6m → 6 months; year → 6 years; custom → split into ≤ 6 equal buckets).
-- Trend: today → hourly totals; week → daily; month → weekly (W1–W5); quarter/6m → monthly; year → monthly.
+- Bars and trend share the same buckets: today → hourly totals; every other period → daily (never folded into weeks/months, however long the range — both charts scroll horizontally instead), each shown as income and expense together. Tapping a bar or a trend point shows a tooltip with that point's date, income and expense.
 
 ## 5. Repositories & live queries
 

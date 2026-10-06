@@ -4,7 +4,8 @@
     "continue": "Continue", "cancel": "Cancel", "delete": "Delete", "save": "Save", "edit": "Edit",
     "done": "Done", "back": "Back", "close": "Close", "retry": "Try again", "undo": "Undo",
     "reset": "Reset", "seeAll": "See all", "optional": "Optional", "today": "Today", "yesterday": "Yesterday",
-    "pickDate": "Pick date", "note": "Note", "addNote": "Add note", "search": "Search", "more": "More"
+    "pickDate": "Pick date", "note": "Note", "addNote": "Add note", "search": "Search", "more": "More",
+    "previous": "Previous", "next": "Next"
   },
   "nav": { "home": "Home", "transactions": "Transactions", "reports": "Reports", "more": "More", "add": "Add transaction" },
   "welcome": {
@@ -113,12 +114,13 @@
     "sixMonths": "6 Months", "year": "Year", "custom": "Custom",
     "net": "Net · {{period}}", "keptPct": "You kept {{pct}}% of what you earned",
     "spentMore": "You spent {{amount}} more than you earned",
-    "incomeVsExpense": "Income vs Expense", "incomeTrend": "Income trend", "weeklyIncome": "Weekly income in {{month}}",
-    "whereSpent": "Where did you spend?", "seeAllCategories": "See all categories",
+    "incomeVsExpense": "Income vs Expense", "incomeTrend": "Income & Expense trend", "weeklyIncome": "Daily trend in {{month}}",
+    "whereSpent": "Where did you spend?", "seeAllCategories": "See all categories", "total": "Total",
     "paymentMethods": "Payment methods", "receivedIn": "Money received in {{period}}",
     "breakdownTitle": "Spending breakdown", "tapCategory": "Tap a category to see its transactions.",
+    "breakdownRow_one": "{{pct}}% · {{count}} transaction", "breakdownRow_other": "{{pct}}% · {{count}} transactions",
     "exportPremium": "Export PDF / Excel", "noDataPeriod": "No data for this period",
-    "customTitle": "Custom Report", "from": "From", "to": "To", "generate": "Generate Report",
+    "customTitle": "Custom Report", "from": "From", "to": "To", "generate": "Generate Report", "netLabel": "Net",
     "viewFull": "View full report", "rangeTooLong": "Choose a range of 3 years or less.",
     "calendarTitle": "Financial Calendar", "savedMoney": "Saved money", "spentMoreDay": "Spent more",
     "dayTransactions_one": "{{count}} transaction · tap to open", "dayTransactions_other": "{{count}} transactions · tap to open"

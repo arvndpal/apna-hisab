@@ -4,7 +4,8 @@
     "continue": "आगे बढ़ें", "cancel": "रद्द करें", "delete": "हटाएं", "save": "सेव करें", "edit": "बदलें",
     "done": "हो गया", "back": "वापस", "close": "बंद करें", "retry": "फिर कोशिश करें", "undo": "वापस लें",
     "reset": "हटाएं", "seeAll": "सभी देखें", "optional": "वैकल्पिक", "today": "आज", "yesterday": "कल",
-    "pickDate": "तारीख चुनें", "note": "नोट", "addNote": "नोट जोड़ें", "search": "खोजें", "more": "और"
+    "pickDate": "तारीख चुनें", "note": "नोट", "addNote": "नोट जोड़ें", "search": "खोजें", "more": "और",
+    "previous": "पिछला", "next": "अगला"
   },
   "nav": { "home": "होम", "transactions": "लेन-देन", "reports": "रिपोर्ट", "more": "और", "add": "लेन-देन जोड़ें" },
   "welcome": {
@@ -113,12 +114,13 @@
     "sixMonths": "6 महीने", "year": "साल", "custom": "कस्टम",
     "net": "बचत · {{period}}", "keptPct": "आपने अपनी कमाई का {{pct}}% बचाया",
     "spentMore": "आपने कमाई से {{amount}} ज़्यादा खर्च किया",
-    "incomeVsExpense": "कमाई बनाम खर्च", "incomeTrend": "कमाई का रुझान", "weeklyIncome": "{{month}} की हफ़्तेवार कमाई",
-    "whereSpent": "पैसा कहाँ खर्च हुआ?", "seeAllCategories": "सभी श्रेणियां देखें",
+    "incomeVsExpense": "कमाई बनाम खर्च", "incomeTrend": "कमाई और खर्च का रुझान", "weeklyIncome": "{{month}} का दैनिक रुझान",
+    "whereSpent": "पैसा कहाँ खर्च हुआ?", "seeAllCategories": "सभी श्रेणियां देखें", "total": "कुल",
     "paymentMethods": "भुगतान के तरीके", "receivedIn": "{{period}} में आया पैसा",
     "breakdownTitle": "खर्च का ब्योरा", "tapCategory": "लेन-देन देखने के लिए श्रेणी पर टैप करें।",
+    "breakdownRow_one": "{{pct}}% · {{count}} लेन-देन", "breakdownRow_other": "{{pct}}% · {{count}} लेन-देन",
     "exportPremium": "PDF / Excel एक्सपोर्ट", "noDataPeriod": "इस अवधि का कोई डेटा नहीं",
-    "customTitle": "कस्टम रिपोर्ट", "from": "से", "to": "तक", "generate": "रिपोर्ट बनाएं",
+    "customTitle": "कस्टम रिपोर्ट", "from": "से", "to": "तक", "generate": "रिपोर्ट बनाएं", "netLabel": "बचत",
     "viewFull": "पूरी रिपोर्ट देखें", "rangeTooLong": "3 साल या उससे कम की अवधि चुनें।",
     "calendarTitle": "हिसाब कैलेंडर", "savedMoney": "बचत हुई", "spentMoreDay": "ज़्यादा खर्च",
     "dayTransactions_one": "{{count}} लेन-देन · खोलने के लिए टैप करें", "dayTransactions_other": "{{count}} लेन-देन · खोलने के लिए टैप करें"

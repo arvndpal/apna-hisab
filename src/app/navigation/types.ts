@@ -3,7 +3,7 @@ import type { ReportPeriod, TransactionType } from '../../types/models';
 
 export type MainTabParamList = {
   Home: undefined;
-  Transactions: undefined;
+  Transactions: { categoryIds?: string[]; from?: string; to?: string } | undefined;
   Reports: { period?: ReportPeriod; from?: string; to?: string } | undefined;
   More: undefined;
 };
