@@ -10,7 +10,8 @@ import { Banner } from '../../components/common/Banner';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { EmptyState } from '../../components/common/EmptyState';
-import { HeroSummary } from '../../components/transactions/HeroSummary';
+import { HeroSummary, type HomeHeroPeriod } from '../../components/transactions/HeroSummary';
+import { getPeriodRange } from '../../features/reports/periods';
 import { TransactionItem } from '../../components/transactions/TransactionItem';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
@@ -21,8 +22,8 @@ import { useSyncStatus } from '../../hooks/useSyncStatus';
 import { useCategoriesById } from '../../hooks/useCategories';
 import { categoryDisplayName } from '../../database/repositories/categoriesRepo';
 import { useSettingsStore } from '../../store/settingsStore';
+import { useAuthStore } from '../../store/authStore';
 import { formatRupees } from '../../utils/money';
-import { toOccurredOn } from '../../utils/dates';
 import { sync as runSync } from '../../sync/syncEngine/engine';
 import type { MainTabParamList } from '../../app/navigation/types';
 import type { AppStackParamList } from '../../app/navigation/types';
@@ -41,9 +42,12 @@ export function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const userId = useActiveUserId();
   const language = useSettingsStore((s) => s.language);
+  const profile = useAuthStore((s) => s.profile);
 
-  const today = toOccurredOn(new Date());
-  const summary = useSummary(userId, today, today);
+  const [heroPeriod, setHeroPeriod] = useState<HomeHeroPeriod>('month');
+  const heroRange = getPeriodRange(heroPeriod, new Date());
+  const summary = useSummary(userId, heroRange.from, heroRange.to);
+  const netLabel = t(`home.${heroPeriod}Net`);
   const recent = useRecentTransactions(userId, 4);
   const udhaar = useUdhaarTotals(userId);
   const sync = useSyncStatus();
@@ -83,16 +87,20 @@ export function HomeScreen() {
           variant="home"
           dateLabel={dateLabel}
           greeting={greeting}
-          initial={t('home.defaultName')}
+          initial={profile?.name || t('home.defaultName')}
+          avatarUrl={profile?.avatarUrl}
           netPaise={summary.netPaise}
           incomePaise={summary.incomePaise}
           expensePaise={summary.expensePaise}
           incomeLabel={t('home.income')}
           expenseLabel={t('home.expense')}
+          netLabel={netLabel}
+          period={heroPeriod}
+          onChangePeriod={setHeroPeriod}
           syncStatus={sync.status}
           pendingCount={sync.pendingCount}
           onPressAvatar={() => navigation.navigate('Settings')}
-          onPressNet={() => navigation.navigate('Reports', { period: 'today' })}
+          onPressNet={() => navigation.navigate('Reports', { period: heroPeriod })}
         />
 
         <View style={{ paddingTop: 16, paddingHorizontal: 20, gap: 14 }}>

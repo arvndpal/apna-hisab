@@ -7,17 +7,45 @@ import { Check, Crown, X } from 'lucide-react-native';
 import { AppText } from '../../components/common/AppText';
 import { Banner } from '../../components/common/Banner';
 import { Button } from '../../components/common/Button';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { IconButton } from '../../components/common/IconButton';
 import { useTheme } from '../../hooks/useTheme';
 import { showToast } from '../../store/toastStore';
-import { buy, loadPlans, manageSubscription, refreshEntitlement, useBillingStore } from '../../services/billing/billing';
-import type { Plan, PlanKey } from '../../services/billing/plans';
+import { loadPlans, manageSubscription, refreshEntitlement, useBillingStore } from '../../services/billing/billing';
+import { useEntitlementStore } from '../../store/entitlementStore';
+import { PRODUCT_IDS, type Plan, type PlanKey } from '../../services/billing/plans';
 import { useEntitlement } from './useEntitlement';
 import { radius } from '../../theme/tokens';
 
 const BENEFITS = ['premium.benefitAdFree', 'premium.benefitReports', 'premium.benefitExport', 'premium.benefitCustom'] as const;
 
 type Notice = 'unavailable' | 'pending' | 'purchaseFailed' | 'nothingToRestore' | null;
+
+/**
+ * Until the Play Console listing is live, `loadPlans()` returns nothing for either product. Rather
+ * than leave the screen unusable before then, fall back to placeholder plans so the mock payment
+ * flow below (see `handleConfirmPayment`) can still be built against and tested end-to-end.
+ */
+const FALLBACK_PLANS: Record<PlanKey, Plan> = {
+  yearly: { key: 'yearly', productId: PRODUCT_IDS.yearly, displayPrice: '₹999', offerToken: null },
+  monthly: { key: 'monthly', productId: PRODUCT_IDS.monthly, displayPrice: '₹99', offerToken: null },
+};
+
+/**
+ * `loadPlans()` awaits Play Billing's `initConnection()`, which can stall for a long time (or never
+ * resolve) on a device without a live Play Console listing. Without a timeout, `plans` would stay
+ * `null` forever and the Continue button (disabled while there's no plan) would never let the mock
+ * payment modal open.
+ */
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), ms);
+    promise.then((value) => {
+      clearTimeout(timer);
+      resolve(value);
+    });
+  });
+}
 
 function PlanOption({
   title,
@@ -101,17 +129,19 @@ export function PremiumScreen() {
   const status = useBillingStore((s) => s.status);
   const setStatus = useBillingStore((s) => s.setStatus);
 
-  const [plans, setPlans] = useState<Partial<Record<PlanKey, Plan>> | null>(null);
+  // Starts from the mock prices immediately so the screen never depends on Play Billing's
+  // initConnection() succeeding — it only upgrades to real Play pricing if that resolves in time.
+  const [plans, setPlans] = useState<Partial<Record<PlanKey, Plan>>>(FALLBACK_PLANS);
   const [selected, setSelected] = useState<PlanKey>('yearly');
   const [restoring, setRestoring] = useState(false);
   const [notice, setNotice] = useState<Notice>(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   const fetchPlans = useCallback(async () => {
-    setPlans(null);
-    const loaded = await loadPlans();
-    setPlans(loaded);
-    if (!loaded.yearly && !loaded.monthly) setNotice('unavailable');
-    else if (!loaded.yearly) setSelected('monthly');
+    const loaded = await withTimeout(loadPlans(), 4000, {});
+    // Merge per-key rather than replacing outright — a real plan missing a price (or only one of the
+    // two products priced) should fall back to the mock price for that key, not drop it.
+    setPlans((prev) => ({ yearly: loaded.yearly ?? prev.yearly, monthly: loaded.monthly ?? prev.monthly }));
   }, []);
 
   useEffect(() => {
@@ -149,7 +179,22 @@ export function PremiumScreen() {
     const plan = plans?.[selected];
     if (!plan) return;
     setNotice(null);
-    buy(plan);
+    setShowPaymentModal(true);
+  };
+
+  /**
+   * Mock payment confirmation (no real charge yet — see FALLBACK_PLANS above). Grants the entitlement
+   * the same way a real Play purchase does (useEntitlementStore.grant, persisted via settingsRepo),
+   * so the rest of the app — ad-gating, export gating, the active-Premium view here — can't tell the
+   * difference. Swap this for `buy(plan)` once the Play Console listing is live.
+   */
+  const handleConfirmPayment = () => {
+    const plan = plans?.[selected];
+    setShowPaymentModal(false);
+    if (!plan) return;
+    useEntitlementStore.getState().grant({ productId: plan.productId, purchasedAt: Date.now() });
+    showToast({ message: t('toast.premiumActive') });
+    navigation.goBack();
   };
 
   const plan = plans?.[selected];
@@ -202,21 +247,21 @@ export function PremiumScreen() {
             </View>
 
             <View style={{ gap: 12 }} accessibilityRole="radiogroup">
-              {plans === null || plans.yearly ? (
+              {plans.yearly ? (
                 <PlanOption
                   title={t('premium.yearly')}
                   subtitle={t('premium.yearlySub')}
                   badge={t('premium.bestValue')}
-                  price={plans?.yearly ? t('premium.perYear', { price: plans.yearly.displayPrice }) : null}
+                  price={t('premium.perYear', { price: plans.yearly.displayPrice })}
                   selected={selected === 'yearly'}
                   onPress={() => setSelected('yearly')}
                 />
               ) : null}
-              {plans === null || plans.monthly ? (
+              {plans.monthly ? (
                 <PlanOption
                   title={t('premium.monthly')}
                   subtitle={t('premium.monthlySub')}
-                  price={plans?.monthly ? t('premium.perMonth', { price: plans.monthly.displayPrice }) : null}
+                  price={t('premium.perMonth', { price: plans.monthly.displayPrice })}
                   selected={selected === 'monthly'}
                   onPress={() => setSelected('monthly')}
                 />
@@ -241,6 +286,25 @@ export function PremiumScreen() {
           </>
         )}
       </ScrollView>
+
+      <ConfirmDialog
+        visible={showPaymentModal}
+        icon={Crown}
+        title={t('premium.payTitle')}
+        body={t('premium.payBody')}
+        summary={
+          plan ? (
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+              <AppText variant="rowTitle">{selected === 'yearly' ? t('premium.yearly') : t('premium.monthly')}</AppText>
+              <AppText variant="rowTitle">{selected === 'yearly' ? t('premium.perYear', { price: plan.displayPrice }) : t('premium.perMonth', { price: plan.displayPrice })}</AppText>
+            </View>
+          ) : null
+        }
+        cancelLabel={t('common.cancel')}
+        confirmLabel={t('premium.paymentDone')}
+        onCancel={() => setShowPaymentModal(false)}
+        onConfirm={handleConfirmPayment}
+      />
     </SafeAreaView>
   );
 }

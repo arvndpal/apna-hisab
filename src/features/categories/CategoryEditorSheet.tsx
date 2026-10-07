@@ -72,9 +72,9 @@ export const CategoryEditorSheet = forwardRef<CategoryEditorHandle, { userId: st
     if (editing) {
       // Keep a default category localized (name stays NULL) unless the user actually renamed it.
       const renamed = trimmed !== categoryDisplayName(editing, language);
-      categoriesRepo.update(editing.id, { name: renamed ? trimmed : undefined, icon });
+      categoriesRepo.update(editing.id, { name: renamed ? trimmed : undefined, icon, language });
     } else {
-      categoriesRepo.create({ userId, type, name: trimmed, icon });
+      categoriesRepo.create({ userId, type, name: trimmed, icon, language });
     }
     sheetRef.current?.dismiss();
     showToast({ message: t('toast.categorySaved') });

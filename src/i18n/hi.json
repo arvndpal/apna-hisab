@@ -5,7 +5,7 @@
     "done": "हो गया", "back": "वापस", "close": "बंद करें", "retry": "फिर कोशिश करें", "undo": "वापस लें",
     "reset": "हटाएं", "seeAll": "सभी देखें", "optional": "वैकल्पिक", "today": "आज", "yesterday": "कल",
     "pickDate": "तारीख चुनें", "note": "नोट", "addNote": "नोट जोड़ें", "search": "खोजें", "more": "और",
-    "previous": "पिछला", "next": "अगला"
+    "previous": "पिछला", "next": "अगला", "dismiss": "हटाएं", "clearSearch": "खोज साफ़ करें"
   },
   "nav": { "home": "होम", "transactions": "लेन-देन", "reports": "रिपोर्ट", "more": "और", "add": "लेन-देन जोड़ें" },
   "welcome": {
@@ -28,7 +28,7 @@
   "language": {
     "title": "अपनी भाषा चुनें", "english": "English", "hindi": "हिन्दी",
     "englishSample": "Income · Expense · Udhaar", "hindiSample": "कमाई · खर्च · उधार",
-    "changeLater": "इसे बाद में सेटिंग्स में बदल सकते हैं"
+    "changeLater": "इसे बाद में सेटिंग्स में बदल सकते हैं", "toggle": "भाषा बदलें"
   },
   "lock": {
     "setupTitle": "अपना हिसाब सुरक्षित करें",
@@ -47,7 +47,7 @@
   "home": {
     "greeting": { "morning": "सुप्रभात, {{name}}", "afternoon": "नमस्ते, {{name}}", "evening": "शुभ संध्या, {{name}}" },
     "defaultName": "आप",
-    "todayNet": "आज की बचत", "income": "कमाई", "expense": "खर्च",
+    "todayNet": "आज की बचत", "weekNet": "इस हफ़्ते की बचत", "monthNet": "इस महीने की बचत", "income": "कमाई", "expense": "खर्च",
     "addIncome": "कमाई जोड़ें", "addExpense": "खर्च जोड़ें",
     "udhaar": "उधार", "udhaarSummary": "लेना {{receive}} · देना {{pay}}", "udhaarPromo": "उधार दिए-लिए पैसों का हिसाब रखें",
     "recent": "हाल के लेन-देन"
@@ -197,7 +197,8 @@
     "pending": "भुगतान बाकी है — Google Play की पुष्टि होते ही प्रीमियम चालू हो जाएगा।",
     "activeTitle": "आप प्रीमियम पर हैं",
     "activeBody": "विज्ञापन बंद हैं और PDF व Excel एक्सपोर्ट खुल गया है। Apna Hisab का साथ देने के लिए धन्यवाद।",
-    "manage": "Google Play में मैनेज करें"
+    "manage": "Google Play में मैनेज करें",
+    "payTitle": "भुगतान की पुष्टि करें", "payBody": "इस प्लान के लिए प्रीमियम चालू करने हेतु पुष्टि करें।", "paymentDone": "भुगतान हो गया"
   },
   "sync": {
     "synced": "सिंक हो गया", "allSynced": "सब सिंक", "pending_one": "{{count}} लेन-देन बाकी", "pending_other": "{{count}} लेन-देन बाकी",

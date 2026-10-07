@@ -5,7 +5,7 @@
     "done": "Done", "back": "Back", "close": "Close", "retry": "Try again", "undo": "Undo",
     "reset": "Reset", "seeAll": "See all", "optional": "Optional", "today": "Today", "yesterday": "Yesterday",
     "pickDate": "Pick date", "note": "Note", "addNote": "Add note", "search": "Search", "more": "More",
-    "previous": "Previous", "next": "Next"
+    "previous": "Previous", "next": "Next", "dismiss": "Dismiss", "clearSearch": "Clear search"
   },
   "nav": { "home": "Home", "transactions": "Transactions", "reports": "Reports", "more": "More", "add": "Add transaction" },
   "welcome": {
@@ -28,7 +28,7 @@
   "language": {
     "title": "Choose your language", "english": "English", "hindi": "हिन्दी",
     "englishSample": "Income · Expense · Udhaar", "hindiSample": "कमाई · खर्च · उधार",
-    "changeLater": "You can change this anytime in Settings"
+    "changeLater": "You can change this anytime in Settings", "toggle": "Toggle language"
   },
   "lock": {
     "setupTitle": "Secure your Apna Hisab",
@@ -47,7 +47,7 @@
   "home": {
     "greeting": { "morning": "Good morning, {{name}}", "afternoon": "Good afternoon, {{name}}", "evening": "Good evening, {{name}}" },
     "defaultName": "there",
-    "todayNet": "Today's net", "income": "Income", "expense": "Expense",
+    "todayNet": "Today's net", "weekNet": "This week's net", "monthNet": "This month's net", "income": "Income", "expense": "Expense",
     "addIncome": "Add Income", "addExpense": "Add Expense",
     "udhaar": "Udhaar", "udhaarSummary": "Receive {{receive}} · Pay {{pay}}", "udhaarPromo": "Track money you lend or borrow",
     "recent": "Recent Transactions"
@@ -196,7 +196,8 @@
     "pending": "Payment pending — Premium turns on as soon as Google Play confirms it.",
     "activeTitle": "You're on Premium",
     "activeBody": "Ads are off and PDF & Excel export is unlocked. Thank you for supporting Apna Hisab.",
-    "manage": "Manage in Google Play"
+    "manage": "Manage in Google Play",
+    "payTitle": "Confirm Payment", "payBody": "Confirm to activate Premium for this plan.", "paymentDone": "Payment Done"
   },
   "sync": {
     "synced": "Synced", "allSynced": "All synced", "pending_one": "{{count}} transaction pending", "pending_other": "{{count}} transactions pending",

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, TextInput, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { Search, X } from 'lucide-react-native';
 import { useTheme } from '../../hooks/useTheme';
 import { radius, typography, fontFamily } from '../../theme/tokens';
@@ -14,6 +15,7 @@ export interface SearchBarProps {
 /** Input variant, height 48, leading Search icon, clear button when non-empty. */
 export function SearchBar({ value, onChangeText, placeholder, testID }: SearchBarProps) {
   const palette = useTheme();
+  const { t } = useTranslation();
   return (
     <View
       style={{
@@ -45,7 +47,7 @@ export function SearchBar({ value, onChangeText, placeholder, testID }: SearchBa
         accessibilityLabel={placeholder}
       />
       {value.length > 0 ? (
-        <Pressable onPress={() => onChangeText('')} accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={8}>
+        <Pressable onPress={() => onChangeText('')} accessibilityRole="button" accessibilityLabel={t('common.clearSearch')} hitSlop={8}>
           <X size={18} color={palette.textTertiary} strokeWidth={2} />
         </Pressable>
       ) : null}

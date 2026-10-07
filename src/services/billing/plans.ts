@@ -37,7 +37,11 @@ export function toPlans(products: ProductLike[]): Partial<Record<PlanKey, Plan>>
     if (!product) continue;
     const offers = product.subscriptionOffers ?? [];
     const base = offers.find((o) => o.offerTokenAndroid && !o.offerTagsAndroid?.length) ?? offers.find((o) => o.offerTokenAndroid);
-    plans[key] = { key, productId: product.id, displayPrice: base?.displayPrice || product.displayPrice, offerToken: base?.offerTokenAndroid ?? null };
+    const displayPrice = base?.displayPrice || product.displayPrice;
+    // A product can exist without a priced base plan yet (e.g. the subscription is created in Play
+    // Console but no price is set on this track) — that's not a usable plan.
+    if (!displayPrice) continue;
+    plans[key] = { key, productId: product.id, displayPrice, offerToken: base?.offerTokenAndroid ?? null };
   }
   return plans;
 }

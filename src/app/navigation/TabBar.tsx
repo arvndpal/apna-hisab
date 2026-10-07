@@ -52,6 +52,7 @@ function TabItem({ routeName, focused, onPress }: { routeName: string; focused: 
 
 export function TabBar({ state, navigation }: BottomTabBarProps) {
   const palette = useTheme();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const goTo = (routeName: string) => {
@@ -79,7 +80,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         <Pressable
           onPress={openAddSheet}
           accessibilityRole="button"
-          accessibilityLabel="Add transaction"
+          accessibilityLabel={t('nav.add')}
           style={{
             position: 'absolute',
             top: -layout.fabLift,

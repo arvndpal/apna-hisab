@@ -93,7 +93,7 @@ export function TransactionsScreen() {
       <View style={{ paddingHorizontal: 20, paddingTop: 12, gap: 14 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
           <AppText variant="title">{t('transactions.title')}</AppText>
-          <IconButton outlined icon={Calendar} accessibilityLabel="Financial calendar" onPress={() => navigation.navigate('FinancialCalendar')} />
+          <IconButton outlined icon={Calendar} accessibilityLabel={t('reports.calendarTitle')} onPress={() => navigation.navigate('FinancialCalendar')} />
         </View>
 
         <SearchBar value={search} onChangeText={setSearch} placeholder={t('transactions.searchPlaceholder')} />

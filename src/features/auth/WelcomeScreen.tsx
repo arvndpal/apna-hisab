@@ -34,7 +34,7 @@ export function WelcomeScreen() {
         <Pressable
           onPress={() => setLanguage(language === 'hi' ? 'en' : 'hi')}
           accessibilityRole="button"
-          accessibilityLabel="Toggle language"
+          accessibilityLabel={t('language.toggle')}
           style={{ height: 36, paddingHorizontal: 12, borderRadius: 18, backgroundColor: palette.muted, alignItems: 'center', justifyContent: 'center' }}
         >
           <AppText variant="label">EN · हिं</AppText>

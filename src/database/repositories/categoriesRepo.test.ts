@@ -49,9 +49,36 @@ describe('categoriesRepo', () => {
     expect(categoriesRepo.categoryDisplayName(fuel, 'en')).toBe('Fuel');
     expect(categoriesRepo.categoryDisplayName(fuel, 'hi')).toBe('ईंधन');
 
-    const renamed = categoriesRepo.update(fuel.id, { name: 'Petrol' });
+    // An English-mode rename only overrides the English display — Hindi keeps its own name.
+    const renamed = categoriesRepo.update(fuel.id, { name: 'Petrol', language: 'en' });
     expect(categoriesRepo.categoryDisplayName(renamed, 'en')).toBe('Petrol');
-    expect(categoriesRepo.categoryDisplayName(renamed, 'hi')).toBe('Petrol');
+    expect(categoriesRepo.categoryDisplayName(renamed, 'hi')).toBe('ईंधन');
+  });
+
+  it('a Hindi-mode rename is saved into name_hi and only overrides the Hindi display', () => {
+    seedDefaultCategories(USER);
+    const fuel = categoriesRepo.list(USER, 'expense').find((c) => c.key === 'fuel')!;
+
+    const renamed = categoriesRepo.update(fuel.id, { name: 'पेट्रोल', language: 'hi' });
+    expect(renamed.name).toBeNull();
+    expect(renamed.nameHi).toBe('पेट्रोल');
+    expect(categoriesRepo.categoryDisplayName(renamed, 'hi')).toBe('पेट्रोल');
+    expect(categoriesRepo.categoryDisplayName(renamed, 'en')).toBe('Fuel');
+  });
+
+  it('creating a category while in Hindi saves the name into name_hi, not name', () => {
+    const created = categoriesRepo.create({ userId: USER, type: 'expense', name: 'पालतू जानवर', icon: 'PawPrint', language: 'hi' });
+    expect(created.name).toBeNull();
+    expect(created.nameHi).toBe('पालतू जानवर');
+    expect(categoriesRepo.categoryDisplayName(created, 'hi')).toBe('पालतू जानवर');
+    // No English name exists for a Hindi-created custom category — falls back to the Hindi text rather than blank.
+    expect(categoriesRepo.categoryDisplayName(created, 'en')).toBe('पालतू जानवर');
+  });
+
+  it('creating a category while in English saves the name into name, not name_hi', () => {
+    const created = categoriesRepo.create({ userId: USER, type: 'expense', name: 'Pets', icon: 'PawPrint', language: 'en' });
+    expect(created.name).toBe('Pets');
+    expect(created.nameHi).toBeNull();
   });
 
   it('deleting a category reassigns its transactions to "Other" and soft-deletes it', () => {

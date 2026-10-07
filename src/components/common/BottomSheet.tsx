@@ -1,5 +1,6 @@
 import React, { forwardRef, useCallback, useImperativeHandle, useRef, type ReactNode } from 'react';
 import { View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import {
   BottomSheetModal,
   BottomSheetBackdrop,
@@ -31,6 +32,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
   ref,
 ) {
   const palette = useTheme();
+  const { t } = useTranslation();
   // Owned locally so the X button can always call the real .dismiss() directly, instead of going
   // through the consumer's onClose — see onDismiss below for why that distinction matters.
   const localRef = useRef<BottomSheetModal>(null);
@@ -63,7 +65,7 @@ export const AppBottomSheet = forwardRef<BottomSheetModal, AppBottomSheetProps>(
         {title ? (
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <AppText variant="titlePushed">{title}</AppText>
-            {onClose ? <IconButton icon={X} onPress={() => localRef.current?.dismiss()} accessibilityLabel="Close" /> : null}
+            {onClose ? <IconButton icon={X} onPress={() => localRef.current?.dismiss()} accessibilityLabel={t('common.close')} /> : null}
           </View>
         ) : null}
         {children}
