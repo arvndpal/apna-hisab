@@ -2,8 +2,9 @@ import { exec, runInTransaction } from '../sqlite/client';
 import { migration001Init } from './001_init';
 import { migration002Notes } from './002_notes';
 import { migration003CategoryAliases } from './003_category_aliases';
+import { migration004NoteColor } from './004_note_color';
 
-const MIGRATIONS = [migration001Init, migration002Notes, migration003CategoryAliases];
+const MIGRATIONS = [migration001Init, migration002Notes, migration003CategoryAliases, migration004NoteColor];
 
 function getUserVersion(): number {
   const result = exec('PRAGMA user_version');

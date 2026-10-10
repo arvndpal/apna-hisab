@@ -70,7 +70,9 @@
   "diary": {
     "title": "My Diary", "add": "Add note", "edit": "Edit note", "view": "View note",
     "titlePlaceholder": "Title (optional)", "bodyPlaceholder": "Write your note…",
-    "deleteTitle": "Delete this note?", "deleteHint": "This can't be undone."
+    "deleteTitle": "Delete this note?", "deleteHint": "This can't be undone.",
+    "cardColor": "Card color", "colorDefault": "Default", "colorYellow": "Yellow", "colorPink": "Pink",
+    "colorBlue": "Blue", "colorGreen": "Green", "colorPurple": "Purple", "colorPeach": "Peach", "colorTeal": "Teal"
   },
   "toast": {
     "incomeAdded": "Income added", "expenseAdded": "Expense added", "updated": "Transaction updated",
@@ -128,7 +130,7 @@
     "paymentMethods": "Payment methods", "receivedIn": "Money received in {{period}}",
     "breakdownTitle": "Spending breakdown", "tapCategory": "Tap a category to see its transactions.",
     "breakdownRow_one": "{{pct}}% · {{count}} transaction", "breakdownRow_other": "{{pct}}% · {{count}} transactions",
-    "exportPdf": "Export as PDF", "exportPremium": "Export PDF / Excel", "noDataPeriod": "No data for this period",
+    "exportPdf": "Export as PDF", "exportExcel": "Export as Excel", "exportPremium": "Export PDF / Excel", "noDataPeriod": "No data for this period",
     "customTitle": "Custom Report", "from": "From", "to": "To", "generate": "Generate Report", "netLabel": "Net",
     "viewFull": "View full report", "rangeTooLong": "Choose a range of 3 years or less.",
     "calendarTitle": "Financial Calendar", "savedMoney": "Saved money", "spentMoreDay": "Spent more",

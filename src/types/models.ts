@@ -44,6 +44,7 @@ export interface UdhaarPerson extends Syncable {
 export interface Note extends Syncable {
   title: string | null;
   body: string;
+  color: string | null; // hex, e.g. "#FDE68A" — card background; null = default surface
 }
 
 export interface UdhaarEntry extends Syncable {

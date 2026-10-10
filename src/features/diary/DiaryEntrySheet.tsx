@@ -1,8 +1,8 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { BottomSheetTextInput, type BottomSheetModal } from '@gorhom/bottom-sheet';
-import { Trash2 } from 'lucide-react-native';
+import { Check, Trash2 } from 'lucide-react-native';
 import { AppBottomSheet } from '../../components/common/BottomSheet';
 import { AppText } from '../../components/common/AppText';
 import { Button } from '../../components/common/Button';
@@ -10,11 +10,23 @@ import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { useTheme } from '../../hooks/useTheme';
 import { showToast } from '../../store/toastStore';
 import * as notesRepo from '../../database/repositories/notesRepo';
-import { fontFamily, radius, typography } from '../../theme/tokens';
+import { fontFamily, noteColors, radius, typography } from '../../theme/tokens';
 import type { Note } from '../../types/models';
 
 const TITLE_MAX = 60;
 const BODY_MAX = 4000;
+const SWATCH = 32;
+/** Order matches theme/tokens.ts noteColors (null = default Card surface, then each swatch hex). */
+const SWATCH_LABEL_KEYS = [
+  'diary.colorDefault',
+  'diary.colorYellow',
+  'diary.colorPink',
+  'diary.colorBlue',
+  'diary.colorGreen',
+  'diary.colorPurple',
+  'diary.colorPeach',
+  'diary.colorTeal',
+];
 
 export interface DiaryEntryHandle {
   /** `note` null = Add. */
@@ -30,6 +42,7 @@ export const DiaryEntrySheet = forwardRef<DiaryEntryHandle, { userId: string }>(
   const [editing, setEditing] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [color, setColor] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -38,6 +51,7 @@ export const DiaryEntrySheet = forwardRef<DiaryEntryHandle, { userId: string }>(
       setEditing(note);
       setTitle(note?.title ?? '');
       setBody(note?.body ?? '');
+      setColor(note?.color ?? null);
       setError(null);
       sheetRef.current?.present();
     },
@@ -51,9 +65,9 @@ export const DiaryEntrySheet = forwardRef<DiaryEntryHandle, { userId: string }>(
     }
     const trimmedTitle = title.trim();
     if (editing) {
-      notesRepo.update(editing.id, { title: trimmedTitle || null, body: trimmedBody });
+      notesRepo.update(editing.id, { title: trimmedTitle || null, body: trimmedBody, color });
     } else {
-      notesRepo.create({ userId, title: trimmedTitle || null, body: trimmedBody });
+      notesRepo.create({ userId, title: trimmedTitle || null, body: trimmedBody, color });
     }
     sheetRef.current?.dismiss();
     showToast({ message: t('toast.noteSaved') });
@@ -125,6 +139,42 @@ export const DiaryEntrySheet = forwardRef<DiaryEntryHandle, { userId: string }>(
               {error}
             </AppText>
           ) : null}
+
+          <View style={{ gap: 8 }}>
+            <AppText variant="label" color="secondary">
+              {t('diary.cardColor')}
+            </AppText>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 10 }}>
+              {noteColors.map((swatch, i) => {
+                const selected = swatch === color;
+                return (
+                  <Pressable
+                    key={swatch ?? 'default'}
+                    onPress={() => setColor(swatch)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected }}
+                    accessibilityLabel={t(SWATCH_LABEL_KEYS[i])}
+                    hitSlop={4}
+                  >
+                    <View
+                      style={{
+                        width: SWATCH,
+                        height: SWATCH,
+                        borderRadius: SWATCH / 2,
+                        backgroundColor: swatch ?? palette.surface,
+                        borderWidth: selected ? 2 : 1.5,
+                        borderColor: selected ? palette.primary : palette.border,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      {selected ? <Check size={16} color={swatch ? '#1F2937' : palette.primary} strokeWidth={2.5} /> : null}
+                    </View>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
 
           <View style={{ flexDirection: 'row', gap: 12, marginTop: 4 }}>
             {editing ? (

@@ -23,7 +23,7 @@ export function DiaryNoteView({ note, language, onClose }: { note: Note | null; 
 
   return (
     <Modal visible={!!note} animationType="slide" onRequestClose={onClose}>
-      <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }} edges={['top', 'left', 'right', 'bottom']}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: displayed?.color ?? palette.background }} edges={['top', 'left', 'right', 'bottom']}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', paddingHorizontal: 12, paddingVertical: 8 }}>
           <IconButton icon={X} accessibilityLabel={t('common.close')} onPress={onClose} />
         </View>

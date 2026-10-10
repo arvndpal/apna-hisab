@@ -46,7 +46,7 @@ export function DiaryScreen() {
       ) : (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 100, gap: 12 }}>
           {notes.map((note) => (
-            <Card key={note.id}>
+            <Card key={note.id} style={note.color ? { backgroundColor: note.color } : undefined}>
               <View style={{ flexDirection: 'row', gap: 10 }}>
                 <View style={{ flex: 1, gap: 4 }}>
                   <AppText variant="rowTitle" numberOfLines={note.title ? 1 : 2}>

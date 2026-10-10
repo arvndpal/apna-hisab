@@ -43,5 +43,5 @@ export const TABLE_COLUMNS: Record<SyncedTable, readonly string[]> = {
     'updated_at',
     'deleted_at',
   ],
-  notes: ['id', 'user_id', 'title', 'body', 'created_at', 'updated_at', 'deleted_at'],
+  notes: ['id', 'user_id', 'title', 'body', 'color', 'created_at', 'updated_at', 'deleted_at'],
 };

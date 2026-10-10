@@ -70,7 +70,9 @@
   "diary": {
     "title": "मेरी डायरी", "add": "नोट जोड़ें", "edit": "नोट संपादित करें", "view": "नोट देखें",
     "titlePlaceholder": "शीर्षक (वैकल्पिक)", "bodyPlaceholder": "अपना नोट लिखें…",
-    "deleteTitle": "यह नोट हटाएं?", "deleteHint": "यह पूर्ववत नहीं किया जा सकता।"
+    "deleteTitle": "यह नोट हटाएं?", "deleteHint": "यह पूर्ववत नहीं किया जा सकता।",
+    "cardColor": "कार्ड का रंग", "colorDefault": "डिफ़ॉल्ट", "colorYellow": "पीला", "colorPink": "गुलाबी",
+    "colorBlue": "नीला", "colorGreen": "हरा", "colorPurple": "बैंगनी", "colorPeach": "आड़ू", "colorTeal": "टील"
   },
   "toast": {
     "incomeAdded": "कमाई जुड़ गई", "expenseAdded": "खर्च जुड़ गया", "updated": "लेन-देन बदल गया",
@@ -128,7 +130,7 @@
     "paymentMethods": "भुगतान के तरीके", "receivedIn": "{{period}} में आया पैसा",
     "breakdownTitle": "खर्च का ब्योरा", "tapCategory": "लेन-देन देखने के लिए श्रेणी पर टैप करें।",
     "breakdownRow_one": "{{pct}}% · {{count}} लेन-देन", "breakdownRow_other": "{{pct}}% · {{count}} लेन-देन",
-    "exportPdf": "PDF में एक्सपोर्ट करें", "exportPremium": "PDF / Excel एक्सपोर्ट", "noDataPeriod": "इस अवधि का कोई डेटा नहीं",
+    "exportPdf": "PDF में एक्सपोर्ट करें", "exportExcel": "Excel में एक्सपोर्ट करें", "exportPremium": "PDF / Excel एक्सपोर्ट", "noDataPeriod": "इस अवधि का कोई डेटा नहीं",
     "customTitle": "कस्टम रिपोर्ट", "from": "से", "to": "तक", "generate": "रिपोर्ट बनाएं", "netLabel": "बचत",
     "viewFull": "पूरी रिपोर्ट देखें", "rangeTooLong": "3 साल या उससे कम की अवधि चुनें।",
     "calendarTitle": "हिसाब कैलेंडर", "savedMoney": "बचत हुई", "spentMoreDay": "ज़्यादा खर्च",

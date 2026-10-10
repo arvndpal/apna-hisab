@@ -10,6 +10,7 @@ type NoteRow = {
   user_id: string;
   title: string | null;
   body: string;
+  color: string | null;
   created_at: string;
   updated_at: string;
   deleted_at: string | null;
@@ -22,6 +23,7 @@ function fromRow(r: NoteRow): Note {
     userId: r.user_id,
     title: r.title,
     body: r.body,
+    color: r.color,
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     deletedAt: r.deleted_at,
@@ -41,14 +43,14 @@ export function getById(id: string): Note | null {
   return row ? fromRow(row as unknown as NoteRow) : null;
 }
 
-export function create(input: { userId: string; title: string | null; body: string }): Note {
+export function create(input: { userId: string; title: string | null; body: string; color: string | null }): Note {
   const id = newId();
   const now = nowUtcIso();
   runInTransaction(() => {
     exec(
-      `INSERT INTO notes (id, user_id, title, body, created_at, updated_at, deleted_at, sync_status)
-       VALUES (?, ?, ?, ?, ?, ?, NULL, 'pending')`,
-      [id, input.userId, input.title, input.body, now, now],
+      `INSERT INTO notes (id, user_id, title, body, color, created_at, updated_at, deleted_at, sync_status)
+       VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'pending')`,
+      [id, input.userId, input.title, input.body, input.color, now, now],
     );
     enqueue('notes', id, 'upsert');
   });
@@ -56,12 +58,13 @@ export function create(input: { userId: string; title: string | null; body: stri
   return getById(id)!;
 }
 
-export function update(id: string, input: { title: string | null; body: string }): Note {
+export function update(id: string, input: { title: string | null; body: string; color: string | null }): Note {
   const now = nowUtcIso();
   runInTransaction(() => {
-    exec("UPDATE notes SET title = ?, body = ?, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
+    exec("UPDATE notes SET title = ?, body = ?, color = ?, updated_at = ?, sync_status = 'pending' WHERE id = ?", [
       input.title,
       input.body,
+      input.color,
       now,
       id,
     ]);

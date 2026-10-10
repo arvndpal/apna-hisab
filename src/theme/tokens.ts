@@ -96,6 +96,9 @@ export const gradients = {
 /** Category / chart palette, in order. */
 export const chartColors = ['#0A7A5E', '#C2410C', '#E8A04B', '#3949A8', '#A3ADA8'] as const;
 
+/** Diary card background swatches a user can pick in the entry sheet. null (first) = default Card surface. */
+export const noteColors = [null, '#FDE68A', '#FBCFE8', '#BFDBFE', '#BBF7D0', '#DDD6FE', '#FED7AA', '#99F6E4'] as const;
+
 export const fontFamily = {
   400: 'Mukta_400Regular',
   500: 'Mukta_500Medium',

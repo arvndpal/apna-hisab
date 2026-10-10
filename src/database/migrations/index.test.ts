@@ -37,9 +37,9 @@ describe('migrate', () => {
 
   it('sets PRAGMA user_version and is idempotent on re-run', () => {
     migrate();
-    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(3);
+    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(4);
     expect(() => migrate()).not.toThrow();
-    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(3);
+    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(4);
   });
 
   it('enforces the amount_paise > 0 check constraint', () => {
