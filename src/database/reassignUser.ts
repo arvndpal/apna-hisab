@@ -93,5 +93,6 @@ export function wipeLocalData(userId: string): void {
     }
     exec('DELETE FROM sync_queue');
     exec('DELETE FROM sync_meta');
+    exec('DELETE FROM category_aliases');
   });
 }

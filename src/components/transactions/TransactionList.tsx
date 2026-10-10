@@ -8,6 +8,7 @@ import { TransactionItem } from './TransactionItem';
 import { useSettingsStore } from '../../store/settingsStore';
 import { categoryDisplayName } from '../../database/repositories/categoriesRepo';
 import { toOccurredOn } from '../../utils/dates';
+import { layout } from '../../theme/tokens';
 import type { Category, Transaction } from '../../types/models';
 
 export interface DaySection {
@@ -73,7 +74,8 @@ export function TransactionList({
       ListFooterComponent={ListFooterComponent}
       onEndReached={onEndReached}
       onEndReachedThreshold={0.4}
-      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 24, gap: 10 }}
+      // Extra bottom room so the last row can scroll clear of the FAB, which rises above the tab bar.
+      contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: layout.fabLift + 24, gap: 10 }}
       renderItem={({ item: section }) => (
         <View style={{ gap: 8 }}>
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' }}>

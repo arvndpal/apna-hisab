@@ -315,4 +315,77 @@ describe('sync() — pull conflict rule', () => {
     const txn = exec('SELECT id FROM transactions WHERE id = ?', ['txn-new']).rows[0];
     expect(txn).toBeDefined();
   });
+
+  describe('transactions whose category did not pull (stale duplicate defaults on the server)', () => {
+    const cloudTxn = (id: string, categoryId: string) => ({
+      id,
+      user_id: USER,
+      type: 'expense',
+      amount_paise: 25000,
+      category_id: categoryId,
+      payment_method: 'cash',
+      occurred_at: '2026-10-03T09:05:00+05:30',
+      occurred_on: '2026-10-03',
+      note: null,
+      created_at: '2026-10-03T03:35:00Z',
+      updated_at: '2026-10-05T12:00:00Z',
+      deleted_at: null,
+    });
+    const duplicateFuel = {
+      id: 'cat-duplicate',
+      user_id: USER,
+      key: 'fuel',
+      type: 'expense',
+      name: null,
+      name_hi: 'ईंधन',
+      icon: 'Fuel',
+      sort: 1,
+      is_default: true,
+      created_at: '2026-01-01T00:00:00Z',
+      updated_at: '2026-10-05T00:00:00Z',
+      deleted_at: null,
+    };
+
+    beforeEach(() => {
+      exec(
+        `INSERT INTO categories (id, user_id, key, type, name, name_hi, icon, sort, is_default, created_at, updated_at, deleted_at, sync_status)
+         VALUES ('cat-other', ?, 'other_expense', 'expense', NULL, 'अन्य', 'LayoutGrid', 99, 1, '2026-01-01T00:00:00Z', '2026-01-01T00:00:00Z', NULL, 'synced')`,
+        [USER],
+      );
+    });
+
+    it('keeps a transaction that points at a duplicate default category, re-pointed to the local one', async () => {
+      mockedPull.mockImplementation(async (table: string) =>
+        table === 'categories' ? [duplicateFuel] : table === 'transactions' ? [cloudTxn('txn-dup', 'cat-duplicate')] : [],
+      );
+
+      await sync();
+
+      const txn = exec('SELECT category_id, updated_at FROM transactions WHERE id = ?', ['txn-dup']).rows[0];
+      expect(txn).toBeDefined();
+      expect(txn.category_id).toBe('cat-1');
+      // Re-pointed rows go back up (with a newer updated_at, so other devices pull the fix too).
+      expect(String(txn.updated_at) > '2026-10-05T12:00:00Z').toBe(true);
+      const pushed = mockedPush.mock.calls.flatMap((c) => c[0] as Array<{ tableName: string; row: { id: string } }>);
+      expect(pushed.some((p) => p.tableName === 'transactions' && p.row.id === 'txn-dup')).toBe(true);
+    });
+
+    it('remembers the duplicate across syncs (transaction pulled in a later sync)', async () => {
+      mockedPull.mockImplementation(async (table: string) => (table === 'categories' ? [duplicateFuel] : []));
+      await sync();
+      mockedPull.mockImplementation(async (table: string) => (table === 'transactions' ? [cloudTxn('txn-later', 'cat-duplicate')] : []));
+      await sync();
+
+      expect(exec('SELECT category_id FROM transactions WHERE id = ?', ['txn-later']).rows[0]?.category_id).toBe('cat-1');
+    });
+
+    it('never drops a transaction whose category is unknown — it lands in Other', async () => {
+      mockedPull.mockImplementation(async (table: string) => (table === 'transactions' ? [cloudTxn('txn-orphan', 'cat-missing')] : []));
+
+      await sync();
+
+      expect(exec('SELECT category_id FROM transactions WHERE id = ?', ['txn-orphan']).rows[0]?.category_id).toBe('cat-other');
+    });
+  });
 });
+

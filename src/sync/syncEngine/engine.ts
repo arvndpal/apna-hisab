@@ -80,13 +80,59 @@ async function pushAll(): Promise<boolean> {
   }
 }
 
+/**
+ * A pulled default category that collides with a different local row for the same (user, key) —
+ * a stale duplicate left on the server by an older install. It can't be stored (unique index), so
+ * remember that its id means the local category; transactions pointing at it are re-pointed below.
+ */
+function aliasDuplicateCategory(cloudRow: Record<string, unknown>): boolean {
+  if (cloudRow.key == null) return false;
+  const local = exec('SELECT id FROM categories WHERE user_id = ? AND key = ? AND id != ?', [cloudRow.user_id, cloudRow.key, cloudRow.id])
+    .rows[0] as { id: string } | undefined;
+  if (!local) return false;
+  exec(
+    `INSERT INTO category_aliases (alias_id, category_id) VALUES (?, ?)
+     ON CONFLICT(alias_id) DO UPDATE SET category_id = excluded.category_id`,
+    [cloudRow.id, local.id],
+  );
+  return true;
+}
+
+/**
+ * The local category a pulled transaction should point at, or null if its own category_id is fine.
+ * Unknown ids fall back to that type's "Other" — a transaction is money, it must never be dropped.
+ */
+function resolveCategoryId(cloudRow: Record<string, unknown>): string | null {
+  const categoryId = cloudRow.category_id as string;
+  if (exec('SELECT 1 FROM categories WHERE id = ?', [categoryId]).rows.length > 0) return null;
+  const alias = exec('SELECT category_id FROM category_aliases WHERE alias_id = ?', [categoryId]).rows[0] as { category_id: string } | undefined;
+  if (alias) return alias.category_id;
+  const otherKey = cloudRow.type === 'income' ? 'other_income' : 'other_expense';
+  const other = exec('SELECT id FROM categories WHERE user_id = ? AND key = ? AND deleted_at IS NULL', [cloudRow.user_id, otherKey]).rows[0] as
+    | { id: string }
+    | undefined;
+  return other?.id ?? null;
+}
+
 /** Last-write-wins: a pulled row only overwrites local state if the local row isn't itself a pending (unsynced) edit. */
 function applyPulledRow(table: SyncedTable, cloudRow: Record<string, unknown>): void {
   const id = cloudRow.id as string;
   const local = exec(`SELECT sync_status FROM ${table} WHERE id = ?`, [id]).rows[0] as { sync_status?: string } | undefined;
   if (local?.sync_status === 'pending') return;
+  if (table === 'categories' && !local && aliasDuplicateCategory(cloudRow)) return;
 
-  const params = cloudRowToLocalParams(table, cloudRow);
+  let row = cloudRow;
+  let status: 'synced' | 'pending' = 'synced';
+  if (table === 'transactions') {
+    const categoryId = resolveCategoryId(cloudRow);
+    if (categoryId) {
+      // Fixed locally, then pushed back (newer updated_at) so the server — and every other device — heals too.
+      row = { ...cloudRow, category_id: categoryId, updated_at: new Date().toISOString() };
+      status = 'pending';
+    }
+  }
+
+  const params = cloudRowToLocalParams(table, row);
   const columns = TABLE_COLUMNS[table];
   const placeholders = columns.map(() => '?').join(', ');
   const updateSet = columns
@@ -95,10 +141,11 @@ function applyPulledRow(table: SyncedTable, cloudRow: Record<string, unknown>): 
     .join(', ');
 
   exec(
-    `INSERT INTO ${table} (${columns.join(', ')}, sync_status) VALUES (${placeholders}, 'synced')
-     ON CONFLICT(id) DO UPDATE SET ${updateSet}, sync_status = 'synced'`,
+    `INSERT INTO ${table} (${columns.join(', ')}, sync_status) VALUES (${placeholders}, '${status}')
+     ON CONFLICT(id) DO UPDATE SET ${updateSet}, sync_status = '${status}'`,
     columns.map((c) => params[c]),
   );
+  if (status === 'pending') syncQueueRepo.enqueue(table, id, 'upsert');
 }
 
 async function pullTable(table: SyncedTable): Promise<void> {
@@ -162,8 +209,10 @@ export async function sync(): Promise<void> {
   store.setStatus('syncing');
 
   try {
-    const pushOk = await pushAll();
+    let pushOk = await pushAll();
     for (const table of SYNCED_TABLES) await pullTable(table);
+    // The pull can queue repairs of its own (re-pointed transactions) — send them now, not next sync.
+    if (pushOk && syncQueueRepo.count() > 0) pushOk = await pushAll();
 
     refreshPendingCount();
     const remaining = syncQueueRepo.count();
