@@ -84,3 +84,6 @@ android/app/google-services.json
 backend/dist/
 backend/coverage/
 backend/*.tsbuildinfo
+
+# Vercel CLI project link (contains projectId/orgId, not a secret but not meant to be shared)
+.vercel

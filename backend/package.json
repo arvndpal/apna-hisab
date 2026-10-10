@@ -41,6 +41,9 @@
     "rxjs": "^7.8.1",
     "zod": "^4.6.5"
   },
+  "overrides": {
+    "jose": "^5.10.0"
+  },
   "devDependencies": {
     "@nestjs/cli": "^12.0.0",
     "@nestjs/mau": "^0.2.6",
