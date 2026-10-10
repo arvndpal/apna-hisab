@@ -1,15 +1,32 @@
 # This is a monorepo; the Vercel project's Root Directory is backend/, but `vercel deploy` still
-# uploads from wherever the CLI is invoked (the repo root) before that trim happens. Without this,
-# it sweeps up the React Native app's node_modules/android/ios build artifacts (multiple GB) and
-# blows past Vercel's 100MB per-file upload limit. Keep only what backend/'s own build needs.
+# uploads from wherever the CLI is invoked (the repo root) before that trim happens, and unlike
+# .gitignore, .vercelignore is NOT inherited automatically - every exclusion needed here must be
+# listed explicitly, even ones .gitignore already covers.
+
+# Secrets - never let these leave the machine. Env vars for the deployed function come from
+# Vercel's own project env var settings, not from .env files - none of this is needed to build.
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.keystore
+
+# Repo/tooling metadata not needed for the backend build.
+.git
+.claude
+
+# The React Native app - not needed to build/run the backend.
 /android
 /ios
 /src
 /node_modules
-/backend/node_modules
 /design-reference
 /docs
 /supabase
 *.apk
 *.aab
 *.ipa
+
+# Backend's own node_modules - Vercel's build reinstalls from package-lock.json.
+/backend/node_modules
