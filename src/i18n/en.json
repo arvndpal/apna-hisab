@@ -7,7 +7,7 @@
     "pickDate": "Pick date", "note": "Note", "addNote": "Add note", "search": "Search", "more": "More",
     "previous": "Previous", "next": "Next", "dismiss": "Dismiss", "clearSearch": "Clear search"
   },
-  "nav": { "home": "Home", "transactions": "Transactions", "reports": "Reports", "more": "More", "add": "Add transaction" },
+  "nav": { "home": "Home", "transactions": "Transactions", "reports": "Reports", "diary": "Diary", "more": "More", "add": "Add transaction" },
   "welcome": {
     "headline1": "Apni Kamai,", "headline2": "Apna Kharcha,", "headline3": "Apna Hisab.",
     "body": "Manage your daily income, expenses and Udhaar easily — even without internet.",
@@ -67,12 +67,18 @@
     "allCategories": "All categories", "addCategory": "Add category"
   },
   "payment": { "cash": "Cash", "upi": "UPI", "card": "Card", "bank": "Bank" },
+  "diary": {
+    "title": "My Diary", "add": "Add note", "edit": "Edit note", "view": "View note",
+    "titlePlaceholder": "Title (optional)", "bodyPlaceholder": "Write your note…",
+    "deleteTitle": "Delete this note?", "deleteHint": "This can't be undone."
+  },
   "toast": {
     "incomeAdded": "Income added", "expenseAdded": "Expense added", "updated": "Transaction updated",
     "deleted": "Transaction deleted", "udhaarSaved": "Udhaar saved", "categorySaved": "Category saved",
     "premiumActive": "Premium active", "synced": "All data synced",
     "udhaarEntryDeleted": "Entry deleted", "personDeleted": "Person deleted",
-    "categoryDeleted": "Category deleted", "exportReady": "Export ready"
+    "categoryDeleted": "Category deleted", "exportReady": "Export ready", "savedToDownloads": "Saved to Downloads",
+    "noteSaved": "Note saved", "noteDeleted": "Note deleted"
   },
   "transactions": {
     "title": "Transactions", "searchPlaceholder": "Search notes, categories, amounts",
@@ -126,7 +132,8 @@
     "customTitle": "Custom Report", "from": "From", "to": "To", "generate": "Generate Report", "netLabel": "Net",
     "viewFull": "View full report", "rangeTooLong": "Choose a range of 3 years or less.",
     "calendarTitle": "Financial Calendar", "savedMoney": "Saved money", "spentMoreDay": "Spent more",
-    "dayTransactions_one": "{{count}} transaction · tap to open", "dayTransactions_other": "{{count}} transactions · tap to open"
+    "dayTransactions_one": "{{count}} transaction · tap to open", "dayTransactions_other": "{{count}} transactions · tap to open",
+    "dailyBreakdown": "Daily breakdown", "colDate": "Date", "colIncome": "Income", "colExpense": "Expense", "colNet": "Net"
   },
   "more": {
     "title": "More", "profile": "Profile", "premiumCardTitle": "Go ad-free with Premium",
@@ -212,11 +219,13 @@
     "transactions": { "title": "No transactions yet", "body": "Start tracking your daily income and expenses.", "addIncome": "+ Add Income", "addExpense": "− Add Expense" },
     "udhaar": { "title": "No Udhaar yet", "body": "Keep track of money you need to receive or pay.", "add": "+ Add Udhaar" },
     "reports": { "title": "Not enough data yet", "body": "Add some transactions to see your financial report.", "add": "Add a transaction" },
-    "search": { "title": "No matches", "body": "Nothing found for \"{{query}}\". Try another word or clear filters.", "clear": "Clear filters" }
+    "search": { "title": "No matches", "body": "Nothing found for \"{{query}}\". Try another word or clear filters.", "clear": "Clear filters" },
+    "diary": { "title": "No notes yet", "body": "Jot down reminders, ideas or anything you want to remember." }
   },
   "validation": {
     "amountRequired": "Enter an amount to save", "amountTooLarge": "That looks too large. Please check the amount.",
-    "categoryRequired": "Choose a category", "nameRequired": "Enter a name", "futureDate": "Date can't be in the future"
+    "categoryRequired": "Choose a category", "nameRequired": "Enter a name", "futureDate": "Date can't be in the future",
+    "noteRequired": "Write something before saving"
   },
   "errors": {
     "dbOpen": "Couldn't open your hisab. Please restart the app.",

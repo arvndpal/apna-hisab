@@ -10,7 +10,7 @@ import { useSyncStore } from '../../store/syncStore';
 import { showToast } from '../../store/toastStore';
 import i18n from '../../i18n';
 
-const SYNCED_TABLES: SyncedTable[] = ['categories', 'transactions', 'udhaar_people', 'udhaar_entries'];
+const SYNCED_TABLES: SyncedTable[] = ['categories', 'transactions', 'udhaar_people', 'udhaar_entries', 'notes'];
 const DEBOUNCE_MS = 2000;
 /** 30s → 2m → 10m, then holds at 10m until success or reconnect (ARCHITECTURE.md §6). */
 const RETRY_DELAYS_MS = [30_000, 120_000, 600_000];

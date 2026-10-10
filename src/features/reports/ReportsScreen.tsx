@@ -1,12 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Calendar, ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, PieChart as PieChartIcon } from 'lucide-react-native';
+import type { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { generatePDF } from 'react-native-html-to-pdf';
+import { Calendar, ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, Download, PieChart as PieChartIcon } from 'lucide-react-native';
 import { BarChart, LineChart, PieChart } from 'react-native-gifted-charts';
 import { AppText } from '../../components/common/AppText';
+import { AppBottomSheet } from '../../components/common/BottomSheet';
 import { IconButton } from '../../components/common/IconButton';
 import { Card } from '../../components/common/Card';
 import { Chip } from '../../components/common/Chip';
@@ -21,18 +24,26 @@ import { useLiveQuery } from '../../hooks/useLiveQuery';
 import { useCategoriesById } from '../../hooks/useCategories';
 import { useSettingsStore } from '../../store/settingsStore';
 import { openAddSheet } from '../../store/addSheetStore';
+import { showToast } from '../../store/toastStore';
 import * as reportsRepo from '../../database/repositories/reportsRepo';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import { categoryDisplayName } from '../../database/repositories/categoriesRepo';
 import { getPeriodRange, stepAnchor, isCurrentPeriod, periodLabel, trendBuckets } from './periods';
 import { toOccurredOn } from '../../utils/dates';
 import { formatRupees, formatCompact } from '../../utils/money';
-import { radius, chartColors } from '../../theme/tokens';
+import { radius, chartColors, layout } from '../../theme/tokens';
+import { useEntitlement } from '../subscription/useEntitlement';
+import { bytesToBase64 } from '../../utils/base64';
+import { buildXlsx } from '../../services/export/xlsx';
+import { buildStatementHtml } from '../../services/export/pdfHtml';
+import { saveToDownloads, writeCacheFile } from '../../services/export/saveToDownloads';
+import type { Table } from '../../services/export/rows';
 import type { AppStackParamList, MainTabParamList } from '../../app/navigation/types';
 import type { DateRange, ReportPeriod } from '../../types/models';
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
 type ReportsRoute = RouteProp<MainTabParamList, 'Reports'>;
+const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
 const PERIOD_CHIPS: Array<{ value: ReportPeriod; labelKey: string }> = [
   { value: 'today', labelKey: 'reports.today' },
@@ -87,11 +98,34 @@ function ChartTooltip({
   );
 }
 
+/** Compact amount shown above a bar in the Income vs Expense chart — hidden for zero-value bars. */
+function BarValueLabel({ paise, color }: { paise: number; color: string }) {
+  if (paise <= 0) return null;
+  return (
+    <AppText variant="caption" style={{ color, fontSize: 10 }}>
+      {formatCompact(paise)}
+    </AppText>
+  );
+}
+
 export function ReportsScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<Nav>();
+  const { width: windowWidth } = useWindowDimensions();
+  // Available plot width inside the card: screen padding and the card's own padding on both sides.
+  const trendChartWidth = windowWidth - (layout.screenPadding + layout.cardPadding) * 2;
   useLeaveReportsInterstitial();
+  // Which day (index into data.trend) is selected in the Income vs Expense bar chart — shown as a
+  // fixed in-card tooltip instead of gifted-charts' own bar-height-relative popup, which clips
+  // against the card's top edge for tall bars.
+  const [selectedBarDay, setSelectedBarDay] = useState<number | null>(null);
+  // Same fixed in-card approach for the trend line chart — the library's own floating pointer label
+  // renders off the edge of the screen for the first/last point instead of staying in view.
+  const [selectedTrendDay, setSelectedTrendDay] = useState<number | null>(null);
+  const { isPremium } = useEntitlement();
+  const exportSheetRef = useRef<BottomSheetModal>(null);
+  const [exportingFormat, setExportingFormat] = useState<'pdf' | 'excel' | null>(null);
   const route = useRoute<ReportsRoute>();
   const userId = useActiveUserId();
   const language = useSettingsStore((s) => s.language);
@@ -104,6 +138,27 @@ export function ReportsScreen() {
       ? { from: route.params.from, to: route.params.to }
       : undefined,
   );
+
+  // A stale selection could otherwise point at a different day's data once the period/anchor changes.
+  useEffect(() => {
+    setSelectedBarDay(null);
+    setSelectedTrendDay(null);
+  }, [period, anchor, customRange]);
+
+  // These tooltips are shown via local state (so they can't render off-screen the way gifted-charts'
+  // own floating pointer label can) but that means nothing else auto-clears them on touch release —
+  // without this they'd stay up until the period changes.
+  useEffect(() => {
+    if (selectedBarDay === null) return;
+    const timer = setTimeout(() => setSelectedBarDay(null), 3000);
+    return () => clearTimeout(timer);
+  }, [selectedBarDay]);
+
+  useEffect(() => {
+    if (selectedTrendDay === null) return;
+    const timer = setTimeout(() => setSelectedTrendDay(null), 3000);
+    return () => clearTimeout(timer);
+  }, [selectedTrendDay]);
 
   useEffect(() => {
     if (!route.params?.period) return;
@@ -157,9 +212,6 @@ export function ReportsScreen() {
   const keptPct = data.summary.incomePaise > 0 ? Math.max(0, Math.round((net / data.summary.incomePaise) * 100)) : 0;
   const heroLabel = heroPeriodLabel(period, anchor, language, t);
   const current = isCurrentPeriod(period, anchor);
-  // A year's worth of daily trend points needs horizontal scroll and sparser labels than a week's.
-  const trendScrollable = data.trend.length > 31;
-  const trendLabelEvery = Math.max(1, Math.ceil(data.trend.length / 8));
 
   const selectChip = (p: ReportPeriod) => {
     if (p === 'custom') {
@@ -172,6 +224,62 @@ export function ReportsScreen() {
   };
 
   const totalExpense = data.expenseBreakdown.reduce((s, r) => s + r.amountPaise, 0);
+  // Income vs Expense bar chart: skip buckets with no income and no expense rather than
+  // rendering an empty, unlabeled day-group.
+  const barChartDays = data.trend
+    .map((b, i) => ({ b, i }))
+    .filter(({ i }) => data.incomeTrendValues[i] > 0 || data.expenseTrendValues[i] > 0);
+
+  const dailyTable: Table = {
+    title: t('reports.dailyBreakdown'),
+    header: [t('reports.colDate'), t('reports.colIncome'), t('reports.colExpense'), t('reports.colNet')],
+    rows: barChartDays.map(({ b, i }) => [
+      { text: b.label },
+      { text: formatRupees(data.incomeTrendValues[i], 'neutral', false) },
+      { text: formatRupees(data.expenseTrendValues[i], 'neutral', false) },
+      { text: formatRupees(data.incomeTrendValues[i] - data.expenseTrendValues[i], 'net') },
+    ]),
+  };
+
+  /** Daily breakdown export (SCREENS.md §19c rules: PDF/Excel are Premium, free users are sent to Premium). */
+  const handleExportDaily = async (format: 'pdf' | 'excel') => {
+    if (!isPremium) {
+      exportSheetRef.current?.dismiss();
+      navigation.navigate('Premium');
+      return;
+    }
+    setExportingFormat(format);
+    try {
+      const stem = `apna-hisab-daily-breakdown_${data.range.from}_${data.range.to}`;
+      if (format === 'excel') {
+        const xlsx = buildXlsx([dailyTable]);
+        // MediaStore needs an existing local file to copy from, not raw bytes — write it to the
+        // app's private cache first, then copy that into the Downloads collection below.
+        const cachePath = await writeCacheFile(`${stem}.xlsx`, bytesToBase64(xlsx));
+        await saveToDownloads(cachePath, `${stem}.xlsx`, EXCEL_MIME);
+      } else {
+        const html = buildStatementHtml({
+          title: dailyTable.title,
+          rangeLabel: periodLabel(period, anchor, language),
+          generatedLabel: t('export.generatedOn', { date: periodLabel('today', new Date(), language) }),
+          totals: [
+            { label: t('transactions.income'), paise: data.summary.incomePaise, kind: 'income' },
+            { label: t('transactions.expense'), paise: data.summary.expensePaise, kind: 'expense' },
+            { label: t('reports.netLabel'), paise: net, kind: 'net' },
+          ],
+          tables: [dailyTable],
+        });
+        const pdf = await generatePDF({ html, fileName: stem, width: 595, height: 842, directory: 'Documents' });
+        await saveToDownloads(pdf.filePath, `${stem}.pdf`, 'application/pdf');
+      }
+      exportSheetRef.current?.dismiss();
+      showToast({ message: t('toast.savedToDownloads') });
+    } catch {
+      showToast({ message: t('export.failed') });
+    } finally {
+      setExportingFormat(null);
+    }
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }} edges={['top', 'left', 'right']}>
@@ -256,151 +364,6 @@ export function ReportsScreen() {
             </View>
           </GradientSurface>
 
-          <Card>
-            <View style={{ gap: 12 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <AppText variant="section">{t('reports.incomeVsExpense')}</AppText>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.income }} />
-                    <AppText variant="caption" color="secondary">
-                      {t('transactions.income')}
-                    </AppText>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.expenseChart }} />
-                    <AppText variant="caption" color="secondary">
-                      {t('transactions.expense')}
-                    </AppText>
-                  </View>
-                </View>
-              </View>
-              <BarChart
-                data={data.trend.flatMap((b, i) => [
-                  { value: data.incomeTrendValues[i] / 100, frontColor: palette.income, spacing: 2 },
-                  {
-                    value: data.expenseTrendValues[i] / 100,
-                    frontColor: palette.expenseChart,
-                    spacing: 16,
-                    label: i % trendLabelEvery === 0 ? b.label : '',
-                    labelTextStyle: { color: palette.textPrimary, fontSize: 11, fontWeight: i === data.trend.length - 1 ? ('800' as const) : ('500' as const) },
-                  },
-                ])}
-                barWidth={12}
-                barBorderRadius={4}
-                roundedTop
-                height={150}
-                overflowTop={70}
-                yAxisThickness={0}
-                xAxisThickness={1}
-                xAxisColor={palette.border}
-                hideYAxisText
-                hideRules
-                labelWidth={34}
-                noOfSections={4}
-                initialSpacing={10}
-                disableScroll={!trendScrollable}
-                renderTooltip={(_item: unknown, index: number) => {
-                  const bucketIndex = Math.floor(index / 2);
-                  const bucket = data.trend[bucketIndex];
-                  if (!bucket) return null;
-                  return (
-                    <ChartTooltip
-                      label={bucket.label}
-                      incomePaise={data.incomeTrendValues[bucketIndex]}
-                      expensePaise={data.expenseTrendValues[bucketIndex]}
-                      palette={palette}
-                      t={t}
-                    />
-                  );
-                }}
-                autoCenterTooltip
-              />
-            </View>
-          </Card>
-
-          {hasPeriodData ? (
-            <Card>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <View style={{ gap: 4 }}>
-                  <AppText variant="section">{t('reports.incomeTrend')}</AppText>
-                  <AppText variant="caption" color="secondary">
-                    {t('reports.weeklyIncome', { month: heroLabel })}
-                  </AppText>
-                </View>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.income }} />
-                    <AppText variant="caption" color="secondary">
-                      {t('transactions.income')}
-                    </AppText>
-                  </View>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.expenseChart }} />
-                    <AppText variant="caption" color="secondary">
-                      {t('transactions.expense')}
-                    </AppText>
-                  </View>
-                </View>
-              </View>
-              <LineChart
-                data={data.trend.map((b, i) => ({
-                  value: data.incomeTrendValues[i] / 100,
-                  // Thin labels to ~8 evenly-spaced points — a year's worth of days would otherwise overlap.
-                  label: i % trendLabelEvery === 0 ? b.label : '',
-                }))}
-                data2={data.trend.map((_, i) => ({ value: data.expenseTrendValues[i] / 100 }))}
-                color={palette.income}
-                color2={palette.expenseChart}
-                thickness={3}
-                thickness2={3}
-                curved
-                areaChart
-                startFillColor={palette.incomeTint}
-                endFillColor={palette.incomeTint}
-                startOpacity={0.9}
-                endOpacity={0.1}
-                dataPointsColor={palette.income}
-                dataPointsColor2={palette.expenseChart}
-                yAxisThickness={0}
-                xAxisThickness={1}
-                xAxisColor={palette.border}
-                hideYAxisText
-                hideRules
-                noOfSections={3}
-                height={130}
-                overflowTop={16}
-                initialSpacing={20}
-                endSpacing={20}
-                spacing={trendScrollable ? 18 : undefined}
-                disableScroll={!trendScrollable}
-                pointerConfig={{
-                  pointerStripHeight: 130,
-                  pointerStripColor: palette.border,
-                  pointerColor: palette.textPrimary,
-                  radius: 5,
-                  activatePointersInstantlyOnTouch: true,
-                  autoAdjustPointerLabelPosition: true,
-                  pointerLabelWidth: 148,
-                  pointerLabelHeight: 90,
-                  pointerLabelComponent: (items: Array<{ value?: number }>, _secondary: Array<{ value?: number }>, pointerIndex: number) => {
-                    const bucket = data.trend[pointerIndex];
-                    if (!bucket) return null;
-                    return (
-                      <ChartTooltip
-                        label={bucket.label}
-                        incomePaise={data.incomeTrendValues[pointerIndex]}
-                        expensePaise={data.expenseTrendValues[pointerIndex]}
-                        palette={palette}
-                        t={t}
-                      />
-                    );
-                  },
-                }}
-              />
-            </Card>
-          ) : null}
-
           {hasPeriodData && data.expenseBreakdown.length > 0 ? (
             <Card>
               <View style={{ gap: 12 }}>
@@ -433,7 +396,9 @@ export function ReportsScreen() {
                           <AppText variant="body" numberOfLines={1} style={{ flex: 1 }}>
                             {name}
                           </AppText>
-                          <AppText variant="rowTitle">{Math.round(row.share * 100)}%</AppText>
+                          <AppText variant="rowTitle">
+                            {formatRupees(row.amountPaise, 'neutral', false)} ({Math.round(row.share * 100)}%)
+                          </AppText>
                         </View>
                       );
                     })}
@@ -447,6 +412,251 @@ export function ReportsScreen() {
                   onPress={() => navigation.navigate('ReportDetail', { period, anchor: toOccurredOn(anchor), type: 'expense' })}
                 />
               </View>
+            </Card>
+          ) : null}
+
+          <Card>
+            <View style={{ gap: 12, position: 'relative' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <AppText variant="section">{t('reports.incomeVsExpense')}</AppText>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.income }} />
+                    <AppText variant="caption" color="secondary">
+                      {t('transactions.income')}
+                    </AppText>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.expenseChart }} />
+                    <AppText variant="caption" color="secondary">
+                      {t('transactions.expense')}
+                    </AppText>
+                  </View>
+                </View>
+              </View>
+              {/* Absolutely positioned over the chart instead of taking its own flow space, so the
+                  chart doesn't shift position when the tooltip appears/disappears. */}
+              {selectedBarDay !== null ? (
+                <View style={{ position: 'absolute', top: 36, left: 0, right: 0, zIndex: 10 }}>
+                  <ChartTooltip
+                    label={data.trend[selectedBarDay].label}
+                    incomePaise={data.incomeTrendValues[selectedBarDay]}
+                    expensePaise={data.expenseTrendValues[selectedBarDay]}
+                    palette={palette}
+                    t={t}
+                  />
+                </View>
+              ) : null}
+              <BarChart
+                data={barChartDays.flatMap(({ b, i }, order) => [
+                  {
+                    value: data.incomeTrendValues[i] / 100,
+                    frontColor: palette.income,
+                    spacing: 4,
+                    topLabelComponent: () => <BarValueLabel paise={data.incomeTrendValues[i]} color={palette.income} />,
+                  },
+                  {
+                    value: data.expenseTrendValues[i] / 100,
+                    frontColor: palette.expenseChart,
+                    spacing: 22,
+                    label: b.label,
+                    labelTextStyle: {
+                      color: palette.textPrimary,
+                      fontSize: 11,
+                      fontWeight: order === barChartDays.length - 1 ? ('800' as const) : ('500' as const),
+                      transform: [{ rotate: '-20deg' }],
+                    },
+                    topLabelComponent: () => <BarValueLabel paise={data.expenseTrendValues[i]} color={palette.expenseChart} />,
+                  },
+                ])}
+                barWidth={36}
+                barBorderRadius={0}
+                height={150}
+                overflowTop={90}
+                yAxisThickness={0}
+                xAxisThickness={1}
+                xAxisColor={palette.border}
+                hideYAxisText
+                hideRules
+                labelWidth={34}
+                noOfSections={4}
+                initialSpacing={10}
+                disableScroll={false}
+                labelsExtraHeight={22}
+                onPress={(_item: unknown, index: number) => {
+                  const day = barChartDays[Math.floor(index / 2)];
+                  setSelectedBarDay(day ? day.i : null);
+                }}
+              />
+            </View>
+          </Card>
+
+          {hasPeriodData ? (
+            <Card>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <View style={{ gap: 4 }}>
+                  <AppText variant="section">{t('reports.incomeTrend')}</AppText>
+                  <AppText variant="caption" color="secondary">
+                    {t('reports.weeklyIncome', { month: heroLabel })}
+                  </AppText>
+                </View>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.income }} />
+                    <AppText variant="caption" color="secondary">
+                      {t('transactions.income')}
+                    </AppText>
+                  </View>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                    <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.expenseChart }} />
+                    <AppText variant="caption" color="secondary">
+                      {t('transactions.expense')}
+                    </AppText>
+                  </View>
+                </View>
+              </View>
+              {/* Absolutely positioned over the chart instead of taking its own flow space, so the
+                  chart doesn't shift position when the tooltip appears/disappears. */}
+              {selectedTrendDay !== null ? (
+                <View style={{ position: 'absolute', top: 68, left: 0, right: 0, zIndex: 10 }}>
+                  <ChartTooltip
+                    label={data.trend[selectedTrendDay]?.label ?? ''}
+                    incomePaise={data.incomeTrendValues[selectedTrendDay]}
+                    expensePaise={data.expenseTrendValues[selectedTrendDay]}
+                    palette={palette}
+                    t={t}
+                  />
+                </View>
+              ) : null}
+              <View>
+                <LineChart
+                // adjustToWidth's `width` prop turned out not to pull the last point in from the
+                // true edge no matter how small a value was passed (tested down to far less than the
+                // card's width), so its label was always clipped. A trailing invisible point (same
+                // value, empty label, hidden marker) pushes the real last point — and its label — one
+                // slot away from the edge instead, which reliably works regardless of that mystery.
+                data={[
+                  ...barChartDays.map(({ b, i }) => ({
+                    value: data.expenseTrendValues[i] / 100,
+                    label: b.label,
+                  })),
+                  {
+                    value: data.expenseTrendValues[barChartDays[barChartDays.length - 1]?.i ?? 0] / 100,
+                    label: '',
+                    hideDataPoint: true,
+                  },
+                ]}
+                data2={[
+                  ...barChartDays.map(({ i }) => ({ value: data.incomeTrendValues[i] / 100 })),
+                  { value: data.incomeTrendValues[barChartDays[barChartDays.length - 1]?.i ?? 0] / 100, hideDataPoint: true },
+                ]}
+                color={palette.expenseChart}
+                color2={palette.income}
+                thickness={3}
+                thickness2={3}
+                dataPointsColor={palette.expenseChart}
+                dataPointsColor2={palette.income}
+                yAxisThickness={0}
+                xAxisThickness={1}
+                xAxisColor={palette.border}
+                hideYAxisText
+                hideRules
+                noOfSections={3}
+                height={130}
+                overflowTop={16}
+                // This chart renders its own absolutely-positioned box, so a wrapping View's padding
+                // doesn't constrain it — margin has to come from the chart's own coordinate math
+                // instead. With adjustToWidth, the last point always lands exactly at `width` and the
+                // first always at `initialSpacing`, so both are pulled in by 24px directly.
+                initialSpacing={24}
+                endSpacing={24}
+                // Spreads the (few, filtered-to-non-zero-days) points evenly across the full
+                // available card width instead of bunching them at a fixed spacing on the left.
+                adjustToWidth
+                width={trendChartWidth - 140}
+                disableScroll={false}
+                // Unlike the bar chart, this library widens each label's own box by
+                // labelsExtraHeight without shifting its left edge to compensate — passing it here
+                // visibly shifts every rotated label off-center from its real data point, so it's
+                // deliberately left out; the existing label row has enough clearance for a -20deg tilt.
+                xAxisLabelTextStyle={{ color: palette.textPrimary, fontSize: 11, transform: [{ rotate: '-20deg' }] }}
+                pointerConfig={{
+                  pointerStripHeight: 130,
+                  pointerStripColor: palette.border,
+                  pointerColor: palette.textPrimary,
+                  radius: 5,
+                  activatePointersInstantlyOnTouch: true,
+                  // Drives the fixed in-card tooltip above instead of gifted-charts' own floating
+                  // pointer label, which renders off the edge of the screen for the first/last point
+                  // rather than staying in view. Touch still shows the strip + highlighted dot.
+                  pointerLabelComponent: (_items: unknown, _secondary: unknown, pointerIndex: number) => {
+                    setSelectedTrendDay(barChartDays[pointerIndex]?.i ?? null);
+                    return null;
+                  },
+                }}
+                />
+              </View>
+            </Card>
+          ) : null}
+
+          {barChartDays.length > 0 ? (
+            <Card padded={false} style={{ paddingVertical: 16 }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  paddingHorizontal: 16,
+                  marginBottom: 12,
+                }}
+              >
+                <AppText variant="section">{t('reports.dailyBreakdown')}</AppText>
+                <IconButton outlined icon={Download} accessibilityLabel={t('reports.exportPremium')} onPress={() => exportSheetRef.current?.present()} />
+              </View>
+              <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 8 }}>
+                <AppText variant="caption" color="secondary" style={{ flex: 1.1 }}>
+                  {t('reports.colDate')}
+                </AppText>
+                <AppText variant="caption" color="secondary" style={{ flex: 1, textAlign: 'right' }}>
+                  {t('reports.colIncome')}
+                </AppText>
+                <AppText variant="caption" color="secondary" style={{ flex: 1, textAlign: 'right' }}>
+                  {t('reports.colExpense')}
+                </AppText>
+                <AppText variant="caption" color="secondary" style={{ flex: 1, textAlign: 'right' }}>
+                  {t('reports.colNet')}
+                </AppText>
+              </View>
+              {barChartDays.map(({ b, i }, order) => {
+                const incomePaise = data.incomeTrendValues[i];
+                const expensePaise = data.expenseTrendValues[i];
+                return (
+                  <View
+                    key={b.label}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      paddingHorizontal: 16,
+                      paddingVertical: 10,
+                      borderTopWidth: order === 0 ? 0 : 1,
+                      borderTopColor: palette.border,
+                    }}
+                  >
+                    <AppText variant="body" style={{ flex: 1.1 }}>
+                      {b.label}
+                    </AppText>
+                    <AppText variant="body" style={{ flex: 1, textAlign: 'right', color: palette.income }}>
+                      {formatRupees(incomePaise, 'neutral', false)}
+                    </AppText>
+                    <AppText variant="body" style={{ flex: 1, textAlign: 'right', color: palette.expenseChart }}>
+                      {formatRupees(expensePaise, 'neutral', false)}
+                    </AppText>
+                    <AppText variant="body" style={{ flex: 1, textAlign: 'right' }}>
+                      {formatRupees(incomePaise - expensePaise, 'net')}
+                    </AppText>
+                  </View>
+                );
+              })}
             </Card>
           ) : null}
 
@@ -488,6 +698,30 @@ export function ReportsScreen() {
           ) : null}
         </View>
       </ScrollView>
+
+      <AppBottomSheet ref={exportSheetRef} title={t('export.export')}>
+        <View style={{ gap: 12 }}>
+          <Button
+            label={t('export.pdf')}
+            variant="secondary"
+            onPress={() => handleExportDaily('pdf')}
+            loading={exportingFormat === 'pdf'}
+            disabled={exportingFormat === 'excel'}
+          />
+          <Button
+            label={t('export.excel')}
+            variant="secondary"
+            onPress={() => handleExportDaily('excel')}
+            loading={exportingFormat === 'excel'}
+            disabled={exportingFormat === 'pdf'}
+          />
+          {!isPremium ? (
+            <AppText variant="caption" color="secondary" style={{ textAlign: 'center' }}>
+              {t('export.premiumBadge')}
+            </AppText>
+          ) : null}
+        </View>
+      </AppBottomSheet>
     </SafeAreaView>
   );
 }

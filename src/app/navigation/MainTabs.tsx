@@ -3,6 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { HomeScreen } from '../../features/dashboard/HomeScreen';
 import { TransactionsScreen } from '../../features/transactions/TransactionsScreen';
 import { ReportsScreen } from '../../features/reports/ReportsScreen';
+import { DiaryScreen } from '../../features/diary/DiaryScreen';
 import { MoreScreen } from '../../features/settings/MoreScreen';
 import { AddTypeSheet } from '../../features/transactions/AddTypeSheet';
 import { UdhaarEntrySheet } from '../../features/ledger/UdhaarEntrySheet';
@@ -18,6 +19,7 @@ export function MainTabs() {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Transactions" component={TransactionsScreen} />
         <Tab.Screen name="Reports" component={ReportsScreen} />
+        <Tab.Screen name="Diary" component={DiaryScreen} />
         <Tab.Screen name="More" component={MoreScreen} />
       </Tab.Navigator>
       <AddTypeSheet />

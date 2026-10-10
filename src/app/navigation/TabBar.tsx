@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { House, List, ChartColumn, Ellipsis, Plus, type LucideIcon } from 'lucide-react-native';
+import { House, List, ChartColumn, NotebookPen, Ellipsis, Plus, type LucideIcon } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { AppText } from '../../components/common/AppText';
 import { GradientSurface } from '../../components/common/GradientSurface';
@@ -10,11 +10,11 @@ import { useTheme } from '../../hooks/useTheme';
 import { layout } from '../../theme/tokens';
 import { openAddSheet } from '../../store/addSheetStore';
 
-const ICONS: Record<string, LucideIcon> = { Home: House, Transactions: List, Reports: ChartColumn, More: Ellipsis };
-const LABELS: Record<string, string> = { Home: 'nav.home', Transactions: 'nav.transactions', Reports: 'nav.reports', More: 'nav.more' };
+const ICONS: Record<string, LucideIcon> = { Home: House, Transactions: List, Reports: ChartColumn, Diary: NotebookPen, More: Ellipsis };
+const LABELS: Record<string, string> = { Home: 'nav.home', Transactions: 'nav.transactions', Reports: 'nav.reports', Diary: 'nav.diary', More: 'nav.more' };
 
 const LEFT_ROUTES = ['Home', 'Transactions'];
-const RIGHT_ROUTES = ['Reports', 'More'];
+const RIGHT_ROUTES = ['Reports', 'Diary', 'More'];
 
 function TabItem({ routeName, focused, onPress }: { routeName: string; focused: boolean; onPress: () => void }) {
   const palette = useTheme();
@@ -72,9 +72,11 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         alignItems: 'center',
       }}
     >
-      {LEFT_ROUTES.map((name) => (
-        <TabItem key={name} routeName={name} focused={state.routes[state.index].name === name} onPress={() => goTo(name)} />
-      ))}
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        {LEFT_ROUTES.map((name) => (
+          <TabItem key={name} routeName={name} focused={state.routes[state.index].name === name} onPress={() => goTo(name)} />
+        ))}
+      </View>
 
       <View style={{ width: layout.fab, alignItems: 'center' }}>
         <Pressable
@@ -86,7 +88,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             top: -layout.fabLift,
             width: layout.fab,
             height: layout.fab,
-            borderRadius: 22,
+            borderRadius: layout.fab / 2,
             borderWidth: layout.fabRing,
             borderColor: palette.surface,
           }}
@@ -95,7 +97,7 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
             variant="fab"
             style={{
               flex: 1,
-              borderRadius: 22 - layout.fabRing,
+              borderRadius: layout.fab / 2 - layout.fabRing,
               alignItems: 'center',
               justifyContent: 'center',
               shadowColor: '#06604F',
@@ -110,9 +112,11 @@ export function TabBar({ state, navigation }: BottomTabBarProps) {
         </Pressable>
       </View>
 
-      {RIGHT_ROUTES.map((name) => (
-        <TabItem key={name} routeName={name} focused={state.routes[state.index].name === name} onPress={() => goTo(name)} />
-      ))}
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        {RIGHT_ROUTES.map((name) => (
+          <TabItem key={name} routeName={name} focused={state.routes[state.index].name === name} onPress={() => goTo(name)} />
+        ))}
+      </View>
     </View>
   );
 }

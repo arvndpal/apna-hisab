@@ -20,6 +20,7 @@ describe('migrate', () => {
         'transactions',
         'udhaar_people',
         'udhaar_entries',
+        'notes',
         'sync_queue',
         'sync_meta',
         'kv_settings',
@@ -35,9 +36,9 @@ describe('migrate', () => {
 
   it('sets PRAGMA user_version and is idempotent on re-run', () => {
     migrate();
-    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(1);
+    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(2);
     expect(() => migrate()).not.toThrow();
-    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(1);
+    expect(Number(exec('PRAGMA user_version').rows[0]?.user_version)).toBe(2);
   });
 
   it('enforces the amount_paise > 0 check constraint', () => {

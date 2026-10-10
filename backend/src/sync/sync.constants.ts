@@ -1,5 +1,5 @@
-/** The four tables that sync, matching src/database/schema.sql and supabase/migrations/0001_init.sql on the app side. */
-export const SYNCED_TABLES = ['categories', 'transactions', 'udhaar_people', 'udhaar_entries'] as const;
+/** The tables that sync, matching src/database/schema.sql (+ migrations) and supabase/migrations on the app side. */
+export const SYNCED_TABLES = ['categories', 'transactions', 'udhaar_people', 'udhaar_entries', 'notes'] as const;
 export type SyncedTable = (typeof SYNCED_TABLES)[number];
 
 export function isSyncedTable(value: string): value is SyncedTable {
@@ -43,4 +43,5 @@ export const TABLE_COLUMNS: Record<SyncedTable, readonly string[]> = {
     'updated_at',
     'deleted_at',
   ],
+  notes: ['id', 'user_id', 'title', 'body', 'created_at', 'updated_at', 'deleted_at'],
 };

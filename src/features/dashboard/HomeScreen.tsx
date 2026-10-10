@@ -74,7 +74,7 @@ export function HomeScreen() {
     month: 'long',
     year: 'numeric',
   }).format(now);
-  const greeting = t(`home.greeting.${greetingKey(now.getHours())}`, { name: t('home.defaultName') });
+  const greeting = t(`home.greeting.${greetingKey(now.getHours())}`, { name: profile?.name || t('home.defaultName') });
 
   return (
     <View style={{ flex: 1, backgroundColor: palette.background }}>

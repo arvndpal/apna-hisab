@@ -17,7 +17,7 @@ const CATEGORY_ID_NAMESPACE = '6f2f9c5e-7f2b-4b8a-9f0b-2f6e1f8a9c3d';
  * A stable id per (userId, key) makes a re-seed resolve to an upsert of the exact same row instead.
  * Must still be valid UUID syntax — Postgres's categories.id column is typed `uuid`, not `text`.
  */
-function defaultCategoryId(userId: string, key: string): string {
+export function defaultCategoryId(userId: string, key: string): string {
   return uuidv5(`${userId}:${key}`, CATEGORY_ID_NAMESPACE);
 }
 

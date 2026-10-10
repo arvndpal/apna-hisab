@@ -5,6 +5,7 @@ export type MainTabParamList = {
   Home: undefined;
   Transactions: { categoryIds?: string[]; from?: string; to?: string } | undefined;
   Reports: { period?: ReportPeriod; from?: string; to?: string } | undefined;
+  Diary: undefined;
   More: undefined;
 };
 

@@ -24,6 +24,7 @@ import { tableToCsv } from '../../services/export/csv';
 import { totals, transactionsTable, udhaarTable, type Table } from '../../services/export/rows';
 import { buildXlsx } from '../../services/export/xlsx';
 import { buildStatementHtml } from '../../services/export/pdfHtml';
+import { saveToDownloads, writeCacheFile } from '../../services/export/saveToDownloads';
 import { generatePDF } from 'react-native-html-to-pdf';
 import type { Transaction } from '../../types/models';
 import { bytesToBase64, utf8ToBase64 } from '../../utils/base64';
@@ -90,9 +91,14 @@ export function ExportScreen() {
       }
       const categoriesById = Object.fromEntries(categoriesRepo.list(userId).map((c) => [c.id, c]));
       const tables = { transactions: transactionsTable(transactions, categoriesById, t, language), udhaar: udhaarTable(udhaar, t) };
-      suppressNextResumeLock();
-      const result = await Share.open({ ...(await buildShareFiles(format, tables, transactions)), title: t('export.title'), failOnCancel: false });
-      if (result.success) showToast({ message: t('toast.exportReady') });
+      if (format === 'csv') {
+        suppressNextResumeLock();
+        const result = await Share.open({ ...buildCsvShareFiles(tables), title: t('export.title'), failOnCancel: false });
+        if (result.success) showToast({ message: t('toast.exportReady') });
+      } else {
+        await exportToDownloads(format, tables, transactions);
+        showToast({ message: t('toast.savedToDownloads') });
+      }
     } catch {
       setNotice('failed');
     } finally {
@@ -100,24 +106,27 @@ export function ExportScreen() {
     }
   };
 
-  /** CSV: one file per non-empty table. Excel: one workbook, a sheet each. PDF: one printed statement. */
-  const buildShareFiles = async (
-    fmt: Format,
-    tables: { transactions: Table; udhaar: Table },
-    transactions: Transaction[],
-  ): Promise<{ urls: string[]; filenames: string[]; type: string }> => {
+  /** One CSV file per non-empty table, handed to the share sheet (CSV is free, no Premium gate to work around). */
+  const buildCsvShareFiles = (tables: { transactions: Table; udhaar: Table }): { urls: string[]; filenames: string[]; type: string } => {
     const present = (['transactions', 'udhaar'] as const).filter((k) => tables[k].rows.length > 0);
-    if (fmt === 'csv') {
-      return {
-        urls: present.map((k) => `data:text/csv;base64,${utf8ToBase64(tableToCsv(tables[k]))}`),
-        filenames: present.map((k) => exportFileStem(k, range)),
-        type: 'text/csv',
-      };
-    }
+    return {
+      urls: present.map((k) => `data:text/csv;base64,${utf8ToBase64(tableToCsv(tables[k]))}`),
+      filenames: present.map((k) => exportFileStem(k, range)),
+      type: 'text/csv',
+    };
+  };
+
+  /** Excel: one workbook, a sheet each. PDF: one printed statement. Both saved as real files via MediaStore. */
+  const exportToDownloads = async (fmt: 'pdf' | 'excel', tables: { transactions: Table; udhaar: Table }, transactions: Transaction[]): Promise<void> => {
+    const present = (['transactions', 'udhaar'] as const).filter((k) => tables[k].rows.length > 0);
     const stem = exportFileStem('statement', range);
     if (fmt === 'excel') {
       const xlsx = buildXlsx(present.map((k) => tables[k]));
-      return { urls: [`data:${XLSX_MIME};base64,${bytesToBase64(xlsx)}`], filenames: [stem], type: XLSX_MIME };
+      // MediaStore needs an existing local file to copy from, not raw bytes — write it to the app's
+      // private cache first, then copy that into the Downloads collection.
+      const cachePath = await writeCacheFile(`${stem}.xlsx`, bytesToBase64(xlsx));
+      await saveToDownloads(cachePath, `${stem}.xlsx`, XLSX_MIME);
+      return;
     }
     const sums = totals(transactions);
     const html = buildStatementHtml({
@@ -131,9 +140,10 @@ export function ExportScreen() {
       ],
       tables: [tables.transactions, tables.udhaar],
     });
-    // A4 portrait in points.
-    const pdf = await generatePDF({ html, fileName: stem, width: 595, height: 842 });
-    return { urls: [`file://${pdf.filePath}`], filenames: [stem], type: 'application/pdf' };
+    // A4 portrait in points. `directory` persists the file under getExternalFilesDir (not the app's
+    // private cache dir) while generatePDF still needs somewhere of its own to render to first.
+    const pdf = await generatePDF({ html, fileName: stem, width: 595, height: 842, directory: 'Documents' });
+    await saveToDownloads(pdf.filePath, `${stem}.pdf`, 'application/pdf');
   };
 
   return (

@@ -9,12 +9,13 @@ export type Row = Record<string, unknown>;
 export type ExecResult = { rows: Row[]; insertId?: number; rowsAffected: number };
 export type Driver = { executeSync: (sql: string, params?: any[]) => ExecResult };
 
-export type WatchedTable = 'transactions' | 'categories' | 'udhaar_people' | 'udhaar_entries';
+export type WatchedTable = 'transactions' | 'categories' | 'udhaar_people' | 'udhaar_entries' | 'notes';
 const WATCHED_TABLES: ReadonlySet<string> = new Set([
   'transactions',
   'categories',
   'udhaar_people',
   'udhaar_entries',
+  'notes',
 ]);
 
 type Listener = () => void;

@@ -7,7 +7,7 @@
     "pickDate": "तारीख चुनें", "note": "नोट", "addNote": "नोट जोड़ें", "search": "खोजें", "more": "और",
     "previous": "पिछला", "next": "अगला", "dismiss": "हटाएं", "clearSearch": "खोज साफ़ करें"
   },
-  "nav": { "home": "होम", "transactions": "लेन-देन", "reports": "रिपोर्ट", "more": "और", "add": "लेन-देन जोड़ें" },
+  "nav": { "home": "होम", "transactions": "लेन-देन", "reports": "रिपोर्ट", "diary": "डायरी", "more": "और", "add": "लेन-देन जोड़ें" },
   "welcome": {
     "headline1": "अपनी कमाई,", "headline2": "अपना खर्च,", "headline3": "अपना हिसाब।",
     "body": "रोज़ की कमाई, खर्च और उधार आसानी से संभालें — बिना इंटरनेट के भी।",
@@ -67,12 +67,18 @@
     "allCategories": "सभी श्रेणियां", "addCategory": "श्रेणी जोड़ें"
   },
   "payment": { "cash": "नकद", "upi": "UPI", "card": "कार्ड", "bank": "बैंक" },
+  "diary": {
+    "title": "मेरी डायरी", "add": "नोट जोड़ें", "edit": "नोट संपादित करें", "view": "नोट देखें",
+    "titlePlaceholder": "शीर्षक (वैकल्पिक)", "bodyPlaceholder": "अपना नोट लिखें…",
+    "deleteTitle": "यह नोट हटाएं?", "deleteHint": "यह पूर्ववत नहीं किया जा सकता।"
+  },
   "toast": {
     "incomeAdded": "कमाई जुड़ गई", "expenseAdded": "खर्च जुड़ गया", "updated": "लेन-देन बदल गया",
     "deleted": "लेन-देन हटाया गया", "udhaarSaved": "उधार सेव हो गया", "categorySaved": "श्रेणी सेव हो गई",
     "premiumActive": "प्रीमियम चालू", "synced": "सारा डेटा सिंक हो गया",
     "udhaarEntryDeleted": "एंट्री हटाई गई", "personDeleted": "व्यक्ति हटाया गया",
-    "categoryDeleted": "श्रेणी डिलीट हो गई", "exportReady": "एक्सपोर्ट तैयार है"
+    "categoryDeleted": "श्रेणी डिलीट हो गई", "exportReady": "एक्सपोर्ट तैयार है", "savedToDownloads": "डाउनलोड में सेव हो गया",
+    "noteSaved": "नोट सेव हो गया", "noteDeleted": "नोट हटा दिया गया"
   },
   "transactions": {
     "title": "लेन-देन", "searchPlaceholder": "नोट, श्रेणी या राशि खोजें",
@@ -126,7 +132,8 @@
     "customTitle": "कस्टम रिपोर्ट", "from": "से", "to": "तक", "generate": "रिपोर्ट बनाएं", "netLabel": "बचत",
     "viewFull": "पूरी रिपोर्ट देखें", "rangeTooLong": "3 साल या उससे कम की अवधि चुनें।",
     "calendarTitle": "हिसाब कैलेंडर", "savedMoney": "बचत हुई", "spentMoreDay": "ज़्यादा खर्च",
-    "dayTransactions_one": "{{count}} लेन-देन · खोलने के लिए टैप करें", "dayTransactions_other": "{{count}} लेन-देन · खोलने के लिए टैप करें"
+    "dayTransactions_one": "{{count}} लेन-देन · खोलने के लिए टैप करें", "dayTransactions_other": "{{count}} लेन-देन · खोलने के लिए टैप करें",
+    "dailyBreakdown": "दैनिक विवरण", "colDate": "तारीख", "colIncome": "कमाई", "colExpense": "खर्च", "colNet": "बचत"
   },
   "more": {
     "title": "और", "profile": "प्रोफ़ाइल", "premiumCardTitle": "प्रीमियम लें, विज्ञापन हटाएं",
@@ -213,11 +220,13 @@
     "transactions": { "title": "अभी कोई लेन-देन नहीं", "body": "आज की कमाई और खर्च लिखना शुरू करें।", "addIncome": "+ कमाई जोड़ें", "addExpense": "− खर्च जोड़ें" },
     "udhaar": { "title": "अभी कोई उधार नहीं", "body": "जो पैसे लेने या देने हैं, उनका हिसाब रखें।", "add": "+ उधार जोड़ें" },
     "reports": { "title": "रिपोर्ट के लिए डेटा कम है", "body": "रिपोर्ट देखने के लिए कुछ लेन-देन जोड़ें।", "add": "लेन-देन जोड़ें" },
-    "search": { "title": "कुछ नहीं मिला", "body": "\"{{query}}\" के लिए कुछ नहीं मिला। दूसरा शब्द आज़माएं या फ़िल्टर हटाएं।", "clear": "फ़िल्टर हटाएं" }
+    "search": { "title": "कुछ नहीं मिला", "body": "\"{{query}}\" के लिए कुछ नहीं मिला। दूसरा शब्द आज़माएं या फ़िल्टर हटाएं।", "clear": "फ़िल्टर हटाएं" },
+    "diary": { "title": "अभी कोई नोट नहीं", "body": "याद रखने के लिए रिमाइंडर, विचार या कुछ भी लिखें।" }
   },
   "validation": {
     "amountRequired": "सेव करने के लिए राशि डालें", "amountTooLarge": "राशि बहुत बड़ी लग रही है। कृपया जांचें।",
-    "categoryRequired": "श्रेणी चुनें", "nameRequired": "नाम डालें", "futureDate": "आगे की तारीख नहीं चुन सकते"
+    "categoryRequired": "श्रेणी चुनें", "nameRequired": "नाम डालें", "futureDate": "आगे की तारीख नहीं चुन सकते",
+    "noteRequired": "सेव करने से पहले कुछ लिखें"
   },
   "errors": {
     "dbOpen": "आपका हिसाब खुल नहीं सका। कृपया ऐप दोबारा खोलें।",

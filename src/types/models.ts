@@ -41,6 +41,11 @@ export interface UdhaarPerson extends Syncable {
   phone: string | null;
 }
 
+export interface Note extends Syncable {
+  title: string | null;
+  body: string;
+}
+
 export interface UdhaarEntry extends Syncable {
   personId: string;
   direction: UdhaarDirection;
@@ -91,7 +96,7 @@ export type SyncUiStatus = 'synced' | 'pending' | 'syncing' | 'offline' | 'error
 
 export interface SyncQueueItem {
   id: number;
-  tableName: 'transactions' | 'categories' | 'udhaar_people' | 'udhaar_entries';
+  tableName: 'transactions' | 'categories' | 'udhaar_people' | 'udhaar_entries' | 'notes';
   rowId: string;
   op: 'upsert' | 'delete';
   attempts: number;

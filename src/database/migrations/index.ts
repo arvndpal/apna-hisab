@@ -1,7 +1,8 @@
 import { exec, runInTransaction } from '../sqlite/client';
 import { migration001Init } from './001_init';
+import { migration002Notes } from './002_notes';
 
-const MIGRATIONS = [migration001Init];
+const MIGRATIONS = [migration001Init, migration002Notes];
 
 function getUserVersion(): number {
   const result = exec('PRAGMA user_version');

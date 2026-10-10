@@ -30,6 +30,7 @@
     "react-hook-form": "^7.89.0",
     "react-i18next": "^17.0.15",
     "react-native": "0.87.1",
+    "react-native-blob-util": "^0.25.1",
     "react-native-bootsplash": "^7.3.4",
     "react-native-dotenv": "^5.0.0",
     "react-native-gesture-handler": "^3.3.0",
