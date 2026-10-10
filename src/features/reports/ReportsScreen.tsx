@@ -1,15 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { generatePDF } from 'react-native-html-to-pdf';
-import { Calendar, ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, Download, FileText, PieChart as PieChartIcon } from 'lucide-react-native';
+import { Calendar, ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, FileSpreadsheet, FileText, PieChart as PieChartIcon } from 'lucide-react-native';
 import { BarChart, LineChart, PieChart } from 'react-native-gifted-charts';
 import { AppText } from '../../components/common/AppText';
-import { AppBottomSheet } from '../../components/common/BottomSheet';
 import { IconButton } from '../../components/common/IconButton';
 import { Card } from '../../components/common/Card';
 import { Chip } from '../../components/common/Chip';
@@ -131,7 +129,6 @@ export function ReportsScreen() {
   // renders off the edge of the screen for the first/last point instead of staying in view.
   const [selectedTrendDay, setSelectedTrendDay] = useState<number | null>(null);
   const { isPremium } = useEntitlement();
-  const exportSheetRef = useRef<BottomSheetModal>(null);
   const [exportingFormat, setExportingFormat] = useState<'pdf' | 'excel' | null>(null);
   const [exportingChart, setExportingChart] = useState<ChartExport | null>(null);
   const route = useRoute<ReportsRoute>();
@@ -252,7 +249,6 @@ export function ReportsScreen() {
   /** Daily breakdown export (SCREENS.md §19c rules: PDF/Excel are Premium, free users are sent to Premium). */
   const handleExportDaily = async (format: 'pdf' | 'excel') => {
     if (!isPremium) {
-      exportSheetRef.current?.dismiss();
       navigation.navigate('Premium');
       return;
     }
@@ -280,7 +276,6 @@ export function ReportsScreen() {
         const pdf = await generatePDF({ html, fileName: stem, width: 595, height: 842, directory: 'Documents' });
         await saveToDownloads(pdf.filePath, `${stem}.pdf`, 'application/pdf');
       }
-      exportSheetRef.current?.dismiss();
       showToast({ message: t('toast.savedToDownloads') });
     } catch {
       showToast({ message: t('export.failed') });
@@ -697,7 +692,14 @@ export function ReportsScreen() {
                 }}
               >
                 <AppText variant="section">{t('reports.dailyBreakdown')}</AppText>
-                <IconButton outlined icon={Download} accessibilityLabel={t('reports.exportPremium')} onPress={() => exportSheetRef.current?.present()} />
+                <ExportMenu
+                  busy={exportingFormat !== null}
+                  accessibilityLabel={t('reports.exportPremium')}
+                  items={[
+                    { label: t('reports.exportPdf'), icon: FileText, onPress: () => handleExportDaily('pdf') },
+                    { label: t('reports.exportExcel'), icon: FileSpreadsheet, onPress: () => handleExportDaily('excel') },
+                  ]}
+                />
               </View>
               <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingBottom: 8 }}>
                 <AppText variant="caption" color="secondary" style={{ flex: 1.1 }}>
@@ -784,30 +786,6 @@ export function ReportsScreen() {
           ) : null}
         </View>
       </ScrollView>
-
-      <AppBottomSheet ref={exportSheetRef} title={t('export.export')}>
-        <View style={{ gap: 12 }}>
-          <Button
-            label={t('export.pdf')}
-            variant="secondary"
-            onPress={() => handleExportDaily('pdf')}
-            loading={exportingFormat === 'pdf'}
-            disabled={exportingFormat === 'excel'}
-          />
-          <Button
-            label={t('export.excel')}
-            variant="secondary"
-            onPress={() => handleExportDaily('excel')}
-            loading={exportingFormat === 'excel'}
-            disabled={exportingFormat === 'pdf'}
-          />
-          {!isPremium ? (
-            <AppText variant="caption" color="secondary" style={{ textAlign: 'center' }}>
-              {t('export.premiumBadge')}
-            </AppText>
-          ) : null}
-        </View>
-      </AppBottomSheet>
     </SafeAreaView>
   );
 }

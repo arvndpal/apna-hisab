@@ -83,16 +83,16 @@ export function ExportMenu({ items, busy, accessibilityLabel }: { items: ExportM
                       item.onPress();
                     }}
                     style={({ pressed }) => ({
-                      minHeight: 44,
-                      paddingHorizontal: 14,
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: 12,
                       backgroundColor: pressed ? palette.muted : 'transparent',
                     })}
                   >
-                    <Icon size={18} color={palette.primary} strokeWidth={2} />
-                    <AppText variant="rowTitle">{item.label}</AppText>
+                    {/* Flex-row layout lives on a plain View, not the Pressable's own (function-valued)
+                        style — putting flexDirection/gap directly on Pressable's style here collapses to
+                        a column on device (icon stacked above the label) instead of laying out as a row. */}
+                    <View style={{ minHeight: 44, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                      <Icon size={18} color={palette.primary} strokeWidth={2} />
+                      <AppText variant="rowTitle">{item.label}</AppText>
+                    </View>
                   </Pressable>
                 );
               })}
