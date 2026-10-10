@@ -6,7 +6,7 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { generatePDF } from 'react-native-html-to-pdf';
-import { Calendar, ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, Download, PieChart as PieChartIcon } from 'lucide-react-native';
+import { Calendar, ArrowDownLeft, ArrowUpRight, ChevronLeft, ChevronRight, Download, FileText, PieChart as PieChartIcon } from 'lucide-react-native';
 import { BarChart, LineChart, PieChart } from 'react-native-gifted-charts';
 import { AppText } from '../../components/common/AppText';
 import { AppBottomSheet } from '../../components/common/BottomSheet';
@@ -18,6 +18,7 @@ import { EmptyState } from '../../components/common/EmptyState';
 import { AdSlot } from '../../components/common/AdSlot';
 import { useLeaveReportsInterstitial } from './useLeaveReportsInterstitial';
 import { Button } from '../../components/common/Button';
+import { ExportMenu } from '../../components/common/ExportMenu';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useLiveQuery } from '../../hooks/useLiveQuery';
@@ -31,11 +32,13 @@ import { categoryDisplayName } from '../../database/repositories/categoriesRepo'
 import { getPeriodRange, stepAnchor, isCurrentPeriod, periodLabel, trendBuckets } from './periods';
 import { toOccurredOn } from '../../utils/dates';
 import { formatRupees, formatCompact } from '../../utils/money';
-import { radius, chartColors, layout } from '../../theme/tokens';
+import { radius, chartColors, layout, palette as themePalettes } from '../../theme/tokens';
 import { useEntitlement } from '../subscription/useEntitlement';
 import { bytesToBase64 } from '../../utils/base64';
 import { buildXlsx } from '../../services/export/xlsx';
 import { buildStatementHtml } from '../../services/export/pdfHtml';
+import { buildSpendingHtml, sliceColor } from '../../services/export/spendingPdf';
+import { buildIncomeExpenseHtml } from '../../services/export/chartPdf';
 import { saveToDownloads, writeCacheFile } from '../../services/export/saveToDownloads';
 import type { Table } from '../../services/export/rows';
 import type { AppStackParamList, MainTabParamList } from '../../app/navigation/types';
@@ -44,6 +47,10 @@ import type { DateRange, ReportPeriod } from '../../types/models';
 type Nav = NativeStackNavigationProp<AppStackParamList>;
 type ReportsRoute = RouteProp<MainTabParamList, 'Reports'>;
 const EXCEL_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+
+type ChartExport = 'spend' | 'bars' | 'trend';
+/** PDFs print on white paper — always the light palette, whatever theme the app is in. */
+const PDF_COLORS = { income: themePalettes.light.income, expense: themePalettes.light.expenseChart };
 
 const PERIOD_CHIPS: Array<{ value: ReportPeriod; labelKey: string }> = [
   { value: 'today', labelKey: 'reports.today' },
@@ -126,6 +133,7 @@ export function ReportsScreen() {
   const { isPremium } = useEntitlement();
   const exportSheetRef = useRef<BottomSheetModal>(null);
   const [exportingFormat, setExportingFormat] = useState<'pdf' | 'excel' | null>(null);
+  const [exportingChart, setExportingChart] = useState<ChartExport | null>(null);
   const route = useRoute<ReportsRoute>();
   const userId = useActiveUserId();
   const language = useSettingsStore((s) => s.language);
@@ -281,6 +289,75 @@ export function ReportsScreen() {
     }
   };
 
+
+  /** "Export as PDF" on the three charts — PDF is Premium, like every PDF/Excel export (SCREENS.md §19c). */
+  const handleExportChart = async (chart: ChartExport) => {
+    if (!isPremium) {
+      navigation.navigate('Premium');
+      return;
+    }
+    setExportingChart(chart);
+    try {
+      const locale = language === 'hi' ? 'hi-IN' : 'en-IN';
+      const rangeLabel = periodLabel(period, anchor, language, customRange);
+      const generatedLabel = t('export.generatedOn', { date: periodLabel('today', new Date(), language) });
+      let title: string;
+      let html: string;
+      if (chart === 'spend') {
+        title = t('reports.whereSpent');
+        html = buildSpendingHtml({
+          title,
+          rangeLabel,
+          generatedLabel,
+          totalLabel: t('reports.total'),
+          columns: { category: t('export.colCategory'), amount: t('export.colAmount'), share: t('export.colShare') },
+          slices: data.expenseBreakdown.map((row, i) => {
+            const category = categoriesById[row.categoryId];
+            return {
+              label: category ? categoryDisplayName(category, language) : '',
+              amountPaise: row.amountPaise,
+              share: row.share,
+              color: sliceColor(i, chartColors),
+            };
+          }),
+        });
+      } else {
+        title = chart === 'bars' ? t('reports.incomeVsExpense') : t('reports.incomeTrend');
+        html = buildIncomeExpenseHtml({
+          kind: chart,
+          title,
+          rangeLabel,
+          generatedLabel,
+          labels: { income: t('transactions.income'), expense: t('transactions.expense'), net: t('reports.colNet'), date: t('reports.colDate') },
+          colors: PDF_COLORS,
+          // The same days the on-screen charts plot.
+          points: barChartDays.map(({ b, i }) => ({
+            label: b.label,
+            day: b.hour === undefined ? b.range.from : undefined,
+            incomePaise: data.incomeTrendValues[i],
+            expensePaise: data.expenseTrendValues[i],
+          })),
+          monthLabel: (yyyyMm) => new Intl.DateTimeFormat(locale, { month: 'short', year: '2-digit' }).format(new Date(`${yyyyMm}-01T00:00:00`)),
+        });
+      }
+      const stem = `apna-hisab-${chart === 'spend' ? 'spending' : chart === 'bars' ? 'income-vs-expense' : 'trend'}_${data.range.from}_${data.range.to}`;
+      const pdf = await generatePDF({ html, fileName: stem, width: 595, height: 842, directory: 'Documents' });
+      await saveToDownloads(pdf.filePath, `${stem}.pdf`, 'application/pdf');
+      showToast({ message: t('toast.savedToDownloads') });
+    } catch {
+      showToast({ message: t('export.failed') });
+    } finally {
+      setExportingChart(null);
+    }
+  };
+
+  const exportChartMenu = (chart: ChartExport) => (
+    <ExportMenu
+      busy={exportingChart === chart}
+      items={[{ label: t('reports.exportPdf'), icon: FileText, onPress: () => handleExportChart(chart) }]}
+    />
+  );
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }} edges={['top', 'left', 'right']}>
       <ScrollView contentContainerStyle={{ paddingBottom: 24 }} showsVerticalScrollIndicator={false}>
@@ -367,7 +444,12 @@ export function ReportsScreen() {
           {hasPeriodData && data.expenseBreakdown.length > 0 ? (
             <Card>
               <View style={{ gap: 12 }}>
-                <AppText variant="section">{t('reports.whereSpent')}</AppText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                  <AppText variant="section" style={{ flexShrink: 1 }}>
+                    {t('reports.whereSpent')}
+                  </AppText>
+                  {exportChartMenu('spend')}
+                </View>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
                   <View style={{ width: 132, height: 132 }}>
                     <PieChart
@@ -417,9 +499,11 @@ export function ReportsScreen() {
 
           <Card>
             <View style={{ gap: 12, position: 'relative' }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                <AppText variant="section">{t('reports.incomeVsExpense')}</AppText>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+                <AppText variant="section" style={{ flexShrink: 1 }}>
+                  {t('reports.incomeVsExpense')}
+                </AppText>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.income }} />
                     <AppText variant="caption" color="secondary">
@@ -432,6 +516,7 @@ export function ReportsScreen() {
                       {t('transactions.expense')}
                     </AppText>
                   </View>
+                  {barChartDays.length > 0 ? exportChartMenu('bars') : null}
                 </View>
               </View>
               {/* Absolutely positioned over the chart instead of taking its own flow space, so the
@@ -500,7 +585,7 @@ export function ReportsScreen() {
                     {t('reports.weeklyIncome', { month: heroLabel })}
                   </AppText>
                 </View>
-                <View style={{ flexDirection: 'row', gap: 10 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                     <View style={{ width: 8, height: 8, borderRadius: 4, backgroundColor: palette.income }} />
                     <AppText variant="caption" color="secondary">
@@ -513,6 +598,7 @@ export function ReportsScreen() {
                       {t('transactions.expense')}
                     </AppText>
                   </View>
+                  {exportChartMenu('trend')}
                 </View>
               </View>
               {/* Absolutely positioned over the chart instead of taking its own flow space, so the
