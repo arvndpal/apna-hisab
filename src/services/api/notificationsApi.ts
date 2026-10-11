@@ -16,7 +16,7 @@ export interface AdminUserResult {
   email: string | null;
 }
 
-export type SendNotificationTarget = { kind: 'all' } | { kind: 'user'; userId: string };
+export type SendNotificationTarget = { kind: 'all' } | { kind: 'user'; userIds: string[] };
 
 /** Admin-only (backend 403s anyone whose profile isn't user_type='admin'). */
 export async function searchUsers(query: string): Promise<AdminUserResult[]> {
@@ -39,7 +39,7 @@ export function sendNotification(
   return authedFetch('/notifications/admin/send', {
     method: 'POST',
     body: JSON.stringify(
-      target.kind === 'all' ? { title, body, target: 'all' } : { title, body, target: 'user', userId: target.userId },
+      target.kind === 'all' ? { title, body, target: 'all' } : { title, body, target: 'user', userIds: target.userIds },
     ),
   });
 }

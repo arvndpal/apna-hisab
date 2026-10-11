@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { X } from 'lucide-react-native';
 import { ScreenHeader } from '../../components/common/ScreenHeader';
 import { AppText } from '../../components/common/AppText';
 import { Button } from '../../components/common/Button';
@@ -28,7 +29,7 @@ export function SendNotificationScreen() {
   const [body, setBody] = useState('');
   const [target, setTarget] = useState<Target>('all');
   const [query, setQuery] = useState('');
-  const [selectedUser, setSelectedUser] = useState<AdminUserResult | null>(null);
+  const [selectedUsers, setSelectedUsers] = useState<AdminUserResult[]>([]);
   const [results, setResults] = useState<AdminUserResult[]>([]);
   const [deviceCount, setDeviceCount] = useState<number | null>(null);
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -44,7 +45,7 @@ export function SendNotificationScreen() {
   }, []);
 
   useEffect(() => {
-    if (target !== 'user' || selectedUser || debouncedQuery.trim().length === 0) {
+    if (target !== 'user' || debouncedQuery.trim().length === 0) {
       setResults([]);
       return;
     }
@@ -60,9 +61,9 @@ export function SendNotificationScreen() {
     return () => {
       cancelled = true;
     };
-  }, [debouncedQuery, target, selectedUser]);
+  }, [debouncedQuery, target]);
 
-  const canSend = title.trim().length > 0 && body.trim().length > 0 && (target === 'all' || !!selectedUser) && !sending;
+  const canSend = title.trim().length > 0 && body.trim().length > 0 && (target === 'all' || selectedUsers.length > 0) && !sending;
 
   const doSend = async () => {
     setConfirmVisible(false);
@@ -71,12 +72,12 @@ export function SendNotificationScreen() {
       const result = await notificationsApi.sendNotification(
         title.trim(),
         body.trim(),
-        target === 'all' ? { kind: 'all' } : { kind: 'user', userId: selectedUser!.id },
+        target === 'all' ? { kind: 'all' } : { kind: 'user', userIds: selectedUsers.map((u) => u.id) },
       );
       showToast({ message: t('admin.sendResult', { sent: result.sent, failed: result.failed }) });
       setTitle('');
       setBody('');
-      setSelectedUser(null);
+      setSelectedUsers([]);
       setQuery('');
     } catch {
       showToast({ message: t('admin.sendFailed') });
@@ -150,7 +151,7 @@ export function SendNotificationScreen() {
             />
             <Option
               title={t('admin.targetUser')}
-              subtitle={selectedUser ? (selectedUser.name ?? selectedUser.email ?? undefined) : undefined}
+              subtitle={selectedUsers.length > 0 ? t('admin.targetUsersSub', { count: selectedUsers.length }) : undefined}
               selected={target === 'user'}
               onPress={() => setTarget('user')}
             />
@@ -159,38 +160,22 @@ export function SendNotificationScreen() {
 
         {target === 'user' ? (
           <View style={{ gap: 8 }}>
-            <TextInput
-              value={selectedUser ? (selectedUser.name ?? selectedUser.email ?? '') : query}
-              onChangeText={(text) => {
-                setSelectedUser(null);
-                setQuery(text);
-              }}
-              placeholder={t('admin.searchPlaceholder')}
-              placeholderTextColor={palette.textTertiary}
-              accessibilityLabel={t('admin.searchPlaceholder')}
-              style={[inputStyle, { height: 54 }]}
-            />
-            {!selectedUser && results.length > 0 ? (
+            {selectedUsers.length > 0 ? (
               <View style={{ borderRadius: radius.card, borderWidth: 1, borderColor: palette.border, overflow: 'hidden' }}>
-                {results.map((u, i) => (
-                  <Pressable
+                {selectedUsers.map((u, i) => (
+                  <View
                     key={u.id}
-                    onPress={() => {
-                      setSelectedUser(u);
-                      setResults([]);
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      minHeight: 54,
+                      paddingHorizontal: 14,
+                      paddingVertical: 6,
+                      borderTopWidth: i === 0 ? 0 : 1,
+                      borderTopColor: palette.border,
                     }}
-                    style={({ pressed }) => ({ backgroundColor: pressed ? palette.muted : 'transparent' })}
                   >
-                    <View
-                      style={{
-                        minHeight: 54,
-                        justifyContent: 'center',
-                        paddingHorizontal: 14,
-                        paddingVertical: 6,
-                        borderTopWidth: i === 0 ? 0 : 1,
-                        borderTopColor: palette.border,
-                      }}
-                    >
+                    <View style={{ flex: 1 }}>
                       <AppText variant="rowTitle">{u.name ?? t('admin.unnamed')}</AppText>
                       {u.email ? (
                         <AppText variant="caption" color="secondary">
@@ -198,8 +183,61 @@ export function SendNotificationScreen() {
                         </AppText>
                       ) : null}
                     </View>
-                  </Pressable>
+                    <Pressable
+                      onPress={() => setSelectedUsers((prev) => prev.filter((s) => s.id !== u.id))}
+                      accessibilityRole="button"
+                      accessibilityLabel={t('admin.removeUser', { name: u.name ?? u.email ?? t('admin.unnamed') })}
+                      hitSlop={10}
+                      style={{ padding: 6 }}
+                    >
+                      <X size={18} color={palette.textSecondary} />
+                    </Pressable>
+                  </View>
                 ))}
+              </View>
+            ) : null}
+
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder={t('admin.searchPlaceholder')}
+              placeholderTextColor={palette.textTertiary}
+              accessibilityLabel={t('admin.searchPlaceholder')}
+              style={[inputStyle, { height: 54 }]}
+            />
+            {results.filter((u) => !selectedUsers.some((s) => s.id === u.id)).length > 0 ? (
+              <View style={{ borderRadius: radius.card, borderWidth: 1, borderColor: palette.border, overflow: 'hidden' }}>
+                {results
+                  .filter((u) => !selectedUsers.some((s) => s.id === u.id))
+                  .map((u, i) => (
+                    <Pressable
+                      key={u.id}
+                      onPress={() => {
+                        setSelectedUsers((prev) => [...prev, u]);
+                        setResults([]);
+                        setQuery('');
+                      }}
+                      style={({ pressed }) => ({ backgroundColor: pressed ? palette.muted : 'transparent' })}
+                    >
+                      <View
+                        style={{
+                          minHeight: 54,
+                          justifyContent: 'center',
+                          paddingHorizontal: 14,
+                          paddingVertical: 6,
+                          borderTopWidth: i === 0 ? 0 : 1,
+                          borderTopColor: palette.border,
+                        }}
+                      >
+                        <AppText variant="rowTitle">{u.name ?? t('admin.unnamed')}</AppText>
+                        {u.email ? (
+                          <AppText variant="caption" color="secondary">
+                            {u.email}
+                          </AppText>
+                        ) : null}
+                      </View>
+                    </Pressable>
+                  ))}
               </View>
             ) : null}
           </View>

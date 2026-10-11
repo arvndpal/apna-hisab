@@ -82,6 +82,15 @@ export class NotificationsService {
     );
   }
 
+  /** Used by the admin send screen's "specific users" target (one or more). */
+  async sendToUsers(userIds: string[], payload: PushPayload): Promise<SendResult> {
+    const rows = await this.db.query<{ token: string }>('SELECT token FROM device_tokens WHERE user_id = ANY($1)', [userIds]);
+    return this.sendToTokens(
+      rows.map((r) => r.token),
+      payload,
+    );
+  }
+
   /** Broadcasts to every registered device. Used only by the admin send screen. */
   async sendToAll(payload: PushPayload): Promise<SendResult> {
     const rows = await this.db.query<{ token: string }>('SELECT token FROM device_tokens');

@@ -1,4 +1,4 @@
-import { IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { ArrayMinSize, IsArray, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export class SendNotificationDto {
   @IsString()
@@ -16,6 +16,8 @@ export class SendNotificationDto {
 
   /** Required when target is 'user' — checked in the controller, not here (keeps the DTO simple). */
   @IsOptional()
-  @IsString()
-  userId?: string;
+  @IsArray()
+  @ArrayMinSize(1)
+  @IsString({ each: true })
+  userIds?: string[];
 }

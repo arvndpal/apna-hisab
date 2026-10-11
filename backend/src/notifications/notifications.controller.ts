@@ -54,8 +54,8 @@ export class NotificationsController {
   @HttpCode(200)
   async sendNotification(@Body() dto: SendNotificationDto) {
     if (dto.target === 'user') {
-      if (!dto.userId) throw new BadRequestException('userId is required when target is "user"');
-      return this.notifications.sendToUser(dto.userId, { title: dto.title, body: dto.body });
+      if (!dto.userIds || dto.userIds.length === 0) throw new BadRequestException('userIds is required when target is "user"');
+      return this.notifications.sendToUsers(dto.userIds, { title: dto.title, body: dto.body });
     }
     return this.notifications.sendToAll({ title: dto.title, body: dto.body });
   }
