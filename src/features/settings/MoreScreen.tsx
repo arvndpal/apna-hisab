@@ -16,6 +16,7 @@ import {
   Info,
   Lock,
   LogOut,
+  Send,
   Shield,
   Tag,
   Users,
@@ -179,6 +180,12 @@ export function MoreScreen() {
           />
           <MenuRow icon={Info} label={t('more.about')} value={t('more.version', { version: APP_VERSION })} />
         </MenuGroup>
+
+        {profile?.userType === 'admin' ? (
+          <MenuGroup title={t('more.groupAdmin')}>
+            <MenuRow icon={Send} label={t('admin.sendNotification')} onPress={() => navigation.navigate('AdminSendNotification')} />
+          </MenuGroup>
+        ) : null}
 
         {profile ? <Button label={t('more.logout')} variant="secondary" icon={LogOut} onPress={requestLogout} /> : null}
         {profile ? (

@@ -5,6 +5,7 @@ export interface Profile {
   name: string | null;
   avatarUrl: string | null;
   language: 'en' | 'hi';
+  userType: 'admin' | 'user';
   createdAt: string;
   updatedAt: string;
 }
@@ -16,6 +17,7 @@ export interface ProfileRow {
   name: string | null;
   avatar_url: string | null;
   language: 'en' | 'hi';
+  user_type: 'admin' | 'user';
   created_at: string;
   updated_at: string;
 }
@@ -28,6 +30,7 @@ export function profileFromRow(row: ProfileRow): Profile {
     name: row.name,
     avatarUrl: row.avatar_url,
     language: row.language,
+    userType: row.user_type,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

@@ -5,7 +5,7 @@ module.exports = {
   // Most RN ecosystem packages (navigation, gesture-handler, reanimated, svg, uuid, …) ship ESM;
   // let Babel transform all of them rather than allowlisting one package at a time.
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native|@react-navigation|react-native-.*|@react-native-community|@gorhom|nativewind|react-native-css-interop|uuid|lucide-react-native)/)',
+    'node_modules/(?!((jest-)?react-native|@react-native|@react-native-firebase|@react-navigation|react-native-.*|@react-native-community|@gorhom|@notifee|nativewind|react-native-css-interop|uuid|lucide-react-native)/)',
   ],
   // lucide-react-native resolves to a .mjs build; the preset's transform only matches .js/.ts/.tsx.
   transform: {
@@ -21,6 +21,9 @@ module.exports = {
     '^react-native-google-mobile-ads$': '<rootDir>/jest/googleMobileAdsMock.js',
     '^react-native-iap$': '<rootDir>/jest/iapMock.js',
     '^react-native-html-to-pdf$': '<rootDir>/jest/htmlToPdfMock.js',
+    '^@react-native-firebase/messaging$': '<rootDir>/jest/messagingMock.js',
+    '^@notifee/react-native$': '<rootDir>/jest/notifeeMock.js',
+    '^.*/app/navigation/navigationRef$': '<rootDir>/jest/navigationRefMock.js',
   },
   setupFiles: ['@react-native/jest-preset/jest/setup.js', 'react-native-gesture-handler/jestSetup'],
 };

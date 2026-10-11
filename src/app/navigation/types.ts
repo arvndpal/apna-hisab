@@ -34,6 +34,8 @@ export type AppStackParamList = {
   Export: undefined;
   DeleteAccount: undefined;
   Premium: undefined;
+  /** Only reachable if the signed-in profile's userType is 'admin' — see MoreScreen.tsx. */
+  AdminSendNotification: undefined;
 };
 
 export type RootStackParamList = {

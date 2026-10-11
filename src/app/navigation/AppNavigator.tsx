@@ -15,6 +15,7 @@ import { SyncBackupScreen } from '../../features/settings/SyncBackupScreen';
 import { ExportScreen } from '../../features/settings/ExportScreen';
 import { DeleteAccountScreen } from '../../features/settings/DeleteAccountScreen';
 import { PremiumScreen } from '../../features/subscription/PremiumScreen';
+import { SendNotificationScreen } from '../../features/admin/SendNotificationScreen';
 import type { AppStackParamList } from './types';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -37,6 +38,7 @@ export function AppNavigator() {
       <Stack.Screen name="Export" component={ExportScreen} />
       <Stack.Screen name="DeleteAccount" component={DeleteAccountScreen} />
       <Stack.Screen name="Premium" component={PremiumScreen} options={{ presentation: 'modal' }} />
+      <Stack.Screen name="AdminSendNotification" component={SendNotificationScreen} />
     </Stack.Navigator>
   );
 }

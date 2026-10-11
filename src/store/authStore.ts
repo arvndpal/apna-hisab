@@ -5,8 +5,20 @@ import { reassignLocalDataToProfile, wipeLocalData } from '../database/reassignU
 import * as session from '../services/auth/session';
 import type { TokenPair } from '../services/auth/session';
 import type { BackendProfile } from '../services/api/authApi';
+import * as authApi from '../services/api/authApi';
 import { signOutGoogle } from '../services/auth/google';
+import { registerDeviceToken, unregisterDeviceToken } from '../services/notifications/push';
 import { useSyncStore } from './syncStore';
+
+function toStoredProfile(backendProfile: BackendProfile): StoredProfile {
+  return {
+    id: backendProfile.id,
+    name: backendProfile.name ?? '',
+    email: backendProfile.email ?? '',
+    avatarUrl: backendProfile.avatarUrl,
+    userType: backendProfile.userType,
+  };
+}
 
 interface AuthState {
   profile: StoredProfile | null;
@@ -16,26 +28,30 @@ interface AuthState {
   signOut: () => Promise<void>;
   /** Reads the persisted profile from SQLite. Must only run after migrate() — see SplashScreen. */
   hydrate: () => void;
+  /**
+   * Re-fetches the profile from the backend and updates the local cache — fields like userType can
+   * change server-side (e.g. an admin promotion) without the device ever signing out again. Call
+   * fire-and-forget on app start; never blocks navigation.
+   */
+  refreshProfile: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
   profile: null,
   hydrated: false,
   signIn: async (backendProfile, tokens) => {
     reassignLocalDataToProfile(settingsRepo.getLocalUserId(), backendProfile.id);
-    const profile: StoredProfile = {
-      id: backendProfile.id,
-      name: backendProfile.name ?? '',
-      email: backendProfile.email ?? '',
-      avatarUrl: backendProfile.avatarUrl,
-    };
+    const profile = toStoredProfile(backendProfile);
     settingsRepo.setProfile(profile);
     await session.saveTokens(tokens);
     set({ profile });
+    // Fire-and-forget — push registration failing (e.g. offline) shouldn't block sign-in.
+    registerDeviceToken().catch(() => {});
   },
   signOut: async () => {
     const profile = settingsRepo.getProfile();
     if (profile) wipeLocalData(profile.id);
+    await unregisterDeviceToken();
     settingsRepo.clearProfile();
     settingsRepo.clearLocalUserId();
     settingsRepo.clearLastUsedDefaults();
@@ -46,4 +62,15 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ profile: null });
   },
   hydrate: () => set({ profile: settingsRepo.getProfile(), hydrated: true }),
+  refreshProfile: async () => {
+    if (!get().profile) return;
+    try {
+      const backendProfile = await authApi.me();
+      const profile = toStoredProfile(backendProfile);
+      settingsRepo.setProfile(profile);
+      set({ profile });
+    } catch {
+      // Best-effort (offline, token expired, etc.) — keep showing the last-known profile.
+    }
+  },
 }));

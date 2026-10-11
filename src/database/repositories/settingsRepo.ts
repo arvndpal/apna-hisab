@@ -88,6 +88,7 @@ export interface StoredProfile {
   name: string;
   email: string;
   avatarUrl: string | null;
+  userType: 'admin' | 'user';
 }
 
 /** A locally persisted copy of the backend profile marks "signed in" without a network round trip. */

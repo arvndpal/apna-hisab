@@ -8,6 +8,7 @@ export interface BackendProfile {
   name: string | null;
   avatarUrl: string | null;
   language: 'en' | 'hi';
+  userType: 'admin' | 'user';
   createdAt: string;
   updatedAt: string;
 }

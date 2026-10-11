@@ -141,6 +141,7 @@
     "title": "और", "profile": "प्रोफ़ाइल", "premiumCardTitle": "प्रीमियम लें, विज्ञापन हटाएं",
     "premiumCardSub": "बेहतर रिपोर्ट, PDF और Excel एक्सपोर्ट", "premiumActive": "प्रीमियम चालू",
     "groupMoney": "पैसा", "groupPreferences": "पसंद", "groupData": "डेटा", "groupAccount": "अकाउंट और मदद",
+    "groupAdmin": "एडमिन",
     "categories": "श्रेणियां", "udhaar": "उधार", "calendar": "हिसाब कैलेंडर",
     "appLock": "ऐप लॉक", "language": "भाषा", "notifications": "सूचनाएं",
     "syncBackup": "सिंक और बैकअप", "export": "डेटा एक्सपोर्ट", "subscription": "सदस्यता",
@@ -254,5 +255,15 @@
   },
   "ads": {
     "tag": "विज्ञापन", "remove": "हटाएँ"
+  },
+  "admin": {
+    "sendNotification": "सूचना भेजें", "titleLabel": "शीर्षक", "titlePlaceholder": "सूचना का शीर्षक",
+    "message": "संदेश", "messagePlaceholder": "अपना संदेश लिखें…", "target": "किसे भेजें",
+    "targetAll": "सभी उपयोगकर्ता", "targetAllSub_one": "{{count}} रजिस्टर्ड डिवाइस", "targetAllSub_other": "{{count}} रजिस्टर्ड डिवाइस",
+    "targetUser": "विशिष्ट उपयोगकर्ता", "searchPlaceholder": "नाम या ईमेल से खोजें", "unnamed": "अज्ञात",
+    "send": "भेजें", "confirmTitle": "सभी उपयोगकर्ताओं को भेजें?",
+    "confirmBody_one": "यह {{count}} रजिस्टर्ड डिवाइस को पुश सूचना भेजेगा। इसे पूर्ववत नहीं किया जा सकता।",
+    "confirmBody_other": "यह {{count}} रजिस्टर्ड डिवाइस को पुश सूचना भेजेगा। इसे पूर्ववत नहीं किया जा सकता।",
+    "sendResult": "{{sent}} डिवाइस को भेजा गया, {{failed}} विफल", "sendFailed": "सूचना भेजने में विफल"
   }
 }

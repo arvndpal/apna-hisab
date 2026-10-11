@@ -22,8 +22,14 @@ const envSchema = z.object({
 
   /** The full JSON content of the Firebase service account key (Firebase Console → Project
    *  Settings → Service accounts → Generate new private key), as a single-line string. Used to
-   *  verify the Firebase ID tokens the app sends — never the raw Google ID token directly. */
+   *  verify the Firebase ID tokens the app sends — never the raw Google ID token directly. The
+   *  same credential also authorizes admin.messaging() for sending push notifications. */
   FIREBASE_SERVICE_ACCOUNT: z.string().min(1),
+
+  /** Shared secret Vercel Cron must present (as the x-cron-secret header) to call
+   *  POST /notifications/cron/daily-check — that endpoint has no user JWT to guard it with.
+   *  Generate with: openssl rand -base64 32 */
+  CRON_SECRET: z.string().min(16, 'CRON_SECRET must be at least 16 characters'),
 });
 
 export type Env = z.infer<typeof envSchema>;

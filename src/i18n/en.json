@@ -141,6 +141,7 @@
     "title": "More", "profile": "Profile", "premiumCardTitle": "Go ad-free with Premium",
     "premiumCardSub": "Advanced reports, PDF & Excel export", "premiumActive": "Premium active",
     "groupMoney": "Money", "groupPreferences": "Preferences", "groupData": "Data", "groupAccount": "Account & help",
+    "groupAdmin": "Admin",
     "categories": "Categories", "udhaar": "Udhaar", "calendar": "Financial calendar",
     "appLock": "App Lock", "language": "Language", "notifications": "Notifications",
     "syncBackup": "Sync & Backup", "export": "Export Data", "subscription": "Subscription",
@@ -253,5 +254,15 @@
   },
   "ads": {
     "tag": "Ad", "remove": "Remove"
+  },
+  "admin": {
+    "sendNotification": "Send Notification", "titleLabel": "Title", "titlePlaceholder": "Notification title",
+    "message": "Message", "messagePlaceholder": "Write your message…", "target": "Send to",
+    "targetAll": "All users", "targetAllSub_one": "{{count}} registered device", "targetAllSub_other": "{{count}} registered devices",
+    "targetUser": "Specific user", "searchPlaceholder": "Search by name or email", "unnamed": "Unnamed",
+    "send": "Send", "confirmTitle": "Send to all users?",
+    "confirmBody_one": "This will send a push notification to {{count}} registered device. This can't be undone.",
+    "confirmBody_other": "This will send a push notification to {{count}} registered devices. This can't be undone.",
+    "sendResult": "Sent to {{sent}} device(s), {{failed}} failed", "sendFailed": "Failed to send notification"
   }
 }

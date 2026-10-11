@@ -19,6 +19,7 @@ import { startBilling } from '../../services/billing/billing';
 import { initAds } from '../../services/ads/ads';
 import { useSettingsStore } from '../../store/settingsStore';
 import { start as startSync } from '../../sync/syncEngine/engine';
+import { initPushListeners, registerDeviceToken } from '../../services/notifications/push';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 const MIN_VISIBLE_MS = 600;
@@ -78,7 +79,12 @@ export function SplashScreen({ navigation }: Props) {
       await new Promise<void>((resolve) => setTimeout(() => resolve(), MIN_VISIBLE_MS - elapsed));
     }
 
-    if (profile) startSync(); // fire-and-forget — never block navigation on the network
+    initPushListeners();
+    if (profile) {
+      startSync(); // fire-and-forget — never block navigation on the network
+      registerDeviceToken().catch(() => {}); // re-sync token in case it changed since last launch
+      useAuthStore.getState().refreshProfile(); // picks up server-side profile changes (e.g. admin promotion)
+    }
     // Also fire-and-forget: re-check Premium with Play, then start the ads SDK only for free users.
     startBilling().finally(() => {
       if (!useEntitlementStore.getState().entitlement) initAds();
