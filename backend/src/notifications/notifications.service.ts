@@ -17,11 +17,6 @@ export interface SendResult {
 /** FCM's per-call limit on sendEachForMulticast. */
 const MULTICAST_BATCH_SIZE = 500;
 
-const REENGAGEMENT_COPY: Record<'en' | 'hi', { title: string; body: string }> = {
-  en: { title: 'Apna Hisab', body: "You haven't logged anything in a few days — tap to add today's entries." },
-  hi: { title: 'अपना हिसाब', body: 'कुछ दिनों से कोई एंट्री नहीं — आज का हिसाब लिखने के लिए टैप करें।' },
-};
-
 export type ReminderSlot = 'morning' | 'afternoon' | 'evening';
 
 const DAILY_REMINDER_COPY: Record<ReminderSlot, Record<'en' | 'hi', { title: string; body: string }>> = {
@@ -144,32 +139,31 @@ export class NotificationsService {
   }
 
   /**
-   * Re-engagement push: users with a registered device who haven't logged (or edited) a
-   * transaction in `inactivityDays`. Localizes copy from each profile's own language setting.
+   * Unconditional daily reminder: every non-blocked user with a registered device, once a day, no
+   * activity check — Vercel Hobby only allows a cron to fire once a day, so this is the one slot
+   * guaranteed to actually run (see vercel.json, 30 14 * * * = 08:00 PM IST). The 3x/day,
+   * only-if-not-logged-yet-today variant below (runReminderCheck) needs an external scheduler or a
+   * Pro-plan cron to be triggered at all.
    */
-  async runDailyCheck(inactivityDays = 3): Promise<{ usersNotified: number }> {
+  async runDailyReminder(): Promise<{ usersNotified: number }> {
     const rows = await this.db.query<{ id: string; language: 'en' | 'hi' }>(
       `SELECT DISTINCT p.id, p.language
        FROM profiles p
        JOIN device_tokens dt ON dt.user_id = p.id
-       WHERE NOT EXISTS (
-         SELECT 1 FROM transactions t
-         WHERE t.user_id = p.id AND t.deleted_at IS NULL AND t.updated_at > now() - ($1 || ' days')::interval
-       )`,
-      [inactivityDays],
+       WHERE p.is_blocked = false`,
     );
     for (const row of rows) {
-      const copy = REENGAGEMENT_COPY[row.language];
-      await this.sendToUser(row.id, { title: copy.title, body: copy.body, data: { type: 'reengagement' } });
+      const copy = DAILY_REMINDER_COPY.evening[row.language];
+      await this.sendToUser(row.id, { title: copy.title, body: copy.body, data: { type: 'daily-reminder' } });
     }
     return { usersNotified: rows.length };
   }
 
   /**
    * Daily reminder (3x/day — see reminderSlotForNow): every non-blocked user with a registered
-   * device who hasn't logged a transaction yet *today* (IST). Unlike runDailyCheck's multi-day
-   * inactivity check, this resets every day — someone who already logged today isn't pinged again
-   * at the next slot.
+   * device who hasn't logged a transaction yet *today* (IST) — unlike runDailyReminder, which goes
+   * to everyone unconditionally. Resets every day: someone who already logged today isn't pinged
+   * again at the next slot.
    */
   async runReminderCheck(slot: ReminderSlot): Promise<{ usersNotified: number }> {
     const rows = await this.db.query<{ id: string; language: 'en' | 'hi' }>(

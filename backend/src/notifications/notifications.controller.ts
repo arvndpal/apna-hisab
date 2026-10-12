@@ -28,16 +28,19 @@ export class NotificationsController {
     return { deleted: true };
   }
 
-  /** Vercel Cron only ever invokes via GET (see vercel.json's crons entry). */
+  /**
+   * The one cron slot Vercel Hobby actually fires (once daily, 08:00 PM IST — see vercel.json).
+   * Sends an unconditional "log today's transactions" reminder to every registered device.
+   */
   @UseGuards(CronSecretGuard)
   @Get('cron/daily-check')
   async dailyCheck() {
-    return this.notifications.runDailyCheck();
+    return this.notifications.runDailyReminder();
   }
 
   /**
-   * Fires 3x/day (09:00/15:00/21:00 IST) from a single Vercel Cron schedule — see vercel.json and
-   * reminderSlotForNow for why one cron entry covers all three times.
+   * Not wired to any Vercel Cron (Hobby can't fire more than once/day) — call this 3x/day
+   * (09:00/15:00/21:00 IST) from an external scheduler, or re-add it to vercel.json on a Pro plan.
    */
   @UseGuards(CronSecretGuard)
   @Get('cron/reminder')
