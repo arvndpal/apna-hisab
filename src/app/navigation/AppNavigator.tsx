@@ -1,5 +1,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useAuthStore } from '../../store/authStore';
+import { BlockedScreen } from '../../features/auth/BlockedScreen';
 import { MainTabs } from './MainTabs';
 import { AddTransactionScreen } from '../../features/transactions/AddTransactionScreen';
 import { TransactionDetailScreen } from '../../features/transactions/TransactionDetailScreen';
@@ -21,6 +23,11 @@ import type { AppStackParamList } from './types';
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 export function AppNavigator() {
+  const isBlocked = useAuthStore((s) => s.profile?.isBlocked ?? false);
+  // Gated here, once, instead of in every individual screen — a blocked account sees the same
+  // message no matter which tab or stack screen it tries to reach.
+  if (isBlocked) return <BlockedScreen />;
+
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="MainTabs" component={MainTabs} />
