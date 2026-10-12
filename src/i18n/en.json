@@ -50,7 +50,10 @@
     "todayNet": "Today's net", "weekNet": "This week's net", "monthNet": "This month's net", "income": "Income", "expense": "Expense",
     "addIncome": "Add Income", "addExpense": "Add Expense",
     "udhaar": "Udhaar", "udhaarSummary": "Receive {{receive}} · Pay {{pay}}", "udhaarPromo": "Track money you lend or borrow",
-    "recent": "Recent Transactions"
+    "recent": "Recent Transactions",
+    "blockedTitle": "Your account is blocked",
+    "blockedBody": "Contact support if you think this is a mistake.",
+    "blockedLogout": "Logout"
   },
   "add": {
     "title": "Add transaction",
@@ -208,6 +211,12 @@
     "activeBody": "Ads are off and PDF & Excel export is unlocked. Thank you for supporting Apna Hisab.",
     "manage": "Manage in Google Play",
     "payTitle": "Confirm Payment", "payBody": "Confirm to activate Premium for this plan.", "paymentDone": "Payment Done"
+  },
+  "trial": {
+    "title": "Your {{days}}-day free trial",
+    "sub": "No ads, full reports, PDF & Excel export — free, no card needed.",
+    "claim": "Start my free trial", "skip": "Maybe later",
+    "claimed": "Free trial started"
   },
   "sync": {
     "synced": "Synced", "allSynced": "All synced", "pending_one": "{{count}} transaction pending", "pending_other": "{{count}} transactions pending",

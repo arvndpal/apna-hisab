@@ -69,6 +69,30 @@ export function list(userId: string, type?: TransactionType): Category[] {
   return exec(sql, params).rows.map((r) => fromRow(r as unknown as CategoryRow));
 }
 
+/**
+ * Same rows as list(type), ordered by how often this user has actually used each category
+ * (most-used first) instead of the fixed `sort` column — powers the Add/Edit Transaction tile
+ * grid, where whatever this user reaches for most should be the first thing they see (CLAUDE.md's
+ * 5–10s entry goal). Never-used categories (including a brand-new custom one) fall back to `sort`
+ * so they still appear in a stable order rather than being clustered arbitrarily.
+ *
+ * Deliberately not used by the category management screen, which keeps the stable `sort` order —
+ * reordering/renaming there shouldn't be disrupted by a list that reshuffles as usage changes.
+ */
+export function listByUsage(userId: string, type: TransactionType): Category[] {
+  const rows = exec(
+    `SELECT c.*, COALESCE(u.n, 0) AS usage_count
+     FROM categories c
+     LEFT JOIN (
+       SELECT category_id, COUNT(*) AS n FROM transactions WHERE user_id = ? AND deleted_at IS NULL GROUP BY category_id
+     ) u ON u.category_id = c.id
+     WHERE c.user_id = ? AND c.type = ? AND c.deleted_at IS NULL
+     ORDER BY usage_count DESC, c.sort, c.created_at`,
+    [userId, userId, type],
+  ).rows;
+  return rows.map((r) => fromRow(r as unknown as CategoryRow));
+}
+
 export function getById(id: string): Category | null {
   const row = exec('SELECT * FROM categories WHERE id = ?', [id]).rows[0];
   return row ? fromRow(row as unknown as CategoryRow) : null;

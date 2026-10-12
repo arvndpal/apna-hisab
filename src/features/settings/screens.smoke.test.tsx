@@ -54,7 +54,7 @@ beforeEach(() => {
   __setTestDriver(createTestDriver());
   migrate();
   seedDefaultCategories(USER);
-  settingsRepo.setProfile({ id: USER, name: 'Ravi Kumar', email: 'ravi@example.com', avatarUrl: null, userType: 'user' });
+  settingsRepo.setProfile({ id: USER, name: 'Ravi Kumar', email: 'ravi@example.com', avatarUrl: null, userType: 'user', isBlocked: false, blockedReason: null });
   useAuthStore.getState().hydrate();
   useSettingsStore.getState().hydrate();
 });

@@ -30,6 +30,10 @@ const envSchema = z.object({
    *  POST /notifications/cron/daily-check — that endpoint has no user JWT to guard it with.
    *  Generate with: openssl rand -base64 32 */
   CRON_SECRET: z.string().min(16, 'CRON_SECRET must be at least 16 characters'),
+
+  /** Length of the free trial a new user can claim (see SubscriptionsService) — configurable here
+   *  so changing the offer doesn't need an app release, only a redeploy of this backend. */
+  TRIAL_DAYS: z.coerce.number().int().positive().default(30),
 });
 
 export type Env = z.infer<typeof envSchema>;

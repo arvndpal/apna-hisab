@@ -20,6 +20,7 @@ import { initAds } from '../../services/ads/ads';
 import { useSettingsStore } from '../../store/settingsStore';
 import { start as startSync } from '../../sync/syncEngine/engine';
 import { initPushListeners, registerDeviceToken } from '../../services/notifications/push';
+import { refreshSubscription } from '../../services/subscription/subscription';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 const MIN_VISIBLE_MS = 600;
@@ -85,9 +86,11 @@ export function SplashScreen({ navigation }: Props) {
       registerDeviceToken().catch(() => {}); // re-sync token in case it changed since last launch
       useAuthStore.getState().refreshProfile(); // picks up server-side profile changes (e.g. admin promotion)
     }
-    // Also fire-and-forget: re-check Premium with Play, then start the ads SDK only for free users.
-    startBilling().finally(() => {
-      if (!useEntitlementStore.getState().entitlement) initAds();
+    // Also fire-and-forget: re-check Premium with Play and the server-tracked subscription/claimed
+    // trial, then start the ads SDK only if neither ends up granting Premium.
+    Promise.allSettled([startBilling(), profile ? refreshSubscription() : Promise.resolve()]).finally(() => {
+      const { entitlement, subscription } = useEntitlementStore.getState();
+      if (!entitlement && !subscription?.isPremium) initAds();
     });
 
     if (!profile) {

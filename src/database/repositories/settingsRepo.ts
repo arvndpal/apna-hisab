@@ -16,6 +16,7 @@ const REMINDER_TIME_KEY = 'reminderTime';
 const LAST_SYNCED_AT_KEY = 'lastSyncedAt';
 const INSTALLED_AT_KEY = 'installedAt';
 const ENTITLEMENT_KEY = 'entitlement';
+const SUBSCRIPTION_KEY = 'subscription';
 
 export function getSetting(key: string): string | null {
   const result = exec('SELECT value FROM kv_settings WHERE key = ?', [key]);
@@ -89,6 +90,8 @@ export interface StoredProfile {
   email: string;
   avatarUrl: string | null;
   userType: 'admin' | 'user';
+  isBlocked: boolean;
+  blockedReason: string | null;
 }
 
 /** A locally persisted copy of the backend profile marks "signed in" without a network round trip. */
@@ -200,4 +203,25 @@ export function getEntitlement(): StoredEntitlement | null {
 
 export function setEntitlement(entitlement: StoredEntitlement | null): void {
   setSetting(ENTITLEMENT_KEY, entitlement ? JSON.stringify(entitlement) : '');
+}
+
+export interface StoredSubscription {
+  plan: 'trial' | 'monthly' | 'yearly' | null;
+  isPremium: boolean;
+  endsAt: string | null;
+  trialDays: number;
+}
+
+/**
+ * Cache of the backend's /subscriptions/me (the free trial, or a plan recorded via the purchase
+ * flow — see subscriptionApi.ts) so it still reflects there's Premium access offline. Separate from
+ * StoredEntitlement, which is purely a local cache of what Google Play itself last reported.
+ */
+export function getSubscription(): StoredSubscription | null {
+  const raw = getSetting(SUBSCRIPTION_KEY);
+  return raw ? (JSON.parse(raw) as StoredSubscription) : null;
+}
+
+export function setSubscription(subscription: StoredSubscription | null): void {
+  setSetting(SUBSCRIPTION_KEY, subscription ? JSON.stringify(subscription) : '');
 }

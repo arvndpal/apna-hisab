@@ -12,12 +12,13 @@ import { IconButton } from '../../components/common/IconButton';
 import { useTheme } from '../../hooks/useTheme';
 import { showToast } from '../../store/toastStore';
 import { loadPlans, manageSubscription, refreshEntitlement, useBillingStore } from '../../services/billing/billing';
+import { recordPlanPurchase } from '../../services/subscription/subscription';
 import { useEntitlementStore } from '../../store/entitlementStore';
 import { PRODUCT_IDS, type Plan, type PlanKey } from '../../services/billing/plans';
 import { useEntitlement } from './useEntitlement';
 import { radius } from '../../theme/tokens';
 
-const BENEFITS = ['premium.benefitAdFree', 'premium.benefitReports', 'premium.benefitExport', 'premium.benefitCustom'] as const;
+export const BENEFITS = ['premium.benefitAdFree', 'premium.benefitReports', 'premium.benefitExport', 'premium.benefitCustom'] as const;
 
 type Notice = 'unavailable' | 'pending' | 'purchaseFailed' | 'nothingToRestore' | null;
 
@@ -193,6 +194,9 @@ export function PremiumScreen() {
     setShowPaymentModal(false);
     if (!plan) return;
     useEntitlementStore.getState().grant({ productId: plan.productId, purchasedAt: Date.now() });
+    // Fire-and-forget, like every other network call here — also persists it server-side (unlike
+    // the local-only grant above) so it survives a reinstall instead of resetting to the free trial.
+    recordPlanPurchase(selected, plan.productId).catch(() => {});
     showToast({ message: t('toast.premiumActive') });
     navigation.goBack();
   };

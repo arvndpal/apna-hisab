@@ -6,6 +6,8 @@ export interface Profile {
   avatarUrl: string | null;
   language: 'en' | 'hi';
   userType: 'admin' | 'user';
+  isBlocked: boolean;
+  blockedReason: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -18,6 +20,8 @@ export interface ProfileRow {
   avatar_url: string | null;
   language: 'en' | 'hi';
   user_type: 'admin' | 'user';
+  is_blocked: boolean;
+  blocked_reason: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -31,6 +35,8 @@ export function profileFromRow(row: ProfileRow): Profile {
     avatarUrl: row.avatar_url,
     language: row.language,
     userType: row.user_type,
+    isBlocked: row.is_blocked,
+    blockedReason: row.blocked_reason,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };

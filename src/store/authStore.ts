@@ -17,6 +17,8 @@ function toStoredProfile(backendProfile: BackendProfile): StoredProfile {
     email: backendProfile.email ?? '',
     avatarUrl: backendProfile.avatarUrl,
     userType: backendProfile.userType,
+    isBlocked: backendProfile.isBlocked,
+    blockedReason: backendProfile.blockedReason,
   };
 }
 

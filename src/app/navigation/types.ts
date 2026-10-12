@@ -12,6 +12,8 @@ export type MainTabParamList = {
 export type AuthStackParamList = {
   Welcome: undefined;
   Login: undefined;
+  /** Shown right after sign-in only to an account that's never claimed the trial or bought a plan. */
+  ClaimTrial: { trialDays: number };
   LanguageSelect: { fromSettings?: boolean } | undefined;
   AppLockSetup: undefined;
   /** fromSettings: pop back to Settings when done instead of finishing onboarding. */

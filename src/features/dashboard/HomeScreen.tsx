@@ -4,7 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { useNavigation, type CompositeNavigationProp } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Users, ChevronRight } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Users, ChevronRight, ShieldX } from 'lucide-react-native';
 import { AppText } from '../../components/common/AppText';
 import { Banner } from '../../components/common/Banner';
 import { Button } from '../../components/common/Button';
@@ -43,6 +44,7 @@ export function HomeScreen() {
   const userId = useActiveUserId();
   const language = useSettingsStore((s) => s.language);
   const profile = useAuthStore((s) => s.profile);
+  const signOut = useAuthStore((s) => s.signOut);
 
   const [heroPeriod, setHeroPeriod] = useState<HomeHeroPeriod>('month');
   const heroRange = getPeriodRange(heroPeriod, new Date());
@@ -75,6 +77,21 @@ export function HomeScreen() {
     year: 'numeric',
   }).format(now);
   const greeting = t(`home.greeting.${greetingKey(now.getHours())}`, { name: profile?.name || t('home.defaultName') });
+
+  if (profile?.isBlocked) {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: palette.background }} edges={['top', 'left', 'right', 'bottom']}>
+        <View style={{ flex: 1, justifyContent: 'center' }}>
+          <EmptyState
+            icon={ShieldX}
+            title={t('home.blockedTitle')}
+            body={profile.blockedReason || t('home.blockedBody')}
+            actions={[{ label: t('home.blockedLogout'), variant: 'secondary', onPress: signOut }]}
+          />
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: palette.background }}>

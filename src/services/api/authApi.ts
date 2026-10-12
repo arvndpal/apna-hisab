@@ -9,6 +9,8 @@ export interface BackendProfile {
   avatarUrl: string | null;
   language: 'en' | 'hi';
   userType: 'admin' | 'user';
+  isBlocked: boolean;
+  blockedReason: string | null;
   createdAt: string;
   updatedAt: string;
 }

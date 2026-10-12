@@ -43,6 +43,24 @@ describe('categoriesRepo', () => {
     expect(created.sort).toBeGreaterThan(0);
   });
 
+  it('listByUsage orders by how many transactions reference each category, falling back to sort when tied', () => {
+    seedDefaultCategories(USER);
+    const fuel = categoriesRepo.list(USER, 'expense').find((c) => c.key === 'fuel')!;
+    const food = categoriesRepo.list(USER, 'expense').find((c) => c.key === 'food')!;
+
+    for (let i = 0; i < 3; i += 1) {
+      transactionsRepo.create({ userId: USER, type: 'expense', amountPaise: 10000, categoryId: fuel.id, paymentMethod: 'cash', occurredAt: new Date() });
+    }
+    transactionsRepo.create({ userId: USER, type: 'expense', amountPaise: 10000, categoryId: food.id, paymentMethod: 'cash', occurredAt: new Date() });
+
+    const ordered = categoriesRepo.listByUsage(USER, 'expense');
+    expect(ordered[0].key).toBe('fuel');
+    expect(ordered[1].key).toBe('food');
+    // Untouched categories keep a stable relative order (by `sort`) instead of being shuffled.
+    const untouched = ordered.slice(2);
+    expect(untouched).toEqual([...untouched].sort((a, b) => a.sort - b.sort));
+  });
+
   it('categoryDisplayName prefers a user rename, then the localized default', () => {
     seedDefaultCategories(USER);
     const fuel = categoriesRepo.list(USER, 'expense').find((c) => c.key === 'fuel')!;

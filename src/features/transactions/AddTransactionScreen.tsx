@@ -16,7 +16,7 @@ import { PaymentMethodSelector } from '../../components/forms/PaymentMethodSelec
 import { DateSelector } from '../../components/forms/DateSelector';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
-import { useCategories } from '../../hooks/useCategories';
+import { useCategoriesByUsage } from '../../hooks/useCategories';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import * as settingsRepo from '../../database/repositories/settingsRepo';
 import { applyKey, rawToPaise, paiseToRaw, MAX_AMOUNT_PAISE } from '../../utils/money';
@@ -37,7 +37,7 @@ export function AddTransactionScreen({ route, navigation }: Props) {
   const editing = transactionsRepo.getById(editId ?? '') ?? null;
   const [type, setType] = useState<'income' | 'expense'>(editing?.type ?? initialType);
   const [raw, setRaw] = useState(editing ? paiseToRaw(editing.amountPaise) : '');
-  const categories = useCategories(userId, type);
+  const categories = useCategoriesByUsage(userId, type);
   const [categoryId, setCategoryId] = useState<string | null>(
     editing?.categoryId ?? settingsRepo.getLastCategoryId(type) ?? null,
   );

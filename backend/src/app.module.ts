@@ -7,6 +7,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { SyncModule } from './sync/sync.module.js';
 import { HealthModule } from './health/health.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
+import { SubscriptionsModule } from './subscriptions/subscriptions.module.js';
 import { RateLimitGuard } from './common/rate-limit.guard.js';
 
 @Module({
@@ -17,6 +18,7 @@ import { RateLimitGuard } from './common/rate-limit.guard.js';
     SyncModule,
     HealthModule,
     NotificationsModule,
+    SubscriptionsModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: RateLimitGuard }],
 })

@@ -6,6 +6,7 @@ import {
   ArrowDownLeft,
   Plus,
   Calendar,
+  Trash2,
 } from 'lucide-react-native';
 import type { BottomSheetModal } from '@gorhom/bottom-sheet';
 import DateTimePicker from '@react-native-community/datetimepicker';
@@ -13,6 +14,7 @@ import { AppBottomSheet } from '../../components/common/BottomSheet';
 import { AppText } from '../../components/common/AppText';
 import { Button } from '../../components/common/Button';
 import { Chip } from '../../components/common/Chip';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useUdhaarPeople } from '../../hooks/useUdhaarPeople';
@@ -137,6 +139,7 @@ export function UdhaarEntrySheet() {
   const [error, setError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [showNativePicker, setShowNativePicker] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const language = useSettingsStore(s => s.language);
 
   useEffect(() => {
@@ -146,6 +149,7 @@ export function UdhaarEntrySheet() {
         setError(null);
         setEditId(params.editId ?? null);
         setShowNativePicker(false);
+        setConfirmDelete(false);
 
         if (params.editId) {
           const entry = udhaarRepo.getEntry(params.editId);
@@ -259,7 +263,21 @@ export function UdhaarEntrySheet() {
     showToast({ message: t('toast.udhaarSaved') });
   };
 
+  const handleDeleteEntry = () => {
+    const id = currentParams.current.editId;
+    if (!id) return;
+    setConfirmDelete(false);
+    udhaarRepo.softDeleteEntry(id);
+    sheetRef.current?.dismiss();
+    showToast({
+      message: t('toast.udhaarEntryDeleted'),
+      actionLabel: t('common.undo'),
+      onAction: () => udhaarRepo.restoreEntry(id),
+    });
+  };
+
   return (
+    <>
     <AppBottomSheet
       ref={sheetRef}
       title={t(editId ? 'common.edit' : 'udhaar.add')}
@@ -271,95 +289,47 @@ export function UdhaarEntrySheet() {
         contentContainerStyle={{ gap: 16, paddingBottom: 12 }}
         keyboardShouldPersistTaps="handled"
       >
-        {editId ? (
-          // Editing never changes an entry's direction — that's a property of how it was
-          // recorded, not something to flip after the fact. Show it as a fixed label instead of
-          // a choice.
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 10,
-              minHeight: 54,
-              borderRadius: radius.card,
-              borderWidth: 1.5,
-              borderColor: palette.border,
-              paddingHorizontal: 14,
-            }}
-          >
-            <View
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: 10,
-                backgroundColor: giveLike
-                  ? palette.expenseTint
-                  : palette.incomeTint,
-                alignItems: 'center',
-                justifyContent: 'center',
-              }}
-            >
-              {giveLike ? (
-                <ArrowUpRight
-                  size={16}
-                  color={palette.expense}
-                  strokeWidth={2}
-                />
-              ) : (
-                <ArrowDownLeft
-                  size={16}
-                  color={palette.income}
-                  strokeWidth={2}
-                />
-              )}
-            </View>
-            <AppText variant="rowTitle">{t(`udhaar.${direction}`)}</AppText>
-          </View>
-        ) : (
-          <>
-            <View style={{ flexDirection: 'row', gap: 10 }}>
-              <DirectionCard
-                icon={ArrowUpRight}
-                tint={palette.expenseTint}
-                color={palette.expense}
-                title={t('udhaar.iGave')}
-                subtitle={t('udhaar.iGaveSub')}
-                selected={direction === 'given'}
-                onPress={() => setDirection('given')}
-              />
-              <DirectionCard
-                icon={ArrowDownLeft}
-                tint={palette.incomeTint}
-                color={palette.income}
-                title={t('udhaar.iTook')}
-                subtitle={t('udhaar.iTookSub')}
-                selected={direction === 'took'}
-                onPress={() => setDirection('took')}
-              />
-            </View>
+        <View style={{ flexDirection: 'row', gap: 10 }}>
+          <DirectionCard
+            icon={ArrowUpRight}
+            tint={palette.expenseTint}
+            color={palette.expense}
+            title={t('udhaar.iGave')}
+            subtitle={t('udhaar.iGaveSub')}
+            selected={direction === 'given'}
+            onPress={() => setDirection('given')}
+          />
+          <DirectionCard
+            icon={ArrowDownLeft}
+            tint={palette.incomeTint}
+            color={palette.income}
+            title={t('udhaar.iTook')}
+            subtitle={t('udhaar.iTookSub')}
+            selected={direction === 'took'}
+            onPress={() => setDirection('took')}
+          />
+        </View>
 
-            {showExtendedDirections ? (
-              <View style={{ flexDirection: 'row', gap: 10 }}>
-                <DirectionCard
-                  icon={ArrowDownLeft}
-                  tint={palette.incomeTint}
-                  color={palette.income}
-                  title={t('udhaar.received')}
-                  selected={direction === 'received'}
-                  onPress={() => setDirection('received')}
-                />
-                <DirectionCard
-                  icon={ArrowUpRight}
-                  tint={palette.expenseTint}
-                  color={palette.expense}
-                  title={t('udhaar.paid')}
-                  selected={direction === 'paid'}
-                  onPress={() => setDirection('paid')}
-                />
-              </View>
-            ) : null}
-          </>
-        )}
+        {showExtendedDirections ? (
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            <DirectionCard
+              icon={ArrowDownLeft}
+              tint={palette.incomeTint}
+              color={palette.income}
+              title={t('udhaar.received')}
+              selected={direction === 'received'}
+              onPress={() => setDirection('received')}
+            />
+            <DirectionCard
+              icon={ArrowUpRight}
+              tint={palette.expenseTint}
+              color={palette.expense}
+              title={t('udhaar.paid')}
+              selected={direction === 'paid'}
+              onPress={() => setDirection('paid')}
+            />
+          </View>
+        ) : null}
 
         <View style={{ gap: 6 }}>
           <AppText variant="label" color="secondary">
@@ -566,8 +536,30 @@ export function UdhaarEntrySheet() {
           />
         ) : null}
 
-        <Button label={t('udhaar.save')} onPress={handleSave} />
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          {editId ? (
+            <View style={{ flex: 1 }}>
+              <Button label={t('common.delete')} variant="dangerOutline" onPress={() => setConfirmDelete(true)} />
+            </View>
+          ) : null}
+          <View style={{ flex: 1 }}>
+            <Button label={t('udhaar.save')} onPress={handleSave} />
+          </View>
+        </View>
       </ScrollView>
     </AppBottomSheet>
+
+    <ConfirmDialog
+      visible={confirmDelete}
+      icon={Trash2}
+      destructive
+      title={t('udhaar.deleteEntryTitle')}
+      body={t('udhaar.deleteEntryBody')}
+      cancelLabel={t('common.cancel')}
+      confirmLabel={t('common.delete')}
+      onCancel={() => setConfirmDelete(false)}
+      onConfirm={handleDeleteEntry}
+    />
+    </>
   );
 }

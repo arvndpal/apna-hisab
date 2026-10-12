@@ -7,10 +7,15 @@ export interface Entitlement {
 }
 
 /**
- * Premium entitlement (ARCHITECTURE.md §12): no ads, PDF/Excel export. Backed by the last purchase
- * Google Play confirmed (services/billing), cached locally so it holds offline.
+ * Premium entitlement (ARCHITECTURE.md §12): no ads, PDF/Excel export. True from either the last
+ * purchase Google Play confirmed (services/billing) or the server-tracked subscription/free trial
+ * (services/subscription) — either one is enough, and both are cached locally so this holds offline.
  */
 export function useEntitlement(): Entitlement {
   const entitlement = useEntitlementStore((s) => s.entitlement);
-  return { isPremium: entitlement !== null, productId: entitlement?.productId ?? null };
+  const subscription = useEntitlementStore((s) => s.subscription);
+  return {
+    isPremium: entitlement !== null || subscription?.isPremium === true,
+    productId: entitlement?.productId ?? null,
+  };
 }

@@ -20,6 +20,7 @@ import { showToast } from '../../store/toastStore';
 import { start as startSync } from '../../sync/syncEngine/engine';
 import { seedDefaultCategories } from '../../database/seed';
 import { getActiveUserId } from '../../database/repositories/settingsRepo';
+import { refreshSubscription } from '../../services/subscription/subscription';
 
 const LOGO = require('../../../design-reference/assets/logo.png');
 
@@ -54,6 +55,19 @@ export function LoginScreen() {
       // without this, a fresh sign-in (local data just wiped by logout) would have zero categories.
       seedDefaultCategories(getActiveUserId());
       startSync(); // fire-and-forget
+
+      // Worth a brief wait (sign-in is already an online-only step) to offer a brand-new account
+      // the free trial right away — but never let a slow/unreachable backend stall onboarding:
+      // past 3s, just proceed without the offer. It's still claimable later from the Premium screen.
+      const subscription = await Promise.race([
+        refreshSubscription(),
+        new Promise<null>((resolve) => setTimeout(() => resolve(null), 3000)),
+      ]);
+
+      if (subscription?.plan === null) {
+        navigation.navigate('ClaimTrial', { trialDays: subscription.trialDays });
+        return;
+      }
 
       if (onboardingDone) {
         navigation.getParent<NativeStackNavigationProp<RootStackParamList>>()?.reset({
