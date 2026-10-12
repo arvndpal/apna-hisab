@@ -4,6 +4,13 @@ export interface Entitlement {
   isPremium: boolean;
   /** The Play subscription product (premium_monthly / premium_yearly), when Premium. */
   productId: string | null;
+  /**
+   * When the current Premium period ends (ISO string), from the server-tracked subscription/trial.
+   * Null when there's nothing server-tracked yet (e.g. Play just confirmed a purchase a moment ago
+   * and recordPlanPurchase's fire-and-forget sync hasn't landed) — Play purchases carry no locally
+   * known expiry of their own.
+   */
+  endsAt: string | null;
 }
 
 /**
@@ -17,5 +24,6 @@ export function useEntitlement(): Entitlement {
   return {
     isPremium: entitlement !== null || subscription?.isPremium === true,
     productId: entitlement?.productId ?? null,
+    endsAt: subscription?.endsAt ?? null,
   };
 }

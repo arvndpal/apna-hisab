@@ -8,6 +8,7 @@ import { AppText } from '../../components/common/AppText';
 import { Button } from '../../components/common/Button';
 import { IconButton } from '../../components/common/IconButton';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { NoteSuggestions, filterNoteSuggestions } from '../../components/common/NoteSuggestions';
 import { IncomeExpenseToggle } from '../../components/common/SegmentedControl';
 import { AmountInput } from '../../components/forms/AmountInput';
 import { NumericKeypad } from '../../components/forms/NumericKeypad';
@@ -17,6 +18,7 @@ import { DateSelector } from '../../components/forms/DateSelector';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useCategoriesByUsage } from '../../hooks/useCategories';
+import { useTransactionNoteSuggestions } from '../../hooks/useNoteSuggestions';
 import * as transactionsRepo from '../../database/repositories/transactionsRepo';
 import * as settingsRepo from '../../database/repositories/settingsRepo';
 import { applyKey, rawToPaise, paiseToRaw, MAX_AMOUNT_PAISE } from '../../utils/money';
@@ -48,9 +50,13 @@ export function AddTransactionScreen({ route, navigation }: Props) {
     editing ? new Date(editing.occurredAt) : date ? new Date(`${date}T${new Date().toTimeString().slice(0, 8)}`) : new Date(),
   );
   const [note, setNote] = useState(editing?.note ?? '');
+  const [noteFocused, setNoteFocused] = useState(false);
   const [amountError, setAmountError] = useState<string | null>(null);
   const [showDiscard, setShowDiscard] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+
+  const pastNotes = useTransactionNoteSuggestions(userId);
+  const noteSuggestions = useMemo(() => filterNoteSuggestions(pastNotes, note), [pastNotes, note]);
 
   // Switching type keeps the amount but swaps the category list back to that type's last used.
   useEffect(() => {
@@ -152,23 +158,38 @@ export function AddTransactionScreen({ route, navigation }: Props) {
             <DateSelector value={occurredAt} onChange={setOccurredAt} />
           </View>
 
-          <TextInput
-            value={note}
-            onChangeText={(text) => setNote(text.slice(0, 120))}
-            placeholder={`${t('common.note')} (${t('common.optional')})`}
-            placeholderTextColor={palette.textTertiary}
-            maxLength={120}
-            style={{
-              height: 48,
-              borderWidth: 1,
-              borderColor: palette.border,
-              borderRadius: radius.input,
-              paddingHorizontal: 14,
-              fontFamily: fontFamily[typography.body.weight],
-              fontSize: typography.body.size,
-              color: palette.textPrimary,
-            }}
-          />
+          <View style={{ gap: 6 }}>
+            <TextInput
+              value={note}
+              onChangeText={(text) => setNote(text.slice(0, 120))}
+              onFocus={() => setNoteFocused(true)}
+              // Delayed so a tap on a suggestion (which blurs the input first) still lands before the
+              // list disappears out from under it.
+              onBlur={() => setTimeout(() => setNoteFocused(false), 150)}
+              placeholder={`${t('common.note')} (${t('common.optional')})`}
+              placeholderTextColor={palette.textTertiary}
+              maxLength={120}
+              style={{
+                height: 48,
+                borderWidth: 1,
+                borderColor: palette.border,
+                borderRadius: radius.input,
+                paddingHorizontal: 14,
+                fontFamily: fontFamily[typography.body.weight],
+                fontSize: typography.body.size,
+                color: palette.textPrimary,
+              }}
+            />
+            {noteFocused ? (
+              <NoteSuggestions
+                suggestions={noteSuggestions}
+                onSelect={(selected) => {
+                  setNote(selected);
+                  setNoteFocused(false);
+                }}
+              />
+            ) : null}
+          </View>
 
           <View>
             <AppText variant="label" color="secondary" style={{ marginBottom: 10 }}>

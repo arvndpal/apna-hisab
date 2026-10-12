@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, useWindowDimensions, View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
@@ -30,7 +30,7 @@ import { categoryDisplayName } from '../../database/repositories/categoriesRepo'
 import { getPeriodRange, stepAnchor, isCurrentPeriod, periodLabel, trendBuckets } from './periods';
 import { toOccurredOn } from '../../utils/dates';
 import { formatRupees, formatCompact } from '../../utils/money';
-import { radius, chartColors, layout, palette as themePalettes } from '../../theme/tokens';
+import { radius, chartColors, palette as themePalettes } from '../../theme/tokens';
 import { useEntitlement } from '../subscription/useEntitlement';
 import { bytesToBase64 } from '../../utils/base64';
 import { buildXlsx } from '../../services/export/xlsx';
@@ -117,9 +117,6 @@ export function ReportsScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation<Nav>();
-  const { width: windowWidth } = useWindowDimensions();
-  // Available plot width inside the card: screen padding and the card's own padding on both sides.
-  const trendChartWidth = windowWidth - (layout.screenPadding + layout.cardPadding) * 2;
   useLeaveReportsInterstitial();
   // Which day (index into data.trend) is selected in the Income vs Expense bar chart — shown as a
   // fixed in-card tooltip instead of gifted-charts' own bar-height-relative popup, which clips
@@ -464,7 +461,7 @@ export function ReportsScreen() {
                     />
                   </View>
                   <View style={{ flex: 1, gap: 7 }}>
-                    {data.expenseBreakdown.slice(0, 5).map((row, i) => {
+                    {data.expenseBreakdown.map((row, i) => {
                       const category = categoriesById[row.categoryId];
                       const name = category ? categoryDisplayName(category, language) : '';
                       return (
@@ -651,10 +648,10 @@ export function ReportsScreen() {
                 // first always at `initialSpacing`, so both are pulled in by 24px directly.
                 initialSpacing={24}
                 endSpacing={24}
-                // Spreads the (few, filtered-to-non-zero-days) points evenly across the full
-                // available card width instead of bunching them at a fixed spacing on the left.
-                adjustToWidth
-                width={trendChartWidth - 140}
+                // Fixed per-point spacing (same idea as the bar chart's fixed barWidth above) instead
+                // of stretching points to fill the card — keeps the chart readable regardless of how
+                // many days are in the period; it scrolls once points no longer fit.
+                spacing={56}
                 disableScroll={false}
                 // Unlike the bar chart, this library widens each label's own box by
                 // labelsExtraHeight without shifting its left edge to compensate — passing it here

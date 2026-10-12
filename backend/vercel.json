@@ -1,5 +1,8 @@
 {
   "buildCommand": "npm run build",
   "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
-  "crons": [{ "path": "/notifications/cron/daily-check", "schedule": "30 14 * * *" }]
+  "crons": [
+    { "path": "/notifications/cron/daily-check", "schedule": "30 14 * * *" },
+    { "path": "/notifications/cron/reminder", "schedule": "30 3,9,15 * * *" }
+  ]
 }

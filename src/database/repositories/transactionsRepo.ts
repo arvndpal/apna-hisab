@@ -228,3 +228,17 @@ export function summary(params: { userId: string; from: string; to: string }): S
 export function recentForUser(userId: string, limit: number): Transaction[] {
   return list({ userId, limit });
 }
+
+/** Distinct notes the user has typed before, most-recently-used first — powers the note autocomplete. */
+export function recentNotes(userId: string, limit: number): string[] {
+  const rows = exec(
+    `SELECT note, MAX(updated_at) AS last_used
+     FROM transactions
+     WHERE user_id = ? AND deleted_at IS NULL AND note IS NOT NULL AND TRIM(note) != ''
+     GROUP BY note
+     ORDER BY last_used DESC
+     LIMIT ?`,
+    [userId, limit],
+  ).rows;
+  return rows.map((r) => r.note as string);
+}

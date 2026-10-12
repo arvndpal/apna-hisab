@@ -15,9 +15,11 @@ import { AppText } from '../../components/common/AppText';
 import { Button } from '../../components/common/Button';
 import { Chip } from '../../components/common/Chip';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { NoteSuggestions, filterNoteSuggestions } from '../../components/common/NoteSuggestions';
 import { useTheme } from '../../hooks/useTheme';
 import { useActiveUserId } from '../../hooks/useActiveUserId';
 import { useUdhaarPeople } from '../../hooks/useUdhaarPeople';
+import { useUdhaarNoteSuggestions } from '../../hooks/useNoteSuggestions';
 import * as udhaarRepo from '../../database/repositories/udhaarRepo';
 import {
   registerUdhaarEntrySheet,
@@ -136,11 +138,15 @@ export function UdhaarEntrySheet() {
   const [raw, setRaw] = useState('');
   const [occurredAt, setOccurredAt] = useState(new Date());
   const [note, setNote] = useState('');
+  const [noteFocused, setNoteFocused] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
   const [showNativePicker, setShowNativePicker] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const language = useSettingsStore(s => s.language);
+
+  const pastNotes = useUdhaarNoteSuggestions(userId);
+  const noteSuggestions = useMemo(() => filterNoteSuggestions(pastNotes, note), [pastNotes, note]);
 
   useEffect(() => {
     registerUdhaarEntrySheet({
@@ -504,23 +510,38 @@ export function UdhaarEntrySheet() {
           />
         </View>
 
-        <TextInput
-          value={note}
-          onChangeText={text => setNote(text.slice(0, 120))}
-          placeholder={`${t('common.note')} (${t('common.optional')})`}
-          placeholderTextColor={palette.textTertiary}
-          maxLength={120}
-          style={{
-            height: 48,
-            borderWidth: 1,
-            borderColor: palette.border,
-            borderRadius: radius.input,
-            paddingHorizontal: 14,
-            fontFamily: fontFamily[typography.body.weight],
-            fontSize: typography.body.size,
-            color: palette.textPrimary,
-          }}
-        />
+        <View style={{ gap: 6 }}>
+          <TextInput
+            value={note}
+            onChangeText={text => setNote(text.slice(0, 120))}
+            onFocus={() => setNoteFocused(true)}
+            // Delayed so a tap on a suggestion (which blurs the input first) still lands before the
+            // list disappears out from under it.
+            onBlur={() => setTimeout(() => setNoteFocused(false), 150)}
+            placeholder={`${t('common.note')} (${t('common.optional')})`}
+            placeholderTextColor={palette.textTertiary}
+            maxLength={120}
+            style={{
+              height: 48,
+              borderWidth: 1,
+              borderColor: palette.border,
+              borderRadius: radius.input,
+              paddingHorizontal: 14,
+              fontFamily: fontFamily[typography.body.weight],
+              fontSize: typography.body.size,
+              color: palette.textPrimary,
+            }}
+          />
+          {noteFocused ? (
+            <NoteSuggestions
+              suggestions={noteSuggestions}
+              onSelect={selected => {
+                setNote(selected);
+                setNoteFocused(false);
+              }}
+            />
+          ) : null}
+        </View>
 
         {showNativePicker ? (
           <DateTimePicker

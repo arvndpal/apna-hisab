@@ -38,7 +38,14 @@ async function displayMessage(message: RemoteMessage): Promise<void> {
     title: typeof title === 'string' ? title : undefined,
     body: typeof body === 'string' ? body : undefined,
     data: message.data,
-    android: { channelId: CHANNEL_ID, pressAction: { id: 'default' } },
+    android: {
+      channelId: CHANNEL_ID,
+      pressAction: { id: 'default' },
+      // Matches the FCM default_notification_icon/color in AndroidManifest — without an explicit
+      // small icon here, this foreground-display path falls back to the full-colour launcher icon.
+      smallIcon: 'ic_stat_notify',
+      color: '#0A7A5E',
+    },
   });
 }
 

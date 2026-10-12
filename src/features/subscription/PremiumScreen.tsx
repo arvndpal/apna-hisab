@@ -14,6 +14,7 @@ import { showToast } from '../../store/toastStore';
 import { loadPlans, manageSubscription, refreshEntitlement, useBillingStore } from '../../services/billing/billing';
 import { recordPlanPurchase } from '../../services/subscription/subscription';
 import { useEntitlementStore } from '../../store/entitlementStore';
+import { useSettingsStore } from '../../store/settingsStore';
 import { PRODUCT_IDS, type Plan, type PlanKey } from '../../services/billing/plans';
 import { useEntitlement } from './useEntitlement';
 import { radius } from '../../theme/tokens';
@@ -126,7 +127,8 @@ export function PremiumScreen() {
   const { t } = useTranslation();
   const palette = useTheme();
   const navigation = useNavigation();
-  const { isPremium, productId } = useEntitlement();
+  const { isPremium, productId, endsAt } = useEntitlement();
+  const language = useSettingsStore((s) => s.language);
   const status = useBillingStore((s) => s.status);
   const setStatus = useBillingStore((s) => s.setStatus);
 
@@ -225,6 +227,17 @@ export function PremiumScreen() {
             <AppText variant="body" color="secondary" style={{ fontSize: 17, lineHeight: 24 }}>
               {t('premium.activeBody')}
             </AppText>
+            {endsAt ? (
+              <AppText variant="rowTitle" color="secondary">
+                {t('premium.expiresOn', {
+                  date: new Intl.DateTimeFormat(language === 'hi' ? 'hi-IN' : 'en-IN', {
+                    day: '2-digit',
+                    month: 'long',
+                    year: 'numeric',
+                  }).format(new Date(endsAt)),
+                })}
+              </AppText>
+            ) : null}
             <View style={{ flex: 1 }} />
             <Button label={t('premium.manage')} variant="secondary" onPress={() => manageSubscription(productId)} />
           </>

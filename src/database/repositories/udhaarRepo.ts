@@ -277,6 +277,20 @@ export function updateEntry(id: string, patch: UpdateEntryInput): UdhaarEntry {
   return getEntry(id)!;
 }
 
+/** Distinct notes the user has typed before, most-recently-used first — powers the note autocomplete. */
+export function recentNotes(userId: string, limit: number): string[] {
+  const rows = exec(
+    `SELECT note, MAX(updated_at) AS last_used
+     FROM udhaar_entries
+     WHERE user_id = ? AND deleted_at IS NULL AND note IS NOT NULL AND TRIM(note) != ''
+     GROUP BY note
+     ORDER BY last_used DESC
+     LIMIT ?`,
+    [userId, limit],
+  ).rows;
+  return rows.map((r) => r.note as string);
+}
+
 export function softDeleteEntry(id: string): void {
   const now = nowUtcIso();
   runInTransaction(() => {

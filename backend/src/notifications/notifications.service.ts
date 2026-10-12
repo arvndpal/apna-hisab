@@ -22,8 +22,38 @@ const REENGAGEMENT_COPY: Record<'en' | 'hi', { title: string; body: string }> = 
   hi: { title: 'अपना हिसाब', body: 'कुछ दिनों से कोई एंट्री नहीं — आज का हिसाब लिखने के लिए टैप करें।' },
 };
 
+export type ReminderSlot = 'morning' | 'afternoon' | 'evening';
+
+const DAILY_REMINDER_COPY: Record<ReminderSlot, Record<'en' | 'hi', { title: string; body: string }>> = {
+  morning: {
+    en: { title: 'Apna Hisab', body: "Good morning! Add today's income and expenses before you forget." },
+    hi: { title: 'अपना हिसाब', body: 'सुप्रभात! आज की आय और खर्च अभी जोड़ लें, भूलने से पहले।' },
+  },
+  afternoon: {
+    en: { title: 'Apna Hisab', body: "Quick reminder — log today's income and expenses." },
+    hi: { title: 'अपना हिसाब', body: 'याद दिलाना चाहते हैं — आज की आय और खर्च दर्ज करें।' },
+  },
+  evening: {
+    en: { title: 'Apna Hisab', body: "Before the day ends, add today's income and expenses." },
+    hi: { title: 'अपना हिसाब', body: 'दिन खत्म होने से पहले, आज की आय और खर्च जोड़ लें।' },
+  },
+};
+
 function isUnregistered(code: string | undefined): boolean {
   return code === 'messaging/registration-token-not-registered';
+}
+
+/**
+ * Single Vercel Cron job fires at 03:30/09:30/15:30 UTC (09:00/15:00/21:00 IST — the half-hour UTC
+ * offset cancels IST's own +5:30), so the slot is derived from the current IST hour rather than
+ * needing three separate scheduled jobs (which would eat into Vercel's per-project cron job cap).
+ */
+export function reminderSlotForNow(now = new Date()): ReminderSlot | null {
+  const istHour = Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hour12: false, timeZone: 'Asia/Kolkata' }).format(now));
+  if (istHour === 9) return 'morning';
+  if (istHour === 15) return 'afternoon';
+  if (istHour === 21) return 'evening';
+  return null;
 }
 
 @Injectable()
@@ -131,6 +161,31 @@ export class NotificationsService {
     for (const row of rows) {
       const copy = REENGAGEMENT_COPY[row.language];
       await this.sendToUser(row.id, { title: copy.title, body: copy.body, data: { type: 'reengagement' } });
+    }
+    return { usersNotified: rows.length };
+  }
+
+  /**
+   * Daily reminder (3x/day — see reminderSlotForNow): every non-blocked user with a registered
+   * device who hasn't logged a transaction yet *today* (IST). Unlike runDailyCheck's multi-day
+   * inactivity check, this resets every day — someone who already logged today isn't pinged again
+   * at the next slot.
+   */
+  async runReminderCheck(slot: ReminderSlot): Promise<{ usersNotified: number }> {
+    const rows = await this.db.query<{ id: string; language: 'en' | 'hi' }>(
+      `SELECT DISTINCT p.id, p.language
+       FROM profiles p
+       JOIN device_tokens dt ON dt.user_id = p.id
+       WHERE p.is_blocked = false
+         AND NOT EXISTS (
+           SELECT 1 FROM transactions t
+           WHERE t.user_id = p.id AND t.deleted_at IS NULL
+             AND t.occurred_on = (now() AT TIME ZONE 'Asia/Kolkata')::date
+         )`,
+    );
+    for (const row of rows) {
+      const copy = DAILY_REMINDER_COPY[slot][row.language];
+      await this.sendToUser(row.id, { title: copy.title, body: copy.body, data: { type: 'daily-reminder' } });
     }
     return { usersNotified: rows.length };
   }

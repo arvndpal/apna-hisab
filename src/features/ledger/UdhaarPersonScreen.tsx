@@ -94,12 +94,38 @@ export function UdhaarPersonScreen({ route, navigation }: Props) {
       month: 'short',
     }).format(new Date(`${occurredOn}T00:00:00`));
 
-  // Which pair to show is based on actual activity, not the current balance sign — a relationship
-  // that's fully settled (e.g. took ₹1,000 then paid it all back) nets to a zero balance, but the
-  // Took/Paid totals are still the real ones to show, not the (genuinely zero) Given/Received pair.
-  const showTookPaid =
-    person.tookPaise + person.paidPaise >
-    person.givenPaise + person.receivedPaise;
+  // A person can have both a lending relationship (given/received) and a borrowing one (took/paid)
+  // at the same time — e.g. you lent them money on one occasion and borrowed from them on another.
+  // Picking whichever pair has the bigger total used to hide the other side entirely, which made a
+  // relationship that nets to zero only because lending and borrowing cancel out look like you gave
+  // money and simply never got anything back. When both sides have real activity, show Given vs Took
+  // (what changed hands each way) instead of silently dropping one; otherwise show the one real pair.
+  const hasLending = person.givenPaise > 0 || person.receivedPaise > 0;
+  const hasBorrowing = person.tookPaise > 0 || person.paidPaise > 0;
+  const summary =
+    hasLending && hasBorrowing
+      ? {
+          leftKey: 'udhaar.given' as const,
+          leftPaise: person.givenPaise,
+          rightKey: 'udhaar.took' as const,
+          rightPaise: person.tookPaise,
+          explainKey: 'udhaar.explainMixed' as const,
+        }
+      : hasBorrowing
+      ? {
+          leftKey: 'udhaar.took' as const,
+          leftPaise: person.tookPaise,
+          rightKey: 'udhaar.paid' as const,
+          rightPaise: person.paidPaise,
+          explainKey: 'udhaar.explainTookPaid' as const,
+        }
+      : {
+          leftKey: 'udhaar.given' as const,
+          leftPaise: person.givenPaise,
+          rightKey: 'udhaar.received' as const,
+          rightPaise: person.receivedPaise,
+          explainKey: 'udhaar.explain' as const,
+        };
 
   const handleDeletePerson = () => {
     udhaarRepo.deletePerson(person.id);
@@ -209,23 +235,15 @@ export function UdhaarPersonScreen({ route, navigation }: Props) {
           <View style={{ flexDirection: 'row', width: '100%' }}>
             <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
               <AppText variant="caption" color="secondary">
-                {t(showTookPaid ? 'udhaar.took' : 'udhaar.given')}
+                {t(summary.leftKey)}
               </AppText>
-              <Amount
-                paise={showTookPaid ? person.tookPaise : person.givenPaise}
-                kind="neutral"
-                size="M"
-              />
+              <Amount paise={summary.leftPaise} kind="neutral" size="M" />
             </View>
             <View style={{ flex: 1, alignItems: 'center', gap: 4 }}>
               <AppText variant="caption" color="secondary">
-                {t(showTookPaid ? 'udhaar.paid' : 'udhaar.received')}
+                {t(summary.rightKey)}
               </AppText>
-              <Amount
-                paise={showTookPaid ? person.paidPaise : person.receivedPaise}
-                kind="neutral"
-                size="M"
-              />
+              <Amount paise={summary.rightPaise} kind="neutral" size="M" />
             </View>
           </View>
         </Card>
@@ -235,7 +253,7 @@ export function UdhaarPersonScreen({ route, navigation }: Props) {
           color="secondary"
           style={{ textAlign: 'center' }}
         >
-          {t('udhaar.explain', { name: person.name })}
+          {t(summary.explainKey, { name: person.name })}
         </AppText>
 
         <View>

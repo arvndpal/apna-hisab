@@ -6,7 +6,7 @@ import { DeleteTokenDto } from './dto/delete-token.dto.js';
 import { SendNotificationDto } from './dto/send-notification.dto.js';
 import { CronSecretGuard } from './cron-secret.guard.js';
 import { AdminGuard } from './admin.guard.js';
-import { NotificationsService } from './notifications.service.js';
+import { NotificationsService, reminderSlotForNow } from './notifications.service.js';
 
 @Controller('notifications')
 export class NotificationsController {
@@ -33,6 +33,18 @@ export class NotificationsController {
   @Get('cron/daily-check')
   async dailyCheck() {
     return this.notifications.runDailyCheck();
+  }
+
+  /**
+   * Fires 3x/day (09:00/15:00/21:00 IST) from a single Vercel Cron schedule — see vercel.json and
+   * reminderSlotForNow for why one cron entry covers all three times.
+   */
+  @UseGuards(CronSecretGuard)
+  @Get('cron/reminder')
+  async reminderCheck() {
+    const slot = reminderSlotForNow();
+    if (!slot) return { usersNotified: 0, skipped: true };
+    return this.notifications.runReminderCheck(slot);
   }
 
   @UseGuards(JwtAuthGuard, AdminGuard)
