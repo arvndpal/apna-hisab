@@ -49,7 +49,7 @@
     "defaultName": "आप",
     "todayNet": "आज की बचत", "weekNet": "इस हफ़्ते की बचत", "monthNet": "इस महीने की बचत", "income": "कमाई", "expense": "खर्च",
     "addIncome": "कमाई जोड़ें", "addExpense": "खर्च जोड़ें",
-    "udhaar": "उधार", "udhaarSummary": "लेना {{receive}} · देना {{pay}}", "udhaarPromo": "उधार दिए-लिए पैसों का हिसाब रखें",
+    "udhaar": "उधार", "udhaarSummary": "आपको {{receive}} मिलेंगे · आपको {{pay}} देने हैं", "udhaarPromo": "उधार दिए-लिए पैसों का हिसाब रखें",
     "recent": "हाल के लेन-देन",
     "blockedTitle": "आपका अकाउंट ब्लॉक कर दिया गया है",
     "blockedBody": "अगर यह गलती से हुआ है तो सहायता से संपर्क करें।",

@@ -49,7 +49,7 @@
     "defaultName": "there",
     "todayNet": "Today's net", "weekNet": "This week's net", "monthNet": "This month's net", "income": "Income", "expense": "Expense",
     "addIncome": "Add Income", "addExpense": "Add Expense",
-    "udhaar": "Udhaar", "udhaarSummary": "Receive {{receive}} · Pay {{pay}}", "udhaarPromo": "Track money you lend or borrow",
+    "udhaar": "Udhaar", "udhaarSummary": "You'll receive {{receive}} · You'll pay {{pay}}", "udhaarPromo": "Track money you lend or borrow",
     "recent": "Recent Transactions",
     "blockedTitle": "Your account is blocked",
     "blockedBody": "Contact support if you think this is a mistake.",
